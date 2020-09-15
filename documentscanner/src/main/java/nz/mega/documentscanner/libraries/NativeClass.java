@@ -1,18 +1,11 @@
-/*
- * *
- *  * Created by Ali YÜCE on 3/2/20 11:18 PM
- *  * https://github.com/mayuce/
- *  * Copyright (c) 2020 . All rights reserved.
- *  * Last modified 3/2/20 11:10 PM
- *
- */
 
-package com.labters.documentscanner.libraries;
+
+package nz.mega.documentscanner.libraries;
 
 import android.graphics.Bitmap;
 
-import com.labters.documentscanner.helpers.ImageUtils;
-import com.labters.documentscanner.helpers.MathUtils;
+import nz.mega.documentscanner.helpers.ImageUtils;
+import nz.mega.documentscanner.helpers.MathUtils;
 
 import org.opencv.core.Core;
 import org.opencv.core.CvType;

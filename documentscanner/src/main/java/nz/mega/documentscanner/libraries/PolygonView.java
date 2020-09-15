@@ -1,13 +1,6 @@
-/*
- * *
- *  * Created by Ali YÜCE on 3/2/20 11:18 PM
- *  * https://github.com/mayuce/
- *  * Copyright (c) 2020 . All rights reserved.
- *  * Last modified 3/2/20 11:10 PM
- *
- */
 
-package com.labters.documentscanner.libraries;
+
+package nz.mega.documentscanner.libraries;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -22,7 +15,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Magnifier;
 
-import com.labters.documentscanner.R;
+import nz.mega.documentscanner.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;

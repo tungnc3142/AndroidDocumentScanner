@@ -1,13 +1,4 @@
-/*
- * *
- *  * Created by Ali YÜCE on 3/2/20 11:18 PM
- *  * https://github.com/mayuce/
- *  * Copyright (c) 2020 . All rights reserved.
- *  * Last modified 3/2/20 11:17 PM
- *
- */
-
-package com.labters.documentscannerandroid
+package com.example.documentscanner
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -30,8 +21,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.kotlinpermissions.KotlinPermissions
-import com.labters.documentscanner.ImageCropActivity
-import com.labters.documentscanner.helpers.ScannerConstants
+import nz.mega.documentscanner.ImageCropActivity
+import nz.mega.documentscanner.helpers.ScannerConstants
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat

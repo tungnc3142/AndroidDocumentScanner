@@ -1,13 +1,6 @@
-/*
- * *
- *  * Created by Ali YÜCE on 3/2/20 11:18 PM
- *  * https://github.com/mayuce/
- *  * Copyright (c) 2020 . All rights reserved.
- *  * Last modified 3/2/20 11:10 PM
- *
- */
 
-package com.labters.documentscanner;
+
+package nz.mega.documentscanner;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -27,10 +20,12 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.labters.documentscanner.base.CropperErrorType;
-import com.labters.documentscanner.base.DocumentScanActivity;
-import com.labters.documentscanner.helpers.ScannerConstants;
-import com.labters.documentscanner.libraries.PolygonView;
+import nz.mega.documentscanner.R;
+
+import nz.mega.documentscanner.base.CropperErrorType;
+import nz.mega.documentscanner.base.DocumentScanActivity;
+import nz.mega.documentscanner.helpers.ScannerConstants;
+import nz.mega.documentscanner.libraries.PolygonView;
 
 import java.io.File;
 import java.io.FileOutputStream;

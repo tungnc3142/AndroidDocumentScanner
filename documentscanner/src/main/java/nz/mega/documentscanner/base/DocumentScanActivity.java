@@ -1,13 +1,6 @@
-/*
- * *
- *  * Created by Ali YÜCE on 3/2/20 11:18 PM
- *  * https://github.com/mayuce/
- *  * Copyright (c) 2020 . All rights reserved.
- *  * Last modified 3/2/20 11:10 PM
- *
- */
 
-package com.labters.documentscanner.base;
+
+package nz.mega.documentscanner.base;
 
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
@@ -21,9 +14,9 @@ import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.labters.documentscanner.R;
-import com.labters.documentscanner.libraries.NativeClass;
-import com.labters.documentscanner.libraries.PolygonView;
+import nz.mega.documentscanner.R;
+import nz.mega.documentscanner.libraries.NativeClass;
+import nz.mega.documentscanner.libraries.PolygonView;
 
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
