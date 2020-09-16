@@ -14,6 +14,7 @@ object DocumentScanner {
     private const val TAG = "DocumentScanner"
     private var isInitialized = false
 
+    @JvmStatic
     fun initialize(context: Context) {
         initOpenCV(context)
         clearExistingFiles(context)
@@ -41,5 +42,6 @@ object DocumentScanner {
         Log.d(TAG, "Cleared existing files: $result")
     }
 
+    @JvmStatic
     fun isInitialized(): Boolean = isInitialized
 }

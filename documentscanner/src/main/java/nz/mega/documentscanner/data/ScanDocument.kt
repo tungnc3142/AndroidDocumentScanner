@@ -4,7 +4,7 @@ import android.graphics.PointF
 import android.net.Uri
 import androidx.core.net.toFile
 import androidx.recyclerview.widget.DiffUtil
-import io.reactivex.Completable
+import io.reactivex.rxjava3.core.Completable
 import nz.mega.documentscanner.utils.FileUtils.rotate
 
 data class ScanDocument constructor(

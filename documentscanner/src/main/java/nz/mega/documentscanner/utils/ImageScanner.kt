@@ -6,7 +6,7 @@ import android.graphics.PointF
 import android.net.Uri
 import androidx.core.net.toUri
 import com.bumptech.glide.Glide
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import nz.mega.documentscanner.openCV.NativeClass
 import nz.mega.documentscanner.utils.ImageUtils.toFile
 
