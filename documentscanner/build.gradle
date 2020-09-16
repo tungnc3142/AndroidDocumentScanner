@@ -4,6 +4,8 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'androidx.navigation.safeargs.kotlin'
 
+group='com.github.meganz'
+
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
