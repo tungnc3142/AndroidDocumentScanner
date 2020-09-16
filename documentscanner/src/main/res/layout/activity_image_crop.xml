@@ -77,7 +77,7 @@
                         android:adjustViewBounds="true"/>
             </FrameLayout>
 
-            <nz.mega.documentscanner.libraries.PolygonView
+            <nz.mega.documentscanner.openCV.PolygonView
                     android:id="@+id/polygonView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"

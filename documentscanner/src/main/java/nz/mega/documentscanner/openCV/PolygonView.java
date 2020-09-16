@@ -1,6 +1,6 @@
 
 
-package nz.mega.documentscanner.libraries;
+package nz.mega.documentscanner.openCV;
 
 import android.content.Context;
 import android.graphics.Canvas;
