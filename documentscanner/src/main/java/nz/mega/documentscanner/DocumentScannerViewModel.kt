@@ -1,6 +1,7 @@
 package nz.mega.documentscanner
 
 import android.content.Context
+import android.graphics.PointF
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.*
@@ -85,6 +86,28 @@ class DocumentScannerViewModel : ViewModel() {
                     }
 
                     val newDocument = currentDocument.copy(rotation = newRotation)
+
+                    documents.value?.set(currentPosition, newDocument)
+                    documents.notifyObserver()
+                } catch (error: Exception) {
+                    Log.e(TAG, error.stackTraceToString())
+                }
+            }
+        }
+    }
+
+    fun cropCurrentDocument(context: Context, points: List<PointF>) {
+        val currentPosition = currentDocumentPosition.value ?: 0
+        documents.value?.get(currentPosition)?.let { currentDocument ->
+            viewModelScope.launch {
+                try {
+                    currentDocument.deleteCroppedFile()
+
+                    val scannerResult = imageScanner.processImage(context, currentDocument.originalImageUri, points)
+                    val newDocument = currentDocument.copy(
+                        croppedImageUri = scannerResult.imageUri,
+                        cropPoints = scannerResult.points
+                    )
 
                     documents.value?.set(currentPosition, newDocument)
                     documents.notifyObserver()

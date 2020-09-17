@@ -15,32 +15,32 @@ class ImageScanner {
 
     private val nativeClass: NativeClass by lazy { NativeClass() }
 
-    suspend fun processImage(context: Context, imageUri: Uri): ImageScannerResult =
+    suspend fun processImage(context: Context, imageUri: Uri, points: List<PointF>? = null): ImageScannerResult =
         withContext(Dispatchers.IO) {
             val bitmap = Glide.with(context)
                 .asBitmap()
                 .load(imageUri)
                 .submit().get()
 
-            val points = getCropPoints(bitmap)
+            val imagePoints = points ?: getCropPoints(bitmap)
 
             val resultBitmap = nativeClass.getScannedBitmap(
                 bitmap,
-                points[0].x,
-                points[0].y,
-                points[1].x,
-                points[1].y,
-                points[2].x,
-                points[2].y,
-                points[3].x,
-                points[3].y,
+                imagePoints[0].x,
+                imagePoints[0].y,
+                imagePoints[1].x,
+                imagePoints[1].y,
+                imagePoints[2].x,
+                imagePoints[2].y,
+                imagePoints[3].x,
+                imagePoints[3].y,
             )
 
             val imageFile = FileUtils.createNewFile(context).apply {
                 resultBitmap.toFile(this)
             }
 
-            ImageScannerResult(imageFile.toUri(), bitmap.width, bitmap.height, points)
+            ImageScannerResult(imageFile.toUri(), bitmap.width, bitmap.height, imagePoints)
         }
 
     suspend fun getCropPoints(bitmap: Bitmap): List<PointF> =

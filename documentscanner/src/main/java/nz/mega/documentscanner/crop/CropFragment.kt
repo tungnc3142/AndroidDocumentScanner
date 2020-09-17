@@ -42,9 +42,13 @@ class CropFragment : Fragment() {
     }
 
     private fun setupView() {
-        binding.btnBack.setOnClickListener { findNavController().popBackStack() }
-        binding.btnDone.setOnClickListener { findNavController().popBackStack() }
         binding.cropView.setPointColor(ContextCompat.getColor(requireContext(), R.color.secondaryColor))
+        binding.btnBack.setOnClickListener { findNavController().popBackStack() }
+        binding.btnDone.setOnClickListener {
+            val points = binding.cropView.points.map(Map.Entry<Int, PointF>::value)
+            viewModel.cropCurrentDocument(requireContext(), points)
+            findNavController().popBackStack()
+        }
     }
 
     private fun setupObservers() {

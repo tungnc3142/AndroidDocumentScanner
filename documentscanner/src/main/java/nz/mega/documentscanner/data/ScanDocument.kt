@@ -32,6 +32,12 @@ data class ScanDocument constructor(
         }
     }
 
+    suspend fun deleteCroppedFile() {
+        withContext(Dispatchers.IO) {
+            croppedImageUri?.toFile()?.delete()
+        }
+    }
+
     fun getContourPoints(): List<PointF> =
         listOf(
             PointF(0f, 0f),
