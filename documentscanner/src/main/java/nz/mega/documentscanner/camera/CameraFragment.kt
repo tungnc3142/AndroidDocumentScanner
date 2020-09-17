@@ -15,6 +15,7 @@ import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import nz.mega.documentscanner.DocumentScannerViewModel
@@ -86,7 +87,7 @@ class CameraFragment : Fragment(), ImageCapture.OnImageSavedCallback {
                 .setTargetAspectRatio(screenAspectRatio)
                 .build()
                 .apply {
-                    setAnalyzer(cameraExecutor, DocumentAnalyzer(::onAnalyzerResult))
+                    setAnalyzer(cameraExecutor, DocumentAnalyzer(lifecycleScope, ::onAnalyzerResult))
                 }
 
             val cameraSelector = CameraSelector.Builder()

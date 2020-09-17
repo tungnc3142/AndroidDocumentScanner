@@ -4,31 +4,37 @@ import android.graphics.PointF
 import android.util.Log
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import nz.mega.documentscanner.utils.ImageScanner
 import nz.mega.documentscanner.utils.ImageUtils.rotate
 import nz.mega.documentscanner.utils.ImageUtils.toYuvBitmap
 
 class DocumentAnalyzer(
+    private val coroutineScope: CoroutineScope,
     private val listener: (List<PointF>, Int, Int) -> Unit
 ) : ImageAnalysis.Analyzer {
+
+    companion object {
+        private const val TAG = "DocumentAnalyzer"
+    }
 
     private val imageScanner: ImageScanner by lazy { ImageScanner() }
 
     override fun analyze(imageProxy: ImageProxy) {
-        processOverlay(imageProxy)
-        imageProxy.close()
-    }
+        coroutineScope.launch {
+            try {
+                val sourceBitmap = imageProxy.image!!.toYuvBitmap().rotate(imageProxy.imageInfo.rotationDegrees.toFloat())
+                val points = imageScanner.getCropPoints(sourceBitmap)
 
-    private fun processOverlay(imageProxy: ImageProxy) {
-        try {
-            val sourceBitmap = imageProxy.image!!.toYuvBitmap().rotate(imageProxy.imageInfo.rotationDegrees.toFloat())
-            val points = imageScanner.getCropPoints(sourceBitmap).blockingGet()
+                listener.invoke(points, sourceBitmap.width, sourceBitmap.height)
 
-            listener.invoke(points, sourceBitmap.width, sourceBitmap.height)
-
-            sourceBitmap.recycle()
-        } catch (exception: Exception) {
-            Log.e("DocumentAnalyzer", exception.message.toString())
+                sourceBitmap.recycle()
+            } catch (error: Exception) {
+                Log.w(TAG, error.stackTraceToString())
+            } finally {
+                imageProxy.close()
+            }
         }
     }
 }

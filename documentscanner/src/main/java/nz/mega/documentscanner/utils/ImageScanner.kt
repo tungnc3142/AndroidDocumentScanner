@@ -6,7 +6,8 @@ import android.graphics.PointF
 import android.net.Uri
 import androidx.core.net.toUri
 import com.bumptech.glide.Glide
-import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import nz.mega.documentscanner.openCV.NativeClass
 import nz.mega.documentscanner.utils.ImageUtils.toFile
 
@@ -14,14 +15,14 @@ class ImageScanner {
 
     private val nativeClass: NativeClass by lazy { NativeClass() }
 
-    fun processImage(context: Context, imageUri: Uri): Single<ImageScannerResult> =
-        Single.fromCallable {
+    suspend fun processImage(context: Context, imageUri: Uri): ImageScannerResult =
+        withContext(Dispatchers.IO) {
             val bitmap = Glide.with(context)
                 .asBitmap()
                 .load(imageUri)
                 .submit().get()
 
-            val points = getCropPoints(bitmap).blockingGet()
+            val points = getCropPoints(bitmap)
 
             val resultBitmap = nativeClass.getScannedBitmap(
                 bitmap,
@@ -35,13 +36,15 @@ class ImageScanner {
                 points[3].y,
             )
 
-            val imageFile = FileUtils.createNewFile(context)
-            resultBitmap.toFile(imageFile)
-            return@fromCallable ImageScannerResult(imageFile.toUri(), bitmap.width, bitmap.height, points)
+            val imageFile = FileUtils.createNewFile(context).apply {
+                resultBitmap.toFile(this)
+            }
+
+            ImageScannerResult(imageFile.toUri(), bitmap.width, bitmap.height, points)
         }
 
-    fun getCropPoints(bitmap: Bitmap): Single<List<PointF>> =
-        Single.fromCallable {
+    suspend fun getCropPoints(bitmap: Bitmap): List<PointF> =
+        withContext(Dispatchers.IO) {
             val points = nativeClass.getPoint(bitmap) ?: throw DocumentNotFoundException()
 
             points.toArray().map { PointF(it.x.toFloat(), it.y.toFloat()) }

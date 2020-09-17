@@ -4,7 +4,8 @@ import android.graphics.PointF
 import android.net.Uri
 import androidx.core.net.toFile
 import androidx.recyclerview.widget.DiffUtil
-import io.reactivex.rxjava3.core.Completable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import nz.mega.documentscanner.utils.FileUtils.rotate
 
 data class ScanDocument constructor(
@@ -17,17 +18,19 @@ data class ScanDocument constructor(
     var rotation: Int = 0
 ) {
 
-    fun rotateFiles(degrees: Float = 90f): Completable =
-        Completable.fromAction {
+    suspend fun rotateFiles(degrees: Float = 90f) {
+        withContext(Dispatchers.IO) {
             croppedImageUri?.toFile()?.rotate(degrees)
             originalImageUri.toFile().rotate(degrees)
         }
+    }
 
-    fun deleteFiles(): Completable =
-        Completable.fromAction {
+    suspend fun deleteFiles() {
+        withContext(Dispatchers.IO) {
             croppedImageUri?.toFile()?.delete()
             originalImageUri.toFile().delete()
         }
+    }
 
     fun getContourPoints(): List<PointF> =
         listOf(
