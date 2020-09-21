@@ -14,6 +14,7 @@ import nz.mega.documentscanner.data.Document
 import nz.mega.documentscanner.data.Page
 import nz.mega.documentscanner.utils.ImageScanner
 import nz.mega.documentscanner.utils.LiveDataUtils.notifyObserver
+import nz.mega.documentscanner.utils.PdfUtils.generatePdf
 
 class DocumentScannerViewModel : ViewModel() {
 
@@ -179,7 +180,16 @@ class DocumentScannerViewModel : ViewModel() {
         }
     }
 
-    fun generateDocument() {
-        // TODO
+    fun generateDocument(context: Context) {
+        document.value?.let { document ->
+            viewModelScope.launch {
+                try {
+                    val uri = document.generatePdf(context)
+                    Log.d(TAG, "Document Uri: $uri")
+                } catch (error: Exception) {
+                    Log.e(TAG, error.stackTraceToString())
+                }
+            }
+        }
     }
 }

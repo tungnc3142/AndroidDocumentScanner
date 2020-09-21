@@ -80,7 +80,7 @@ class SaveFragment : Fragment() {
         }
 
         binding.btnSave.setOnClickListener {
-            viewModel.generateDocument()
+            viewModel.generateDocument(requireContext())
             findNavController().popBackStack()
         }
     }
