@@ -24,5 +24,5 @@ class ScanPagerAdapter :
     }
 
     override fun getItemId(position: Int): Long =
-        getItem(position).hashCode().toLong()
+        getItem(position).id
 }

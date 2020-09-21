@@ -1,6 +1,7 @@
 package nz.mega.documentscanner.scan
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -80,7 +81,7 @@ class ScanFragment : Fragment() {
 
     private fun setupObservers() {
         viewModel.getPages().observe(viewLifecycleOwner, ::showPages)
-        viewModel.getCurrentPage().observe(viewLifecycleOwner, ::showCurrentPage)
+        viewModel.getDocumentTitle().observe(viewLifecycleOwner, ::showDocumentTitle)
         viewModel.getCurrentPagePosition().observe(viewLifecycleOwner, ::showPagePosition)
     }
 
@@ -92,8 +93,8 @@ class ScanFragment : Fragment() {
         }
     }
 
-    private fun showCurrentPage(page: Page?) {
-        binding.txtScanTitle.text = page?.title
+    private fun showDocumentTitle(title: String) {
+        binding.txtScanTitle.text = title
     }
 
     private fun showPagePosition(position: Pair<Int, Int>) {

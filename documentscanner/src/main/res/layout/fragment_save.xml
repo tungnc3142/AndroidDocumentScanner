@@ -53,19 +53,22 @@
         android:id="@+id/edit_file_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:drawableStart="@drawable/ic_baseline_picture_as_pdf_24"
         android:drawableEnd="@drawable/ic_baseline_edit_24"
         android:drawablePadding="32dp"
-        android:paddingStart="16dp"
+        android:inputType="text"
+        android:maxLength="30"
+        android:maxLines="1"
         android:paddingTop="16dp"
-        android:paddingEnd="16dp"
         android:paddingBottom="16dp"
-        android:text="Scanned_20200804_01.pdf"
         android:textAppearance="?textAppearanceBody2"
         android:textColor="@android:color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/txt_file_name"
+        tools:text="Scanned_20200804_01.pdf"
         />
 
     <View
@@ -115,7 +118,7 @@
         >
 
         <com.google.android.material.chip.Chip
-            android:id="@+id/chip_pdf"
+            android:id="@+id/chip_file_type_pdf"
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -124,7 +127,7 @@
             />
 
         <com.google.android.material.chip.Chip
-            android:id="@+id/chip_jpg"
+            android:id="@+id/chip_file_type_jpg"
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -180,7 +183,7 @@
         >
 
         <com.google.android.material.chip.Chip
-            android:id="@+id/chip_high"
+            android:id="@+id/chip_quality_high"
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -188,7 +191,7 @@
             />
 
         <com.google.android.material.chip.Chip
-            android:id="@+id/chip_medium"
+            android:id="@+id/chip_quality_medium"
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -197,7 +200,7 @@
             />
 
         <com.google.android.material.chip.Chip
-            android:id="@+id/chip_low"
+            android:id="@+id/chip_quality_low"
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -280,6 +283,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:text="Save"
+        app:backgroundTint="?colorSecondary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

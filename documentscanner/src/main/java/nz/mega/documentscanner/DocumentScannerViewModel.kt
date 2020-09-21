@@ -10,11 +10,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import nz.mega.documentscanner.data.Document
 import nz.mega.documentscanner.data.Page
-import nz.mega.documentscanner.utils.FileUtils
 import nz.mega.documentscanner.utils.ImageScanner
 import nz.mega.documentscanner.utils.LiveDataUtils.notifyObserver
-import java.util.Calendar
 
 class DocumentScannerViewModel : ViewModel() {
 
@@ -22,17 +21,75 @@ class DocumentScannerViewModel : ViewModel() {
         private const val TAG = "MainViewModel"
     }
 
-    var saveDestinations: MutableLiveData<Array<String>?> = MutableLiveData(null)
-
-    private val pages: MutableLiveData<MutableList<Page>> = MutableLiveData(mutableListOf())
+    private val document: MutableLiveData<Document> = MutableLiveData(Document())
+    private val saveDestinations: MutableLiveData<Array<String>> = MutableLiveData()
     private val currentPagePosition: MutableLiveData<Int> = MutableLiveData(0)
     private val imageScanner: ImageScanner by lazy { ImageScanner() }
 
+    fun getDocumentTitle(): LiveData<String> =
+        document.map { it.title }
+
+    fun getDocumentQuality(): LiveData<Document.Quality> =
+        document.map { it.quality }
+
+    fun getDocumentFileType(): LiveData<Document.FileType> =
+        document.map { it.fileType }
+
+    fun getSaveDestinations(): LiveData<List<Pair<String, Boolean>>> =
+        saveDestinations.map { destinations ->
+            val currentSaveDestination = document.value?.saveDestination
+            destinations.map { destination ->
+                destination to (currentSaveDestination == destination)
+            }
+        }
+
     fun getPages(): LiveData<List<Page>> =
-        pages.map { it.toList() }
+        document.map { it.pages.toList() }
 
     fun getCurrentPage(): LiveData<Page?> =
-        currentPagePosition.map { pages.value?.elementAtOrNull(it) }
+        currentPagePosition.map { document.value?.pages?.elementAtOrNull(it) }
+
+    fun getCurrentPagePosition(): LiveData<Pair<Int, Int>> =
+        currentPagePosition.map { it + 1 to (document.value?.pages?.size ?: 0) }
+
+    fun setCurrentPagePosition(position: Int) {
+        if (currentPagePosition.value != position) {
+            currentPagePosition.value = position
+        }
+    }
+
+    fun setDocumentTitle(title: String) {
+        if (title.isBlank() || document.value?.title == title) return
+
+        document.value?.title = title.trim()
+        document.notifyObserver()
+    }
+
+    fun setDocumentFileType(fileType: Document.FileType) {
+        if (document.value?.fileType == fileType) return
+
+        document.value?.fileType = fileType
+        document.notifyObserver()
+    }
+
+    fun setDocumentQuality(quality: Document.Quality) {
+        if (document.value?.quality == quality) return
+
+        document.value?.quality = quality
+        document.notifyObserver()
+    }
+
+    fun setDocumentSaveDestination(saveDestination: String) {
+        if (document.value?.saveDestination == saveDestination) return
+
+        document.value?.saveDestination = saveDestination
+        document.notifyObserver()
+    }
+
+    fun setSaveDestinations(destinations: Array<String>) {
+        document.value?.saveDestination = destinations.firstOrNull()
+        saveDestinations.value = destinations
+    }
 
     fun addPage(context: Context, imageUri: Uri): LiveData<Boolean> {
         val result = MutableLiveData<Boolean>()
@@ -40,9 +97,7 @@ class DocumentScannerViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val scannerResult = imageScanner.processImage(context, imageUri)
-                val title = String.format(FileUtils.FILE_NAME_FORMAT, Calendar.getInstance())
                 val page = Page(
-                    title = title,
                     width = scannerResult.imageWidth,
                     height = scannerResult.imageHeight,
                     originalImageUri = imageUri,
@@ -50,8 +105,8 @@ class DocumentScannerViewModel : ViewModel() {
                     cropPoints = scannerResult.points
                 )
 
-                pages.value?.add(page)
-                pages.notifyObserver()
+                document.value?.pages?.add(page)
+                document.notifyObserver()
                 result.postValue(true)
             } catch (error: Exception) {
                 Log.e(TAG, "Error: ${error.stackTraceToString()}")
@@ -64,13 +119,13 @@ class DocumentScannerViewModel : ViewModel() {
 
     fun deleteCurrentPage() {
         val currentPosition = currentPagePosition.value ?: 0
-        pages.value?.get(currentPosition)?.let { currentPage ->
+        document.value?.pages?.get(currentPosition)?.let { currentPage ->
             viewModelScope.launch {
                 try {
                     currentPage.deleteFiles()
 
-                    pages.value?.remove(currentPage)
-                    pages.notifyObserver()
+                    document.value?.pages?.remove(currentPage)
+                    document.notifyObserver()
                 } catch (error: Exception) {
                     Log.e(TAG, error.stackTraceToString())
                 }
@@ -80,7 +135,7 @@ class DocumentScannerViewModel : ViewModel() {
 
     fun rotateCurrentPage() {
         val currentPosition = currentPagePosition.value ?: 0
-        pages.value?.get(currentPosition)?.let { currentPage ->
+        document.value?.pages?.get(currentPosition)?.let { currentPage ->
             viewModelScope.launch {
                 try {
                     currentPage.rotateFiles()
@@ -93,8 +148,8 @@ class DocumentScannerViewModel : ViewModel() {
 
                     val newPage = currentPage.copy(rotation = newRotation)
 
-                    pages.value?.set(currentPosition, newPage)
-                    pages.notifyObserver()
+                    document.value?.pages?.set(currentPosition, newPage)
+                    document.notifyObserver()
                 } catch (error: Exception) {
                     Log.e(TAG, error.stackTraceToString())
                 }
@@ -104,7 +159,7 @@ class DocumentScannerViewModel : ViewModel() {
 
     fun cropCurrentPage(context: Context, points: List<PointF>) {
         val currentPosition = currentPagePosition.value ?: 0
-        pages.value?.get(currentPosition)?.let { currentPage ->
+        document.value?.pages?.get(currentPosition)?.let { currentPage ->
             viewModelScope.launch {
                 try {
                     currentPage.deleteCroppedFile()
@@ -115,8 +170,8 @@ class DocumentScannerViewModel : ViewModel() {
                         cropPoints = scannerResult.points
                     )
 
-                    pages.value?.set(currentPosition, newPage)
-                    pages.notifyObserver()
+                    document.value?.pages?.set(currentPosition, newPage)
+                    document.notifyObserver()
                 } catch (error: Exception) {
                     Log.e(TAG, error.stackTraceToString())
                 }
@@ -124,12 +179,7 @@ class DocumentScannerViewModel : ViewModel() {
         }
     }
 
-    fun getCurrentPagePosition(): LiveData<Pair<Int, Int>> =
-        currentPagePosition.map { it + 1 to (pages.value?.size ?: 0) }
-
-    fun setCurrentPagePosition(position: Int) {
-        if (currentPagePosition.value != position) {
-            currentPagePosition.value = position
-        }
+    fun generateDocument() {
+        // TODO
     }
 }

@@ -45,8 +45,8 @@ class DocumentScannerActivity : AppCompatActivity() {
         binding = ActivityDocumentScannerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel.saveDestinations.value = saveDestinations
-            ?: arrayOf("Cloud Drive", "Chat") // TODO Remove hardcoded destinations
+        viewModel.setSaveDestinations(saveDestinations
+            ?: arrayOf("Cloud Drive", "Chat")) // TODO Remove hardcoded destinations
     }
 
     private fun initOpenCV() {

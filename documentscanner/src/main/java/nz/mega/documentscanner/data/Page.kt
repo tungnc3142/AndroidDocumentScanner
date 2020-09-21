@@ -9,7 +9,7 @@ import kotlinx.coroutines.withContext
 import nz.mega.documentscanner.utils.FileUtils.rotate
 
 data class Page constructor(
-    val title: String,
+    val id: Long = System.currentTimeMillis(),
     val originalImageUri: Uri,
     val width: Int,
     val height: Int,
@@ -47,8 +47,9 @@ data class Page constructor(
         )
 
     class ItemDiffUtil : DiffUtil.ItemCallback<Page>() {
+
         override fun areItemsTheSame(oldItem: Page, newItem: Page): Boolean =
-            oldItem.title == newItem.title && oldItem.rotation == newItem.rotation
+            oldItem.id == newItem.id
 
         override fun areContentsTheSame(oldItem: Page, newItem: Page): Boolean =
             oldItem == newItem
