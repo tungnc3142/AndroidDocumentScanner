@@ -4,10 +4,10 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import nz.mega.documentscanner.data.ScanDocument
-import nz.mega.documentscanner.databinding.LayoutScanItemBinding
+import nz.mega.documentscanner.databinding.ItemScanBinding
 
-class ScanPagerAdapter : ListAdapter<ScanDocument, ScanPagerViewHolder>
-    (ScanDocument.ItemDiffUtil()) {
+class ScanPagerAdapter :
+    ListAdapter<ScanDocument, ScanPagerViewHolder>(ScanDocument.ItemDiffUtil()) {
 
     init {
         setHasStableIds(true)
@@ -15,7 +15,7 @@ class ScanPagerAdapter : ListAdapter<ScanDocument, ScanPagerViewHolder>
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ScanPagerViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
-        val binding = LayoutScanItemBinding.inflate(layoutInflater, parent, false)
+        val binding = ItemScanBinding.inflate(layoutInflater, parent, false)
         return ScanPagerViewHolder(binding)
     }
 

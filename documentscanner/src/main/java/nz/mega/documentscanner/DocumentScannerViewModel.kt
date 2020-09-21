@@ -4,19 +4,25 @@ import android.content.Context
 import android.graphics.PointF
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.map
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import nz.mega.documentscanner.data.ScanDocument
 import nz.mega.documentscanner.utils.FileUtils
 import nz.mega.documentscanner.utils.ImageScanner
 import nz.mega.documentscanner.utils.LiveDataUtils.notifyObserver
-import java.util.*
+import java.util.Calendar
 
 class DocumentScannerViewModel : ViewModel() {
 
     companion object {
         private const val TAG = "MainViewModel"
     }
+
+    var destinations: MutableLiveData<Array<String>?> = MutableLiveData(arrayOf("Cloud Drive", "Chat")) // TODO Remove hardcoded destinations
 
     private val documents: MutableLiveData<MutableList<ScanDocument>> = MutableLiveData(mutableListOf())
     private val currentDocumentPosition: MutableLiveData<Int> = MutableLiveData(0)

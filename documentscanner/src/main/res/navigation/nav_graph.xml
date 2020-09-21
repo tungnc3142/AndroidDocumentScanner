@@ -25,7 +25,11 @@
 
         <action
             android:id="@+id/action_scanFragment_to_saveFragment"
-            app:destination="@id/saveFragment" />
+            app:destination="@id/saveFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_out_right"
+            app:popExitAnim="@anim/slide_in_left" />
 
         <action
             android:id="@+id/action_scanFragment_to_cropFragment"
@@ -44,10 +48,9 @@
 
     <fragment
         android:id="@+id/cropFragment"
-        android:name="nz.mega.documentscanner.crop.CropFragment"
-        android:label="CROP" />
+        android:name="nz.mega.documentscanner.crop.CropFragment" />
 
     <fragment
         android:id="@+id/saveFragment"
-        android:label="SAVE SCAN" />
+        android:name="nz.mega.documentscanner.save.SaveFragment" />
 </navigation>

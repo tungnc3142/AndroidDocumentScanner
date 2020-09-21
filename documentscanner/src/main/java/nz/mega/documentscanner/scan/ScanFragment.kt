@@ -12,6 +12,7 @@ import nz.mega.documentscanner.DocumentScannerViewModel
 import nz.mega.documentscanner.R
 import nz.mega.documentscanner.data.ScanDocument
 import nz.mega.documentscanner.databinding.FragmentScanBinding
+import nz.mega.documentscanner.save.SaveFragment
 import nz.mega.documentscanner.utils.OffsetPageTransformer
 import nz.mega.documentscanner.utils.ViewUtils.scrollToLastPosition
 
@@ -71,6 +72,7 @@ class ScanFragment : Fragment() {
         binding.btnRotate.setOnClickListener { viewModel.rotateCurrentDocument() }
         binding.btnDelete.setOnClickListener { viewModel.deleteCurrentDocument() }
         binding.btnCrop.setOnClickListener { findNavController().navigate(ScanFragmentDirections.actionScanFragmentToCropFragment()) }
+        binding.btnDone.setOnClickListener { findNavController().navigate(ScanFragmentDirections.actionScanFragmentToSaveFragment()) }
         binding.btnRetake.setOnClickListener {
             viewModel.deleteCurrentDocument()
             findNavController().navigate(ScanFragmentDirections.actionScanFragmentToCameraFragment())

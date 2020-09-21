@@ -4,10 +4,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import nz.mega.documentscanner.data.ScanDocument
-import nz.mega.documentscanner.databinding.LayoutScanItemBinding
+import nz.mega.documentscanner.databinding.ItemScanBinding
 
 class ScanPagerViewHolder(
-    private val binding: LayoutScanItemBinding
+    private val binding: ItemScanBinding
 ) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(item: ScanDocument) {
