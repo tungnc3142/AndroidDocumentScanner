@@ -45,7 +45,7 @@ class SaveFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        viewModel.destinations.observe(viewLifecycleOwner, ::showDestinations)
+        viewModel.saveDestinations.observe(viewLifecycleOwner, ::showDestinations)
     }
 
     private fun showDestinations(destinations: Array<String>?) {
@@ -55,8 +55,8 @@ class SaveFragment : Fragment() {
             val chip = ItemDestinationBinding.inflate(layoutInflater, binding.chipGroupDestinations, false).root
             chip.text = destination
             chip.setOnClickListener { onDestinationClick(destination) }
-            binding.chipGroupDestinations.addView(chip)
 
+            binding.chipGroupDestinations.addView(chip)
             if (index == 0) {
                 binding.chipGroupDestinations.check(chip.id)
             }

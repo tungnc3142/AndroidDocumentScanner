@@ -8,7 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import nz.mega.documentscanner.utils.FileUtils.rotate
 
-data class ScanDocument constructor(
+data class Page constructor(
     val title: String,
     val originalImageUri: Uri,
     val width: Int,
@@ -46,11 +46,11 @@ data class ScanDocument constructor(
             PointF(width.toFloat(), height.toFloat())
         )
 
-    class ItemDiffUtil : DiffUtil.ItemCallback<ScanDocument>() {
-        override fun areItemsTheSame(oldItem: ScanDocument, newItem: ScanDocument): Boolean =
+    class ItemDiffUtil : DiffUtil.ItemCallback<Page>() {
+        override fun areItemsTheSame(oldItem: Page, newItem: Page): Boolean =
             oldItem.title == newItem.title && oldItem.rotation == newItem.rotation
 
-        override fun areContentsTheSame(oldItem: ScanDocument, newItem: ScanDocument): Boolean =
+        override fun areContentsTheSame(oldItem: Page, newItem: Page): Boolean =
             oldItem == newItem
     }
 }

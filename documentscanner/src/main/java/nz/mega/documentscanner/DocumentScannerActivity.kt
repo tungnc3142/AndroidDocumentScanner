@@ -18,19 +18,19 @@ class DocumentScannerActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "DocumentScannerActivity"
-        private const val EXTRA_DESTINATIONS = "EXTRA_DESTINATIONS"
+        private const val EXTRA_SAVE_DESTINATIONS = "EXTRA_SAVE_DESTINATIONS"
 
         @JvmStatic
-        fun getIntent(context: Context, destinations: Array<String>? = null): Intent =
+        fun getIntent(context: Context, saveDestinations: Array<String>? = null): Intent =
             Intent(context, DocumentScannerActivity::class.java).apply {
-                destinations?.let { putExtra(EXTRA_DESTINATIONS, it) }
+                saveDestinations?.let { putExtra(EXTRA_SAVE_DESTINATIONS, it) }
             }
     }
 
     private lateinit var binding: ActivityDocumentScannerBinding
 
     private val viewModel: DocumentScannerViewModel by viewModels()
-    private val destinations: Array<String>? by extra(EXTRA_DESTINATIONS)
+    private val saveDestinations: Array<String>? by extra(EXTRA_SAVE_DESTINATIONS)
 
     private val navController: NavController by lazy {
         (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment).navController
@@ -45,7 +45,8 @@ class DocumentScannerActivity : AppCompatActivity() {
         binding = ActivityDocumentScannerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-//        viewModel.destinations.value = destinations
+        viewModel.saveDestinations.value = saveDestinations
+            ?: arrayOf("Cloud Drive", "Chat") // TODO Remove hardcoded destinations
     }
 
     private fun initOpenCV() {

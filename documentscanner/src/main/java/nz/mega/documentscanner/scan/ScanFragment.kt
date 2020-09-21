@@ -10,9 +10,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import nz.mega.documentscanner.DocumentScannerViewModel
 import nz.mega.documentscanner.R
-import nz.mega.documentscanner.data.ScanDocument
+import nz.mega.documentscanner.data.Page
 import nz.mega.documentscanner.databinding.FragmentScanBinding
-import nz.mega.documentscanner.save.SaveFragment
 import nz.mega.documentscanner.utils.OffsetPageTransformer
 import nz.mega.documentscanner.utils.ViewUtils.scrollToLastPosition
 
@@ -27,7 +26,7 @@ class ScanFragment : Fragment() {
     private val viewPagerCallback: ViewPager2.OnPageChangeCallback by lazy {
         object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                viewModel.setCurrentDocumentPosition(position)
+                viewModel.setCurrentPagePosition(position)
             }
         }
     }
@@ -69,23 +68,23 @@ class ScanFragment : Fragment() {
         binding.viewPager.adapter = adapter
         binding.btnBack.setOnClickListener { findNavController().popBackStack(R.id.cameraFragment, false) }
         binding.btnAdd.setOnClickListener { findNavController().navigate(ScanFragmentDirections.actionScanFragmentToCameraFragment()) }
-        binding.btnRotate.setOnClickListener { viewModel.rotateCurrentDocument() }
-        binding.btnDelete.setOnClickListener { viewModel.deleteCurrentDocument() }
+        binding.btnRotate.setOnClickListener { viewModel.rotateCurrentPage() }
+        binding.btnDelete.setOnClickListener { viewModel.deleteCurrentPage() }
         binding.btnCrop.setOnClickListener { findNavController().navigate(ScanFragmentDirections.actionScanFragmentToCropFragment()) }
         binding.btnDone.setOnClickListener { findNavController().navigate(ScanFragmentDirections.actionScanFragmentToSaveFragment()) }
         binding.btnRetake.setOnClickListener {
-            viewModel.deleteCurrentDocument()
+            viewModel.deleteCurrentPage()
             findNavController().navigate(ScanFragmentDirections.actionScanFragmentToCameraFragment())
         }
     }
 
     private fun setupObservers() {
-        viewModel.getDocuments().observe(viewLifecycleOwner, ::showDocuments)
-        viewModel.getCurrentDocument().observe(viewLifecycleOwner, ::showCurrentDocument)
-        viewModel.getCurrentDocumentPosition().observe(viewLifecycleOwner, ::showDocumentPosition)
+        viewModel.getPages().observe(viewLifecycleOwner, ::showPages)
+        viewModel.getCurrentPage().observe(viewLifecycleOwner, ::showCurrentPage)
+        viewModel.getCurrentPagePosition().observe(viewLifecycleOwner, ::showPagePosition)
     }
 
-    private fun showDocuments(items: List<ScanDocument>) {
+    private fun showPages(items: List<Page>) {
         adapter.submitList(items)
 
         if (items.isEmpty()) {
@@ -93,11 +92,11 @@ class ScanFragment : Fragment() {
         }
     }
 
-    private fun showCurrentDocument(document: ScanDocument?) {
-        binding.txtScanTitle.text = document?.title
+    private fun showCurrentPage(page: Page?) {
+        binding.txtScanTitle.text = page?.title
     }
 
-    private fun showDocumentPosition(position: Pair<Int, Int>) {
+    private fun showPagePosition(position: Pair<Int, Int>) {
         val currentPosition = position.first
         val totalPositions = position.second
         binding.txtPageCount.text = "$currentPosition / $totalPositions"

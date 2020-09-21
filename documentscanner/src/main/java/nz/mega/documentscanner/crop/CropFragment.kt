@@ -13,7 +13,7 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import nz.mega.documentscanner.DocumentScannerViewModel
 import nz.mega.documentscanner.R
-import nz.mega.documentscanner.data.ScanDocument
+import nz.mega.documentscanner.data.Page
 import nz.mega.documentscanner.databinding.FragmentCropBinding
 
 class CropFragment : Fragment() {
@@ -46,26 +46,26 @@ class CropFragment : Fragment() {
         binding.btnBack.setOnClickListener { findNavController().popBackStack() }
         binding.btnDone.setOnClickListener {
             val points = binding.cropView.points.map(Map.Entry<Int, PointF>::value)
-            viewModel.cropCurrentDocument(requireContext(), points)
+            viewModel.cropCurrentPage(requireContext(), points)
             findNavController().popBackStack()
         }
     }
 
     private fun setupObservers() {
-        viewModel.getCurrentDocument().observe(viewLifecycleOwner, ::showCurrentDocument)
+        viewModel.getCurrentPage().observe(viewLifecycleOwner, ::showCurrentPage)
     }
 
-    private fun showCurrentDocument(document: ScanDocument?) {
-        if (document != null) {
+    private fun showCurrentPage(page: Page?) {
+        if (page != null) {
             Glide.with(this)
-                .load(document.originalImageUri)
+                .load(page.originalImageUri)
                 .into(binding.imgCrop)
 
             binding.cropView.post {
                 showCropPoints(
-                    document.cropPoints ?: document.getContourPoints(),
-                    document.width,
-                    document.height
+                    page.cropPoints ?: page.getContourPoints(),
+                    page.width,
+                    page.height
                 )
             }
         } else {

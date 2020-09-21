@@ -3,11 +3,11 @@ package nz.mega.documentscanner.scan
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
-import nz.mega.documentscanner.data.ScanDocument
+import nz.mega.documentscanner.data.Page
 import nz.mega.documentscanner.databinding.ItemScanBinding
 
 class ScanPagerAdapter :
-    ListAdapter<ScanDocument, ScanPagerViewHolder>(ScanDocument.ItemDiffUtil()) {
+    ListAdapter<Page, ScanPagerViewHolder>(Page.ItemDiffUtil()) {
 
     init {
         setHasStableIds(true)

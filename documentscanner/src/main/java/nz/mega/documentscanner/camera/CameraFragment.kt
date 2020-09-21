@@ -137,7 +137,7 @@ class CameraFragment : Fragment(), ImageCapture.OnImageSavedCallback {
         requireActivity().runOnUiThread {
             val imageUri = photoFile!!.toUri()
 
-            viewModel.addDocument(requireContext(), imageUri).observe(viewLifecycleOwner) { result ->
+            viewModel.addPage(requireContext(), imageUri).observe(viewLifecycleOwner) { result ->
                 if (result) {
                     showSnackBar(null)
                     photoFile = null
@@ -183,7 +183,7 @@ class CameraFragment : Fragment(), ImageCapture.OnImageSavedCallback {
     }
 
     private fun buildSnackBar(): Snackbar =
-        Snackbar.make(binding.cameraView, "Scanning document...", Snackbar.LENGTH_INDEFINITE)
+        Snackbar.make(binding.cameraView, "Scanning page...", Snackbar.LENGTH_INDEFINITE)
             .addCallback(
                 object : Snackbar.Callback() {
                     override fun onShown(snackBar: Snackbar) {

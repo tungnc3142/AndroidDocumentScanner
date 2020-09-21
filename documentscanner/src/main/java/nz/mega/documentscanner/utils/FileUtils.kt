@@ -8,7 +8,7 @@ import java.io.File
 
 object FileUtils {
 
-    const val DOCUMENT_NAME_FORMAT = "Scanned_%1tY%<tm%<td%<tH%<tM.pdf"
+    const val FILE_NAME_FORMAT = "Scanned_%1tY%<tm%<td%<tH%<tM.pdf"
     private const val FILE_ROOT_DIR = "scans"
 
     fun getParentFile(context: Context): File =
