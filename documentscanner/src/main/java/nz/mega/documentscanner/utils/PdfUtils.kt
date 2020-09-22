@@ -12,6 +12,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import nz.mega.documentscanner.data.Document
+import nz.mega.documentscanner.utils.FileUtils.PDF_SUFFIX
 import java.io.FileOutputStream
 
 object PdfUtils {
@@ -49,7 +50,7 @@ object PdfUtils {
                 bitmap.recycle()
             }
 
-            val documentFile = FileUtils.createDocumentFile(context, title)
+            val documentFile = FileUtils.createDocumentFile(context, title + PDF_SUFFIX)
 
             FileOutputStream(documentFile).apply {
                 pdfDocument.writeTo(this)

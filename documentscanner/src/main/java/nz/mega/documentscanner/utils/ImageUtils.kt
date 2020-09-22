@@ -1,10 +1,24 @@
 package nz.mega.documentscanner.utils
 
-import android.graphics.*
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageFormat
+import android.graphics.Matrix
+import android.graphics.Rect
+import android.graphics.YuvImage
 import android.media.Image
+import android.net.Uri
 import android.util.DisplayMetrics
 import android.view.Display
 import androidx.camera.core.AspectRatio
+import androidx.core.net.toUri
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import nz.mega.documentscanner.data.Document
+import nz.mega.documentscanner.utils.FileUtils.JPG_SUFFIX
 import org.opencv.android.Utils
 import org.opencv.core.CvType
 import org.opencv.core.Mat
@@ -90,4 +104,27 @@ object ImageUtils {
         Utils.matToBitmap(mat, bitmap)
         return bitmap
     }
+
+    suspend fun Document.generateJpg(context: Context): Uri =
+        withContext(Dispatchers.IO) {
+            require(pages.isNotEmpty())
+
+            val pageUri = pages.first().croppedImageUri ?: pages.first().originalImageUri
+
+            val bitmap = Glide.with(context)
+                .asBitmap()
+                .load(pageUri)
+                .encodeQuality(quality.value)
+                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .submit()
+                .get()
+
+            val documentFile = FileUtils.createDocumentFile(context, title + JPG_SUFFIX)
+
+            bitmap.toFile(documentFile)
+            bitmap.recycle()
+
+            documentFile.toUri()
+        }
 }

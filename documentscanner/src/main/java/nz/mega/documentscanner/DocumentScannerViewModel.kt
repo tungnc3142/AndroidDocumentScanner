@@ -11,8 +11,11 @@ import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import nz.mega.documentscanner.data.Document
+import nz.mega.documentscanner.data.Document.FileType
+import nz.mega.documentscanner.data.Document.Quality
 import nz.mega.documentscanner.data.Page
 import nz.mega.documentscanner.utils.ImageScanner
+import nz.mega.documentscanner.utils.ImageUtils.generateJpg
 import nz.mega.documentscanner.utils.LiveDataUtils.notifyObserver
 import nz.mega.documentscanner.utils.PdfUtils.generatePdf
 
@@ -34,10 +37,10 @@ class DocumentScannerViewModel : ViewModel() {
     fun getDocumentTitle(): LiveData<String> =
         document.map { it.title }
 
-    fun getDocumentQuality(): LiveData<Document.Quality> =
+    fun getDocumentQuality(): LiveData<Quality> =
         document.map { it.quality }
 
-    fun getDocumentFileType(): LiveData<Document.FileType> =
+    fun getDocumentFileType(): LiveData<FileType> =
         document.map { it.fileType }
 
     fun getSaveDestinations(): LiveData<List<Pair<String, Boolean>>> =
@@ -70,14 +73,14 @@ class DocumentScannerViewModel : ViewModel() {
         document.notifyObserver()
     }
 
-    fun setDocumentFileType(fileType: Document.FileType) {
+    fun setDocumentFileType(fileType: FileType) {
         if (document.value?.fileType == fileType) return
 
         document.value?.fileType = fileType
         document.notifyObserver()
     }
 
-    fun setDocumentQuality(quality: Document.Quality) {
+    fun setDocumentQuality(quality: Quality) {
         if (document.value?.quality == quality) return
 
         document.value?.quality = quality
@@ -190,14 +193,18 @@ class DocumentScannerViewModel : ViewModel() {
 
     private fun updateDocumentFileType() {
         if (document.value?.pages?.size ?: 0 > 1) {
-            document.value?.fileType = Document.FileType.PDF
+            document.value?.fileType = FileType.PDF
         }
     }
 
     fun generateDocument(context: Context) {
         viewModelScope.launch {
             try {
-                val documentUri = document.value?.generatePdf(context)
+                val documentUri = when (document.value?.fileType) {
+                    FileType.JPG -> document.value?.generateJpg(context)
+                    else -> document.value?.generatePdf(context)
+                }
+
                 resultDocument.value = documentUri
             } catch (error: Exception) {
                 Log.e(TAG, error.stackTraceToString())

@@ -9,13 +9,14 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toFile
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import nz.mega.documentscanner.databinding.ActivityDocumentScannerBinding
 import nz.mega.documentscanner.utils.FileUtils
-import nz.mega.documentscanner.utils.FileUtils.MIMETYPE_PDF
+import nz.mega.documentscanner.utils.FileUtils.PROVIDER_AUTHORITY
 import nz.mega.documentscanner.utils.IntentUtils.extra
 import org.opencv.android.OpenCVLoader
 
@@ -73,23 +74,22 @@ class DocumentScannerActivity : AppCompatActivity() {
     private fun onResultDocument(documentUri: Uri) {
         if (callingActivity != null) {
             val intent = Intent().apply {
-                data = documentUri
+                setDataAndType(documentUri, contentResolver.getType(documentUri))
             }
             setResult(Activity.RESULT_OK, intent)
             finish()
         } else {
-            val providerUri = FileProvider.getUriForFile(
-                this,
-                BuildConfig.LIBRARY_PACKAGE_NAME + ".fileprovider",
-                documentUri.toFile()
-            )
+            val fileUri = FileProvider.getUriForFile(this, PROVIDER_AUTHORITY, documentUri.toFile())
+            val fileMimeType = contentResolver.getType(fileUri)
+            val fileTitle = viewModel.getDocumentTitle().value
 
-            val shareIntent: Intent = Intent(Intent.ACTION_SEND).apply {
-                type = MIMETYPE_PDF
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                putExtra(Intent.EXTRA_STREAM, providerUri)
-            }
-            startActivity(Intent.createChooser(shareIntent, "Document"))
+            val shareIntent = ShareCompat.IntentBuilder.from(this)
+                .setType(fileMimeType)
+                .setChooserTitle(fileTitle)
+                .setStream(fileUri)
+                .createChooserIntent()
+
+            startActivity(shareIntent)
         }
     }
 }
