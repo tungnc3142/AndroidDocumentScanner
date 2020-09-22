@@ -125,7 +125,7 @@ class CameraFragment : Fragment(), ImageCapture.OnImageSavedCallback {
     private fun takePicture() {
         showLoading(true)
 
-        photoFile = FileUtils.createNewFile(requireContext())
+        photoFile = FileUtils.createPageFile(requireContext())
         imageCapture.takePicture(
             ImageCapture.OutputFileOptions.Builder(photoFile!!).build(),
             cameraExecutor,
@@ -153,6 +153,7 @@ class CameraFragment : Fragment(), ImageCapture.OnImageSavedCallback {
     override fun onError(error: ImageCaptureException) {
         Log.e(TAG, "Take Picture error: " + error.stackTraceToString())
         showSnackBar(error.message.toString(), false)
+        showLoading(false)
     }
 
     private fun allPermissionsGranted(): Boolean =

@@ -25,7 +25,11 @@ class DocumentScannerViewModel : ViewModel() {
     private val document: MutableLiveData<Document> = MutableLiveData(Document())
     private val saveDestinations: MutableLiveData<Array<String>> = MutableLiveData()
     private val currentPagePosition: MutableLiveData<Int> = MutableLiveData(0)
+    private val resultDocument: MutableLiveData<Uri> = MutableLiveData()
     private val imageScanner: ImageScanner by lazy { ImageScanner() }
+
+    fun getResultDocument(): LiveData<Uri> =
+        resultDocument
 
     fun getDocumentTitle(): LiveData<String> =
         document.map { it.title }
@@ -44,7 +48,7 @@ class DocumentScannerViewModel : ViewModel() {
             }
         }
 
-    fun getPages(): LiveData<List<Page>> =
+    fun getDocumentPages(): LiveData<List<Page>> =
         document.map { it.pages.toList() }
 
     fun getCurrentPage(): LiveData<Page?> =
@@ -107,6 +111,8 @@ class DocumentScannerViewModel : ViewModel() {
                 )
 
                 document.value?.pages?.add(page)
+                updateDocumentFileType()
+
                 document.notifyObserver()
                 result.postValue(true)
             } catch (error: Exception) {
@@ -126,6 +132,8 @@ class DocumentScannerViewModel : ViewModel() {
                     currentPage.deleteFiles()
 
                     document.value?.pages?.remove(currentPage)
+                    updateDocumentFileType()
+
                     document.notifyObserver()
                 } catch (error: Exception) {
                     Log.e(TAG, error.stackTraceToString())
@@ -180,15 +188,19 @@ class DocumentScannerViewModel : ViewModel() {
         }
     }
 
+    private fun updateDocumentFileType() {
+        if (document.value?.pages?.size ?: 0 > 1) {
+            document.value?.fileType = Document.FileType.PDF
+        }
+    }
+
     fun generateDocument(context: Context) {
-        document.value?.let { document ->
-            viewModelScope.launch {
-                try {
-                    val uri = document.generatePdf(context)
-                    Log.d(TAG, "Document Uri: $uri")
-                } catch (error: Exception) {
-                    Log.e(TAG, error.stackTraceToString())
-                }
+        viewModelScope.launch {
+            try {
+                val documentUri = document.value?.generatePdf(context)
+                resultDocument.value = documentUri
+            } catch (error: Exception) {
+                Log.e(TAG, error.stackTraceToString())
             }
         }
     }

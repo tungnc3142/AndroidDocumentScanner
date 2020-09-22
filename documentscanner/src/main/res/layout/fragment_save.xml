@@ -136,6 +136,15 @@
 
     </com.google.android.material.chip.ChipGroup>
 
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_file_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="txt_file_type, chip_group_file_type, separator_file_type"
+        tools:visibility="visible"
+        />
+
     <View
         android:id="@+id/separator_file_type"
         android:layout_width="0dp"

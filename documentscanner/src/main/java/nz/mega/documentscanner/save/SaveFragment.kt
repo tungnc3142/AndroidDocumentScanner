@@ -14,6 +14,7 @@ import com.google.android.material.chip.Chip
 import nz.mega.documentscanner.DocumentScannerViewModel
 import nz.mega.documentscanner.R
 import nz.mega.documentscanner.data.Document
+import nz.mega.documentscanner.data.Page
 import nz.mega.documentscanner.databinding.FragmentSaveBinding
 import nz.mega.documentscanner.databinding.ItemDestinationBinding
 
@@ -88,6 +89,7 @@ class SaveFragment : Fragment() {
     private fun setupObservers() {
         viewModel.getSaveDestinations().observe(viewLifecycleOwner, ::showSaveDestinations)
         viewModel.getDocumentTitle().observe(viewLifecycleOwner, ::showDocumentTitle)
+        viewModel.getDocumentPages().observe(viewLifecycleOwner, ::showFileTypeSection)
         viewModel.getDocumentFileType().observe(viewLifecycleOwner, ::showDocumentFileType)
         viewModel.getDocumentQuality().observe(viewLifecycleOwner, ::showDocumentQuality)
     }
@@ -111,6 +113,10 @@ class SaveFragment : Fragment() {
         if (binding.editFileName.text.toString() != title) {
             binding.editFileName.setText(title)
         }
+    }
+
+    private fun showFileTypeSection(pages: List<Page>) {
+        binding.groupFileType.isVisible = pages.size == 1
     }
 
     private fun showDocumentFileType(fileType: Document.FileType) {

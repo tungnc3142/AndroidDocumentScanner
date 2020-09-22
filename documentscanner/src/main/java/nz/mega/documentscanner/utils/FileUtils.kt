@@ -8,24 +8,39 @@ import java.io.File
 
 object FileUtils {
 
+    const val MIMETYPE_PDF = "application/pdf"
+    const val MIMETYPE_JPG = "image/jpeg"
     const val FILE_NAME_FORMAT = "Scanned_%1tY%<tm%<td%<tH%<tM.pdf"
-    private const val FILE_ROOT_DIR = "scans"
 
-    fun getParentFile(context: Context): File =
-        File(context.filesDir, FILE_ROOT_DIR).apply {
+    private const val ROOT_FILE_DIR = "scans"
+    private const val PAGE_FILE_DIR = "$ROOT_FILE_DIR/pages/"
+    private const val DOCUMENT_FILE_DIR = "$ROOT_FILE_DIR/document/"
+
+    private fun getParentFile(context: Context, parentDir: String): File =
+        File(context.filesDir, parentDir).apply {
             if (!exists()) {
-                mkdir()
+                mkdirs()
             }
         }
 
-    fun createNewFile(
-        context: Context,
-        title: String = System.currentTimeMillis().toString()
-    ): File =
-        File(getParentFile(context), title)
+    fun createPageFile(context: Context): File =
+        File(getParentFile(context, PAGE_FILE_DIR), System.currentTimeMillis().toString()).apply {
+            if (exists()) {
+                delete()
+                createNewFile()
+            }
+        }
+
+    fun createDocumentFile(context: Context, title: String): File =
+        File(getParentFile(context, DOCUMENT_FILE_DIR), title).apply {
+            if (exists()) {
+                delete()
+                createNewFile()
+            }
+        }
 
     fun clearExistingFiles(context: Context): Boolean =
-        getParentFile(context).deleteRecursively()
+        getParentFile(context, ROOT_FILE_DIR).deleteRecursively()
 
     fun File.rotate(degrees: Float): File {
         val bitmap = BitmapFactory.decodeFile(path)

@@ -12,5 +12,5 @@ data class Document constructor(
 ) {
 
     enum class FileType { PDF, JPG }
-    enum class Quality { LOW, MEDIUM, HIGH }
+    enum class Quality(val value: Int) { LOW(35), MEDIUM(50), HIGH(90) }
 }

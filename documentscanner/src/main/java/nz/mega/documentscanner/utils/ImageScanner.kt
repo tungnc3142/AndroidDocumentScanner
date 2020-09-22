@@ -36,7 +36,7 @@ class ImageScanner {
                 imagePoints[3].y,
             )
 
-            val imageFile = FileUtils.createNewFile(context).apply {
+            val imageFile = FileUtils.createPageFile(context).apply {
                 resultBitmap.toFile(this)
             }
 

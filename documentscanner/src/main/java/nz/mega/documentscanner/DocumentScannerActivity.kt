@@ -1,16 +1,21 @@
 package nz.mega.documentscanner
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
+import androidx.core.net.toFile
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import nz.mega.documentscanner.databinding.ActivityDocumentScannerBinding
 import nz.mega.documentscanner.utils.FileUtils
+import nz.mega.documentscanner.utils.FileUtils.MIMETYPE_PDF
 import nz.mega.documentscanner.utils.IntentUtils.extra
 import org.opencv.android.OpenCVLoader
 
@@ -44,9 +49,7 @@ class DocumentScannerActivity : AppCompatActivity() {
 
         binding = ActivityDocumentScannerBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        viewModel.setSaveDestinations(saveDestinations
-            ?: arrayOf("Cloud Drive", "Chat")) // TODO Remove hardcoded destinations
+        setupObservers()
     }
 
     private fun initOpenCV() {
@@ -57,5 +60,36 @@ class DocumentScannerActivity : AppCompatActivity() {
     private fun clearExistingFiles() {
         val result = FileUtils.clearExistingFiles(this)
         Log.d(TAG, "Cleared existing files: $result")
+    }
+
+    private fun setupObservers() {
+        viewModel.getResultDocument().observe(this, ::onResultDocument)
+        viewModel.setSaveDestinations(
+            saveDestinations
+                ?: arrayOf("Cloud Drive", "Chat")
+        ) // TODO Remove hardcoded destinations
+    }
+
+    private fun onResultDocument(documentUri: Uri) {
+        if (callingActivity != null) {
+            val intent = Intent().apply {
+                data = documentUri
+            }
+            setResult(Activity.RESULT_OK, intent)
+            finish()
+        } else {
+            val providerUri = FileProvider.getUriForFile(
+                this,
+                BuildConfig.LIBRARY_PACKAGE_NAME + ".fileprovider",
+                documentUri.toFile()
+            )
+
+            val shareIntent: Intent = Intent(Intent.ACTION_SEND).apply {
+                type = MIMETYPE_PDF
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                putExtra(Intent.EXTRA_STREAM, providerUri)
+            }
+            startActivity(Intent.createChooser(shareIntent, "Document"))
+        }
     }
 }
