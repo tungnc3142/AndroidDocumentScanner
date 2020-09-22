@@ -13,8 +13,8 @@
                 android:theme="@style/DocumentScannerTheme" />
 
         <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="nz.mega.documentscanner.fileprovider"
+            android:name="nz.mega.documentscanner.FileProvider"
+            android:authorities="${applicationId}.scans.provider"
             android:grantUriPermissions="true"
             android:exported="false">
             <meta-data

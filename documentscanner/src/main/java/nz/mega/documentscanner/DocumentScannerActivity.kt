@@ -16,7 +16,6 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import nz.mega.documentscanner.databinding.ActivityDocumentScannerBinding
 import nz.mega.documentscanner.utils.FileUtils
-import nz.mega.documentscanner.utils.FileUtils.PROVIDER_AUTHORITY
 import nz.mega.documentscanner.utils.IntentUtils.extra
 import org.opencv.android.OpenCVLoader
 
@@ -79,7 +78,8 @@ class DocumentScannerActivity : AppCompatActivity() {
             setResult(Activity.RESULT_OK, intent)
             finish()
         } else {
-            val fileUri = FileProvider.getUriForFile(this, PROVIDER_AUTHORITY, documentUri.toFile())
+            val providerAuthority = FileUtils.getProviderAuthority(this)
+            val fileUri = FileProvider.getUriForFile(this, providerAuthority, documentUri.toFile())
             val fileMimeType = contentResolver.getType(fileUri)
             val fileTitle = viewModel.getDocumentTitle().value
 

@@ -12,7 +12,6 @@ object FileUtils {
     const val FILE_NAME_FORMAT = "Scanned_%1tY%<tm%<td%<tH%<tM"
     const val JPG_SUFFIX = ".jpg"
     const val PDF_SUFFIX = ".pdf"
-    const val PROVIDER_AUTHORITY = BuildConfig.LIBRARY_PACKAGE_NAME + ".fileprovider"
 
     private const val ROOT_FILE_DIR = "scans"
     private const val PAGE_FILE_DIR = "$ROOT_FILE_DIR/pages/"
@@ -49,4 +48,7 @@ object FileUtils {
         val rotatedBitmap = bitmap.rotate(degrees)
         return rotatedBitmap.toFile(this)
     }
+
+    fun getProviderAuthority(context: Context): String =
+        "${context.packageName}.scans.provider"
 }
