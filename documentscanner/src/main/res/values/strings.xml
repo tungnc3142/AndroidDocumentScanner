@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">DocumentScanner</string>
+
+    <string name="dialog_discard_scan_title">Discard scan?</string>
+    <string name="dialog_discard_scan_body">The current scan will be lost</string>
+    <string name="dialog_discard_all_scans_title">Discard all scans?</string>
+    <string name="dialog_discard_all_scans_body">The current document will be lost</string>
+    <string name="dialog_delete_scan_body">Delete current scan?</string>
 </resources>

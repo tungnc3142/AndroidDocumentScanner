@@ -19,6 +19,8 @@ import nz.mega.documentscanner.data.Image
 import nz.mega.documentscanner.data.Page
 import nz.mega.documentscanner.utils.DocumentGenerator.generateJpg
 import nz.mega.documentscanner.utils.DocumentGenerator.generatePdf
+import nz.mega.documentscanner.utils.DocumentUtils.deleteAllPages
+import nz.mega.documentscanner.utils.DocumentUtils.deletePage
 import nz.mega.documentscanner.utils.ImageScanner
 import nz.mega.documentscanner.utils.ImageUtils
 import nz.mega.documentscanner.utils.ImageUtils.deleteFile
@@ -66,6 +68,9 @@ class DocumentScannerViewModel : ViewModel() {
 
     fun getCurrentPagePosition(): LiveData<Pair<Int, Int>> =
         currentPagePosition.map { it + 1 to (document.value?.pages?.size ?: 0) }
+
+    fun getPagesCount(): Int =
+        document.value?.pages?.size ?: 0
 
     fun setCurrentPagePosition(position: Int) {
         if (currentPagePosition.value != position) {
@@ -149,25 +154,6 @@ class DocumentScannerViewModel : ViewModel() {
         return addPageResult
     }
 
-    fun deleteCurrentPage() {
-        val currentPosition = currentPagePosition.value ?: 0
-        document.value?.pages?.get(currentPosition)?.let { currentPage ->
-            viewModelScope.launch {
-                try {
-                    currentPage.originalImage.deleteFile()
-                    currentPage.croppedImage?.deleteFile()
-
-                    document.value?.pages?.remove(currentPage)
-
-                    updateDocumentFileType()
-                    document.notifyObserver()
-                } catch (error: Exception) {
-                    Log.e(TAG, error.stackTraceToString())
-                }
-            }
-        }
-    }
-
     fun rotateCurrentPage(context: Context) {
         val currentPosition = currentPagePosition.value ?: 0
         document.value?.pages?.get(currentPosition)?.let { currentPage ->
@@ -219,6 +205,21 @@ class DocumentScannerViewModel : ViewModel() {
                     Log.e(TAG, error.stackTraceToString())
                 }
             }
+        }
+    }
+
+    fun deleteCurrentPage() {
+        viewModelScope.launch {
+            val currentPosition = currentPagePosition.value ?: 0
+            document.value?.deletePage(currentPosition)
+            document.notifyObserver()
+        }
+    }
+
+    fun deleteAllPages() {
+        viewModelScope.launch {
+            document.value?.deleteAllPages()
+            document.notifyObserver()
         }
     }
 

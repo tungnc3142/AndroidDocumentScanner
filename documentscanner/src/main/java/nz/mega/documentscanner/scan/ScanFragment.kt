@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -12,8 +13,8 @@ import nz.mega.documentscanner.DocumentScannerViewModel
 import nz.mega.documentscanner.R
 import nz.mega.documentscanner.data.Page
 import nz.mega.documentscanner.databinding.FragmentScanBinding
+import nz.mega.documentscanner.utils.DialogFactory
 import nz.mega.documentscanner.utils.OffsetPageTransformer
-import nz.mega.documentscanner.utils.ViewUtils.scrollToLastPosition
 
 class ScanFragment : Fragment() {
 
@@ -48,9 +49,9 @@ class ScanFragment : Fragment() {
         setupObservers()
     }
 
-    override fun onResume() {
-        super.onResume()
-        binding.viewPager.post { binding.viewPager.scrollToLastPosition() }
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        requireActivity().onBackPressedDispatcher.addCallback(this) { showDiscardDialog() }
     }
 
     override fun onDestroyView() {
@@ -66,10 +67,14 @@ class ScanFragment : Fragment() {
         binding.viewPager.setPageTransformer(OffsetPageTransformer(pageOffset, pageMargin))
         binding.viewPager.registerOnPageChangeCallback(viewPagerCallback)
         binding.viewPager.adapter = adapter
-        binding.btnBack.setOnClickListener { findNavController().popBackStack(R.id.cameraFragment, false) }
+        binding.btnBack.setOnClickListener { showDiscardDialog() }
         binding.btnAdd.setOnClickListener { findNavController().navigate(ScanFragmentDirections.actionScanFragmentToCameraFragment()) }
         binding.btnRotate.setOnClickListener { viewModel.rotateCurrentPage(requireContext()) }
-        binding.btnDelete.setOnClickListener { viewModel.deleteCurrentPage() }
+        binding.btnDelete.setOnClickListener {
+            DialogFactory.createDeleteCurrentScanDialog(requireContext()) {
+                viewModel.deleteCurrentPage()
+            }.show()
+        }
         binding.btnCrop.setOnClickListener { findNavController().navigate(ScanFragmentDirections.actionScanFragmentToCropFragment()) }
         binding.btnDone.setOnClickListener { findNavController().navigate(ScanFragmentDirections.actionScanFragmentToSaveFragment()) }
         binding.btnRetake.setOnClickListener {
@@ -100,5 +105,27 @@ class ScanFragment : Fragment() {
         val currentPosition = position.first
         val totalPositions = position.second
         binding.txtPageCount.text = "$currentPosition / $totalPositions"
+    }
+
+    private fun showDiscardDialog() {
+        val pagesCount = viewModel.getPagesCount()
+
+        when {
+            pagesCount == 1 -> {
+                DialogFactory.createDiscardScanDialog(requireContext()) {
+                    viewModel.deleteCurrentPage()
+                    findNavController().popBackStack(R.id.cameraFragment, false)
+                }.show()
+            }
+            pagesCount > 1 -> {
+                DialogFactory.createDiscardScansDialog(requireContext()) {
+                    viewModel.deleteAllPages()
+                    findNavController().popBackStack(R.id.cameraFragment, false)
+                }.show()
+            }
+            else -> {
+                findNavController().popBackStack(R.id.cameraFragment, false)
+            }
+        }
     }
 }
