@@ -147,10 +147,10 @@ public class PolygonView extends FrameLayout {
     }
 
     private Map<Integer, PointF> getContourPoints() {
-        Float startX = (float) pointer1.getMeasuredWidth();
-        Float startY = (float) pointer1.getMeasuredHeight() * 2;
-        Float endX = getWidth() - (startX * 2);
-        Float endY = getHeight() - (startY * 2);
+        float startX = (float) pointer1.getMeasuredWidth();
+        float startY = (float) pointer1.getMeasuredHeight() * 2;
+        float endX = getWidth() - (startX * 2);
+        float endY = getHeight() - (startY * 2);
 
         List<PointF> points = new ArrayList<PointF>() {{
             add(new PointF(startX, startY));

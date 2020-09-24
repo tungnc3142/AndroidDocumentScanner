@@ -77,10 +77,7 @@ class CropFragment : Fragment() {
             yFactor = cropViewHeight / maxHeight
 
             val relativePoints = points.map { point ->
-                point.apply {
-                    point.x *= xFactor
-                    point.y *= yFactor
-                }
+                PointF(point.x * xFactor, point.y * yFactor)
             }
 
             binding.cropView.points = binding.cropView.getOrderedPoints(relativePoints)
