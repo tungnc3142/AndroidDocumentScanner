@@ -1,0 +1,26 @@
+<resources>
+
+    <style name="DocumentScannerTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorOnPrimary">@color/onPrimaryColor</item>
+        <item name="colorSecondary">@color/secondaryColor</item>
+        <item name="colorOnSecondary">@color/onSecondaryColor</item>
+        <item name="colorSurface">@color/colorSurface</item>
+        <item name="colorOnSurface">@color/colorOnSurface</item>
+        <item name="backgroundColor">@color/backgroundColor</item>
+        <item name="android:textColorPrimary">@color/onPrimaryColor</item>
+        <item name="android:textColorSecondary">@color/onPrimaryColor</item>
+        <item name="android:windowBackground">@color/backgroundColor</item>
+        <item name="android:statusBarColor">@color/backgroundColor</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.DocumentScanner.MaterialAlertDialog</item>
+
+        <item name="textAppearanceHeadline6">@style/TextAppearance.DocumentScanner.Headline6</item>
+        <item name="textAppearanceSubtitle1">@style/TextAppearance.DocumentScanner.Subtitle1</item>
+        <item name="textAppearanceBody2">@style/TextAppearance.DocumentScanner.Body2</item>
+        <item name="textAppearanceCaption">@style/TextAppearance.DocumentScanner.Caption</item>
+    </style>
+
+    <style name="ThemeOverlay.DocumentScanner.MaterialAlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="colorPrimary">?colorSecondary</item>
+    </style>
+</resources>

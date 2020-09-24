@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/black"
     >
 
     <ImageView
@@ -43,9 +42,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:text="CROP"
+        android:text="@string/title_crop"
         android:textAppearance="?textAppearanceHeadline6"
-        android:textColor="?android:textColorPrimary"
         app:layout_constraintBottom_toBottomOf="@id/btn_back"
         app:layout_constraintStart_toEndOf="@id/btn_back"
         app:layout_constraintTop_toTopOf="@id/btn_back"
@@ -60,7 +58,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/ic_baseline_check_24"
-        app:tint="?colorOnPrimarySurface"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

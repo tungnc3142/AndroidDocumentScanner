@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:background="@android:color/white"
+    android:background="?colorSurface"
     >
 
     <ImageButton
@@ -14,7 +14,7 @@
         android:layout_margin="16dp"
         android:background="?selectableItemBackground"
         android:src="@drawable/ic_baseline_arrow_back_24"
-        android:tint="@android:color/black"
+        android:tint="?colorOnSurface"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         />
@@ -24,9 +24,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:text="CROP"
+        android:text="@string/title_save_scan"
         android:textAppearance="?textAppearanceHeadline6"
-        android:textColor="@android:color/black"
+        android:textColor="?colorOnSurface"
         app:layout_constraintBottom_toBottomOf="@id/btn_back"
         app:layout_constraintStart_toEndOf="@id/btn_back"
         app:layout_constraintTop_toTopOf="@id/btn_back"
@@ -41,9 +41,9 @@
         android:paddingTop="8dp"
         android:paddingEnd="16dp"
         android:paddingBottom="8dp"
-        android:text="File name"
+        android:text="@string/title_file_name"
         android:textAppearance="?textAppearanceBody2"
-        android:textColor="@android:color/black"
+        android:textColor="?colorOnSurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/txt_title"
@@ -63,8 +63,8 @@
         android:maxLines="1"
         android:paddingTop="16dp"
         android:paddingBottom="16dp"
-        android:textAppearance="?textAppearanceBody2"
-        android:textColor="@android:color/black"
+        android:textAppearance="?textAppearanceSubtitle1"
+        android:textColor="?colorOnSurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/txt_file_name"
@@ -78,7 +78,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:alpha="0.87"
-        android:background="@android:color/black"
+        android:background="?colorOnSurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/edit_file_name"
@@ -92,9 +92,9 @@
         android:paddingTop="8dp"
         android:paddingEnd="16dp"
         android:paddingBottom="8dp"
-        android:text="File type"
+        android:text="@string/title_file_type"
         android:textAppearance="?textAppearanceBody2"
-        android:textColor="@android:color/black"
+        android:textColor="?colorOnSurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/separator_file_name"
@@ -123,7 +123,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
-            android:text="PDF"
+            android:text="@string/file_type_pdf"
             />
 
         <com.google.android.material.chip.Chip
@@ -131,7 +131,7 @@
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="JPG"
+            android:text="@string/file_type_jpg"
             />
 
     </com.google.android.material.chip.ChipGroup>
@@ -152,7 +152,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:alpha="0.87"
-        android:background="@android:color/black"
+        android:background="?colorOnSurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/chip_group_file_type"
@@ -166,9 +166,9 @@
         android:paddingTop="8dp"
         android:paddingEnd="16dp"
         android:paddingBottom="8dp"
-        android:text="Quality"
+        android:text="@string/title_quality"
         android:textAppearance="?textAppearanceBody2"
-        android:textColor="@android:color/black"
+        android:textColor="?colorOnSurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/separator_file_type"
@@ -196,7 +196,7 @@
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="High"
+            android:text="@string/quality_high"
             />
 
         <com.google.android.material.chip.Chip
@@ -205,7 +205,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
-            android:text="Medium"
+            android:text="@string/quality_medium"
             />
 
         <com.google.android.material.chip.Chip
@@ -213,7 +213,7 @@
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Low"
+            android:text="@string/quality_low"
             />
 
     </com.google.android.material.chip.ChipGroup>
@@ -225,7 +225,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:alpha="0.87"
-        android:background="@android:color/black"
+        android:background="?colorOnSurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/chip_group_quality"
@@ -239,9 +239,9 @@
         android:paddingTop="8dp"
         android:paddingEnd="16dp"
         android:paddingBottom="8dp"
-        android:text="Destination"
+        android:text="@string/title_destination"
         android:textAppearance="?textAppearanceBody2"
-        android:textColor="@android:color/black"
+        android:textColor="?colorOnSurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/separator_quality"
@@ -271,7 +271,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:alpha="0.87"
-        android:background="@android:color/black"
+        android:background="?colorOnSurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/chip_group_destinations"
@@ -288,11 +288,11 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_save"
+        style="@style/Widget.DocumentScanner.Button.Save"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:text="Save"
-        app:backgroundTint="?colorSecondary"
+        android:text="@string/action_save"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
