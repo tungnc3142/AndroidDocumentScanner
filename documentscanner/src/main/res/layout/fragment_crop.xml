@@ -6,6 +6,27 @@
     android:background="@android:color/black"
     >
 
+    <ImageView
+        android:id="@+id/img_crop"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <nz.mega.documentscanner.openCV.PolygonView
+        android:id="@+id/crop_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/img_crop"
+        app:layout_constraintEnd_toEndOf="@id/img_crop"
+        app:layout_constraintStart_toStartOf="@id/img_crop"
+        app:layout_constraintTop_toTopOf="@id/img_crop"
+        />
+
     <ImageButton
         android:id="@+id/btn_back"
         android:layout_width="32dp"
@@ -28,27 +49,6 @@
         app:layout_constraintBottom_toBottomOf="@id/btn_back"
         app:layout_constraintStart_toEndOf="@id/btn_back"
         app:layout_constraintTop_toTopOf="@id/btn_back"
-        />
-
-    <ImageView
-        android:id="@+id/img_crop"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:scaleType="fitCenter"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        />
-
-    <nz.mega.documentscanner.openCV.PolygonView
-        android:id="@+id/crop_view"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="@id/img_crop"
-        app:layout_constraintEnd_toEndOf="@id/img_crop"
-        app:layout_constraintStart_toStartOf="@id/img_crop"
-        app:layout_constraintTop_toTopOf="@id/img_crop"
         />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

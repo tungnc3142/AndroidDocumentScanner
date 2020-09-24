@@ -13,13 +13,15 @@ import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toFile
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
 import nz.mega.documentscanner.databinding.ActivityDocumentScannerBinding
 import nz.mega.documentscanner.utils.FileUtils
 import nz.mega.documentscanner.utils.IntentUtils.extra
+import nz.mega.documentscanner.utils.ViewUtils.hideKeyboard
 import org.opencv.android.OpenCVLoader
 
-class DocumentScannerActivity : AppCompatActivity() {
+class DocumentScannerActivity : AppCompatActivity(), NavController.OnDestinationChangedListener {
 
     companion object {
         private const val TAG = "DocumentScannerActivity"
@@ -50,6 +52,13 @@ class DocumentScannerActivity : AppCompatActivity() {
         binding = ActivityDocumentScannerBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setupObservers()
+
+        navController.addOnDestinationChangedListener(this)
+    }
+
+    override fun onDestroy() {
+        navController.removeOnDestinationChangedListener(this)
+        super.onDestroy()
     }
 
     private fun initOpenCV() {
@@ -91,5 +100,9 @@ class DocumentScannerActivity : AppCompatActivity() {
 
             startActivity(shareIntent)
         }
+    }
+
+    override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
+        currentFocus?.hideKeyboard()
     }
 }

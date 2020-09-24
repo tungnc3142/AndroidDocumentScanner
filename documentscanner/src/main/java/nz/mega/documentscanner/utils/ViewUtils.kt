@@ -1,8 +1,10 @@
 package nz.mega.documentscanner.utils
 
+import android.app.Activity
 import android.util.DisplayMetrics
 import android.view.Display
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.camera.core.AspectRatio
 import androidx.core.view.ViewCompat
 import androidx.viewpager2.widget.ViewPager2
@@ -34,5 +36,10 @@ object ViewUtils {
             return AspectRatio.RATIO_4_3
         }
         return AspectRatio.RATIO_16_9
+    }
+
+    fun View.hideKeyboard() {
+        val imm = context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(windowToken, 0)
     }
 }

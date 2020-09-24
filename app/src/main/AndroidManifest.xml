@@ -14,16 +14,10 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
 
-        <activity android:name="com.example.documentscanner.MainActivity">
-            <intent-filter>
-                <category android:name="android.intent.category.LAUNCHER" />
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
-        </activity>
-
         <activity
                 android:name="nz.mega.documentscanner.DocumentScannerActivity"
                 android:screenOrientation="sensorPortrait"
+                android:windowSoftInputMode="stateHidden|adjustNothing"
                 android:theme="@style/DocumentScannerTheme">
 
             <intent-filter>
