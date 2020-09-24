@@ -66,8 +66,8 @@ class DocumentScannerViewModel : ViewModel() {
     fun getCurrentPage(): LiveData<Page?> =
         currentPagePosition.map { document.value?.pages?.elementAtOrNull(it) }
 
-    fun getCurrentPagePosition(): LiveData<Pair<Int, Int>> =
-        currentPagePosition.map { it + 1 to (document.value?.pages?.size ?: 0) }
+    fun getCurrentPagePosition(): Int =
+        currentPagePosition.value ?: 0
 
     fun getPagesCount(): Int =
         document.value?.pages?.size ?: 0

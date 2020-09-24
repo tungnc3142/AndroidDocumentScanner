@@ -8,6 +8,7 @@ import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
 import nz.mega.documentscanner.DocumentScannerViewModel
 import nz.mega.documentscanner.R
@@ -15,6 +16,7 @@ import nz.mega.documentscanner.data.Page
 import nz.mega.documentscanner.databinding.FragmentScanBinding
 import nz.mega.documentscanner.utils.DialogFactory
 import nz.mega.documentscanner.utils.OffsetPageTransformer
+import nz.mega.documentscanner.utils.ViewUtils.scrollToLastPosition
 
 class ScanFragment : Fragment() {
 
@@ -22,16 +24,19 @@ class ScanFragment : Fragment() {
         private const val TAG = "ScanFragment"
     }
 
+    private val navigationArguments: ScanFragmentArgs by navArgs()
     private val viewModel: DocumentScannerViewModel by activityViewModels()
     private val adapter: ScanPagerAdapter by lazy { ScanPagerAdapter() }
     private val viewPagerCallback: ViewPager2.OnPageChangeCallback by lazy {
         object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 viewModel.setCurrentPagePosition(position)
+                binding.txtPageCount.text = "${position + 1} / ${viewModel.getPagesCount()}"
             }
         }
     }
 
+    private var scrolled = false
     private lateinit var binding: FragmentScanBinding
 
     override fun onCreateView(
@@ -84,27 +89,30 @@ class ScanFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        viewModel.getDocumentPages().observe(viewLifecycleOwner, ::showPages)
         viewModel.getDocumentTitle().observe(viewLifecycleOwner, ::showDocumentTitle)
-        viewModel.getCurrentPagePosition().observe(viewLifecycleOwner, ::showPagePosition)
-    }
-
-    private fun showPages(items: List<Page>) {
-        adapter.submitList(items)
-
-        if (items.isEmpty()) {
-            findNavController().popBackStack(R.id.cameraFragment, false)
-        }
+        viewModel.getDocumentPages().observe(viewLifecycleOwner, ::showPages)
     }
 
     private fun showDocumentTitle(title: String) {
         binding.txtScanTitle.text = title
     }
 
-    private fun showPagePosition(position: Pair<Int, Int>) {
-        val currentPosition = position.first
-        val totalPositions = position.second
-        binding.txtPageCount.text = "$currentPosition / $totalPositions"
+    private fun showPages(items: List<Page>) {
+        val currentPosition = viewModel.getCurrentPagePosition()
+        adapter.submitList(items)
+
+        if (items.isNotEmpty()) {
+            binding.viewPager.post {
+                if (!scrolled && navigationArguments.scrollToLast) {
+                    binding.viewPager.scrollToLastPosition()
+                    scrolled = true
+                } else if (binding.viewPager.currentItem != currentPosition) {
+                    binding.viewPager.currentItem = currentPosition
+                }
+            }
+        } else {
+            findNavController().popBackStack(R.id.cameraFragment, false)
+        }
     }
 
     private fun showDiscardDialog() {
