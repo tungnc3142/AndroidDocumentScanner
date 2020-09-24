@@ -59,42 +59,34 @@ class CropFragment : Fragment() {
                 .load(page.originalImage.imageUri)
                 .into(binding.imgCrop)
 
-            binding.cropView.post {
-                showCropPoints(page.cropPoints, page.originalImage.width, page.originalImage.height)
-            }
+            setCropPoints(page.cropPoints, page.originalImage.width, page.originalImage.height)
         } else {
             Toast.makeText(requireContext(), "Unknown error", Toast.LENGTH_SHORT).show()
             findNavController().popBackStack()
         }
     }
 
-    private fun showCropPoints(points: List<PointF>?, maxWidth: Float, maxHeight: Float) {
-        if (!points.isNullOrEmpty()) {
-            val cropViewWidth = binding.cropView.measuredWidth
-            val cropViewHeight = binding.cropView.measuredHeight
+    private fun setCropPoints(points: List<PointF>?, maxWidth: Float, maxHeight: Float) {
+        binding.cropView.post {
+            xFactor = binding.cropView.measuredWidth / maxWidth
+            yFactor = binding.cropView.measuredHeight / maxHeight
 
-            xFactor = cropViewWidth / maxWidth
-            yFactor = cropViewHeight / maxHeight
+            binding.cropView.points = points?.let { cropPoints ->
+                val relativePoints = cropPoints.map { point ->
+                    PointF(point.x * xFactor, point.y * yFactor)
+                }
 
-            val relativePoints = points.map { point ->
-                PointF(point.x * xFactor, point.y * yFactor)
+                binding.cropView.getOrderedPoints(relativePoints)
             }
-
-            binding.cropView.points = binding.cropView.getOrderedPoints(relativePoints)
-        } else {
-            binding.cropView.points = null
         }
     }
 
     private fun getCropPoints() {
-        val newCropPoints = binding.cropView.points.map {
-            it.value.apply {
-                x /= xFactor
-                y /= yFactor
-            }
+        val relativePoints = binding.cropView.points.map { point ->
+            PointF(point.value.x / xFactor, point.value.y / yFactor)
         }
 
-        viewModel.cropCurrentPage(requireContext(), newCropPoints)
+        viewModel.cropCurrentPage(requireContext(), relativePoints)
         findNavController().popBackStack()
     }
 }

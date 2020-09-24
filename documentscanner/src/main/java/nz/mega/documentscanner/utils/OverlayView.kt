@@ -50,10 +50,7 @@ class OverlayView
         val ratioY = viewHeight / maxHeight
 
         setLines(linePoints.map { point ->
-            point.apply {
-                x *= ratioX
-                y *= ratioY
-            }
+            PointF(point.x * ratioX, point.y * ratioY)
         })
     }
 }

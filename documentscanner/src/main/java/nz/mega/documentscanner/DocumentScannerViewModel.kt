@@ -21,8 +21,8 @@ import nz.mega.documentscanner.utils.DocumentGenerator.generateJpg
 import nz.mega.documentscanner.utils.DocumentGenerator.generatePdf
 import nz.mega.documentscanner.utils.ImageScanner
 import nz.mega.documentscanner.utils.ImageUtils
-import nz.mega.documentscanner.utils.ImageUtils.crop
 import nz.mega.documentscanner.utils.ImageUtils.deleteFile
+import nz.mega.documentscanner.utils.ImageUtils.getBitmap
 import nz.mega.documentscanner.utils.ImageUtils.rotate
 import nz.mega.documentscanner.utils.LiveDataUtils.notifyObserver
 
@@ -106,7 +106,7 @@ class DocumentScannerViewModel : ViewModel() {
         saveDestinations.value = destinations
     }
 
-    fun addPage(context: Context, originalBitmap: Bitmap, previewCropResult: CropResult?): LiveData<Boolean> {
+    fun addPage(context: Context, originalBitmap: Bitmap, providedCrop: CropResult?): LiveData<Boolean> {
         val addPageResult = MutableLiveData<Boolean>()
 
         viewModelScope.launch {
@@ -190,20 +190,30 @@ class DocumentScannerViewModel : ViewModel() {
         }
     }
 
-    fun cropCurrentPage(context: Context, points: List<PointF>) {
+    fun cropCurrentPage(context: Context, cropPoints: List<PointF>) {
         val currentPosition = currentPagePosition.value ?: 0
         document.value?.pages?.get(currentPosition)?.let { currentPage ->
             viewModelScope.launch {
                 try {
-                    val image = currentPage.getImageToPrint()
-                    val croppedImage = image.crop(context, imageScanner, points)
-                    image.deleteFile()
+                    if (cropPoints == currentPage.cropPoints) return@launch
+
+                    val image = currentPage.originalImage
+                    val originalImageBitmap = image.getBitmap(context, null)
+                    val cropResult = imageScanner.getCroppedImage(originalImageBitmap, cropPoints)
+                    val croppedBitmap = cropResult!!.bitmap
+                    val croppedImage = ImageUtils.createImageFromBitmap(context, croppedBitmap)
+
+                    currentPage.croppedImage?.deleteFile()
 
                     val updatedPage = currentPage.copy(
-                        croppedImage = croppedImage
+                        croppedImage = croppedImage,
+                        cropPoints = cropResult.cropPoints
                     )
 
                     document.value?.pages?.set(currentPosition, updatedPage)
+
+                    originalImageBitmap.recycle()
+                    croppedBitmap.recycle()
                     document.notifyObserver()
                 } catch (error: Exception) {
                     Log.e(TAG, error.stackTraceToString())

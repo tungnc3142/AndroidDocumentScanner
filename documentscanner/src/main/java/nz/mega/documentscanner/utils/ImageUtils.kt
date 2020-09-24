@@ -2,7 +2,6 @@ package nz.mega.documentscanner.utils
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.PointF
 import androidx.core.net.toFile
 import androidx.core.net.toUri
 import com.bumptech.glide.Glide
@@ -53,12 +52,5 @@ object ImageUtils {
             degreesToRotate?.let { requestBuilder.transform(Rotate(it)) }
 
             requestBuilder.submit().get()
-        }
-
-    suspend fun Image.crop(context: Context, imageScanner: ImageScanner, points: List<PointF>): Image =
-        withContext(Dispatchers.IO) {
-            val bitmap = getBitmap(context, null)
-            val result = imageScanner.getCroppedImage(bitmap, points)
-            createImageFromBitmap(context, result!!.bitmap)
         }
 }
