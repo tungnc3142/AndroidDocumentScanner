@@ -15,6 +15,7 @@ import nz.mega.documentscanner.DocumentScannerViewModel
 import nz.mega.documentscanner.R
 import nz.mega.documentscanner.data.Page
 import nz.mega.documentscanner.databinding.FragmentCropBinding
+import nz.mega.documentscanner.utils.ViewUtils.getContourPoints
 
 class CropFragment : Fragment() {
 
@@ -25,6 +26,8 @@ class CropFragment : Fragment() {
     private val viewModel: DocumentScannerViewModel by activityViewModels()
 
     private lateinit var binding: FragmentCropBinding
+    private var xFactor = 1f
+    private var yFactor = 1f
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,11 +47,7 @@ class CropFragment : Fragment() {
     private fun setupView() {
         binding.cropView.setPointColor(ContextCompat.getColor(requireContext(), R.color.secondaryColor))
         binding.btnBack.setOnClickListener { findNavController().popBackStack() }
-        binding.btnDone.setOnClickListener {
-            val points = binding.cropView.points.map(Map.Entry<Int, PointF>::value)
-            viewModel.cropCurrentPage(requireContext(), points)
-            findNavController().popBackStack()
-        }
+        binding.btnDone.setOnClickListener { getCropPoints() }
     }
 
     private fun setupObservers() {
@@ -58,15 +57,12 @@ class CropFragment : Fragment() {
     private fun showCurrentPage(page: Page?) {
         if (page != null) {
             Glide.with(this)
-                .load(page.originalImageUri)
+                .load(page.originalImage.imageUri)
                 .into(binding.imgCrop)
 
             binding.cropView.post {
-                showCropPoints(
-                    page.cropPoints ?: page.getContourPoints(),
-                    page.width,
-                    page.height
-                )
+                val points = page.cropPoints ?: binding.cropView.getContourPoints()
+                showCropPoints(points, page.originalImage.width, page.originalImage.height)
             }
         } else {
             Toast.makeText(requireContext(), "Unknown error", Toast.LENGTH_SHORT).show()
@@ -74,12 +70,12 @@ class CropFragment : Fragment() {
         }
     }
 
-    private fun showCropPoints(points: List<PointF>, maxWidth: Int, maxHeight: Int) {
-        val cropViewWidth = binding.cropView.measuredWidth.toFloat()
-        val cropViewHeight = binding.cropView.measuredHeight.toFloat()
+    private fun showCropPoints(points: List<PointF>, maxWidth: Float, maxHeight: Float) {
+        val cropViewWidth = binding.cropView.measuredWidth
+        val cropViewHeight = binding.cropView.measuredHeight
 
-        val xFactor = cropViewWidth / maxWidth
-        val yFactor = cropViewHeight / maxHeight
+        xFactor = cropViewWidth / maxWidth
+        yFactor = cropViewHeight / maxHeight
 
         val relativePoints = points.map { point ->
             point.apply {
@@ -90,5 +86,17 @@ class CropFragment : Fragment() {
 
         binding.cropView.points = binding.cropView.getOrderedPoints(relativePoints)
         binding.cropView.invalidate()
+    }
+
+    private fun getCropPoints() {
+        val newCropPoints = binding.cropView.points.map {
+            it.value.apply {
+                x /= xFactor
+                y /= yFactor
+            }
+        }
+
+        viewModel.cropCurrentPage(requireContext(), newCropPoints)
+        findNavController().popBackStack()
     }
 }

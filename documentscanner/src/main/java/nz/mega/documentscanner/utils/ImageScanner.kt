@@ -1,56 +1,60 @@
 package nz.mega.documentscanner.utils
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.PointF
-import android.net.Uri
-import androidx.core.net.toUri
-import com.bumptech.glide.Glide
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import nz.mega.documentscanner.data.BitmapCropResult
+import nz.mega.documentscanner.data.CropResult
 import nz.mega.documentscanner.openCV.NativeClass
-import nz.mega.documentscanner.utils.ImageUtils.toFile
 
 class ImageScanner {
 
     private val nativeClass: NativeClass by lazy { NativeClass() }
 
-    suspend fun processImage(context: Context, imageUri: Uri, points: List<PointF>? = null): ImageScannerResult =
+    suspend fun getCropPoints(bitmap: Bitmap): CropResult? =
         withContext(Dispatchers.IO) {
-            val bitmap = Glide.with(context)
-                .asBitmap()
-                .load(imageUri)
-                .submit().get()
+            val cropPoints = calculateCropPoints(bitmap)
 
-            val imagePoints = points ?: getCropPoints(bitmap)
-
-            val resultBitmap = nativeClass.getScannedBitmap(
-                bitmap,
-                imagePoints[0].x,
-                imagePoints[0].y,
-                imagePoints[1].x,
-                imagePoints[1].y,
-                imagePoints[2].x,
-                imagePoints[2].y,
-                imagePoints[3].x,
-                imagePoints[3].y,
-            )
-
-            val imageFile = FileUtils.createPageFile(context).apply {
-                resultBitmap.toFile(this)
+            if (!cropPoints.isNullOrEmpty()) {
+                CropResult(
+                    bitmap.width,
+                    bitmap.height,
+                    cropPoints
+                )
+            } else {
+                null
             }
-
-            ImageScannerResult(imageFile.toUri(), bitmap.width, bitmap.height, imagePoints)
         }
 
-    suspend fun getCropPoints(bitmap: Bitmap): List<PointF> =
+    suspend fun getCroppedImage(bitmap: Bitmap, providedPoints: List<PointF>? = null): BitmapCropResult? =
         withContext(Dispatchers.IO) {
-            val points = nativeClass.getPoint(bitmap) ?: throw DocumentNotFoundException()
+            val cropPoints = providedPoints ?: calculateCropPoints(bitmap)
 
-            points.toArray().map { PointF(it.x.toFloat(), it.y.toFloat()) }
+            if (!cropPoints.isNullOrEmpty()) {
+                val croppedBitmap = nativeClass.getScannedBitmap(
+                    bitmap,
+                    cropPoints[0].x,
+                    cropPoints[0].y,
+                    cropPoints[1].x,
+                    cropPoints[1].y,
+                    cropPoints[2].x,
+                    cropPoints[2].y,
+                    cropPoints[3].x,
+                    cropPoints[3].y,
+                )
+
+                BitmapCropResult(
+                    croppedBitmap,
+                    bitmap.width,
+                    bitmap.height,
+                    cropPoints
+                )
+            } else {
+                null
+            }
         }
 
-    class ImageScannerResult(val imageUri: Uri, val imageWidth: Int, val imageHeight: Int, val points: List<PointF>)
-
-    class DocumentNotFoundException : IllegalStateException("Document not found")
+    private fun calculateCropPoints(bitmap: Bitmap): List<PointF>? =
+        nativeClass.getPoint(bitmap)?.toArray()?.map { PointF(it.x.toFloat(), it.y.toFloat()) }
 }

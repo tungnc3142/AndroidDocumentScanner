@@ -5,17 +5,17 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
 import android.net.Uri
-import androidx.core.net.toFile
 import androidx.core.net.toUri
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import nz.mega.documentscanner.data.Document
+import nz.mega.documentscanner.utils.BitmapUtils.toFile
 import nz.mega.documentscanner.utils.FileUtils.PDF_SUFFIX
 import java.io.FileOutputStream
 
-object PdfUtils {
+object DocumentGenerator {
 
     suspend fun Document.generatePdf(context: Context): Uri =
         withContext(Dispatchers.IO) {
@@ -25,11 +25,11 @@ object PdfUtils {
             val backgroundPaint = Paint().apply { color = Color.WHITE }
 
             pages.forEachIndexed { index, page ->
-                val pageFile = (page.croppedImageUri ?: page.originalImageUri).toFile()
+                val pageUri = page.getImageToPrint().imageUri
 
                 val bitmap = Glide.with(context)
                     .asBitmap()
-                    .load(pageFile)
+                    .load(pageUri)
                     .encodeQuality(quality.value)
                     .skipMemoryCache(true)
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
@@ -59,6 +59,29 @@ object PdfUtils {
             }
 
             pdfDocument.close()
+
+            documentFile.toUri()
+        }
+
+    suspend fun Document.generateJpg(context: Context): Uri =
+        withContext(Dispatchers.IO) {
+            require(pages.isNotEmpty())
+
+            val pageUri = pages.first().getImageToPrint().imageUri
+
+            val bitmap = Glide.with(context)
+                .asBitmap()
+                .load(pageUri)
+                .encodeQuality(quality.value)
+                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .submit()
+                .get()
+
+            val documentFile = FileUtils.createDocumentFile(context, title + FileUtils.JPG_SUFFIX)
+
+            bitmap.toFile(documentFile)
+            bitmap.recycle()
 
             documentFile.toUri()
         }

@@ -1,6 +1,7 @@
 package nz.mega.documentscanner
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.PointF
 import android.net.Uri
 import android.util.Log
@@ -10,14 +11,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import nz.mega.documentscanner.data.CropResult
 import nz.mega.documentscanner.data.Document
 import nz.mega.documentscanner.data.Document.FileType
 import nz.mega.documentscanner.data.Document.Quality
+import nz.mega.documentscanner.data.Image
 import nz.mega.documentscanner.data.Page
+import nz.mega.documentscanner.utils.DocumentGenerator.generateJpg
+import nz.mega.documentscanner.utils.DocumentGenerator.generatePdf
 import nz.mega.documentscanner.utils.ImageScanner
-import nz.mega.documentscanner.utils.ImageUtils.generateJpg
+import nz.mega.documentscanner.utils.ImageUtils
+import nz.mega.documentscanner.utils.ImageUtils.crop
+import nz.mega.documentscanner.utils.ImageUtils.deleteFile
+import nz.mega.documentscanner.utils.ImageUtils.rotate
 import nz.mega.documentscanner.utils.LiveDataUtils.notifyObserver
-import nz.mega.documentscanner.utils.PdfUtils.generatePdf
 
 class DocumentScannerViewModel : ViewModel() {
 
@@ -99,32 +106,47 @@ class DocumentScannerViewModel : ViewModel() {
         saveDestinations.value = destinations
     }
 
-    fun addPage(context: Context, imageUri: Uri): LiveData<Boolean> {
-        val result = MutableLiveData<Boolean>()
+    fun addPage(context: Context, originalBitmap: Bitmap, previewCropResult: CropResult?): LiveData<Boolean> {
+        val addPageResult = MutableLiveData<Boolean>()
 
         viewModelScope.launch {
             try {
-                val scannerResult = imageScanner.processImage(context, imageUri)
+                val originalImage = ImageUtils.createImageFromBitmap(context, originalBitmap)
+                var cropPoints: List<PointF>? = null
+                var croppedImage: Image? = null
+
+//                TODO Override crop points with previewCropResult
+//                if (previewCropResult != null) {
+//                    cropPoints = previewCropResult.cropPoints
+//                }
+
+                val cropResult = imageScanner.getCroppedImage(originalBitmap, cropPoints)
+                if (cropResult != null) {
+                    cropPoints = cropResult.cropPoints
+                    croppedImage = ImageUtils.createImageFromBitmap(context, cropResult.bitmap)
+                }
+
                 val page = Page(
-                    width = scannerResult.imageWidth,
-                    height = scannerResult.imageHeight,
-                    originalImageUri = imageUri,
-                    croppedImageUri = scannerResult.imageUri,
-                    cropPoints = scannerResult.points
+                    originalImage = originalImage,
+                    croppedImage = croppedImage,
+                    cropPoints = cropPoints
                 )
 
                 document.value?.pages?.add(page)
-                updateDocumentFileType()
 
+                originalBitmap.recycle()
+                cropResult?.bitmap?.recycle()
+
+                updateDocumentFileType()
                 document.notifyObserver()
-                result.postValue(true)
+                addPageResult.postValue(true)
             } catch (error: Exception) {
-                Log.e(TAG, "Error: ${error.stackTraceToString()}")
-                result.postValue(false)
+                Log.e(TAG, error.stackTraceToString())
+                addPageResult.postValue(false)
             }
         }
 
-        return result
+        return addPageResult
     }
 
     fun deleteCurrentPage() {
@@ -132,9 +154,11 @@ class DocumentScannerViewModel : ViewModel() {
         document.value?.pages?.get(currentPosition)?.let { currentPage ->
             viewModelScope.launch {
                 try {
-                    currentPage.deleteFiles()
+                    currentPage.originalImage.deleteFile()
+                    currentPage.croppedImage?.deleteFile()
 
                     document.value?.pages?.remove(currentPage)
+
                     updateDocumentFileType()
 
                     document.notifyObserver()
@@ -145,22 +169,20 @@ class DocumentScannerViewModel : ViewModel() {
         }
     }
 
-    fun rotateCurrentPage() {
+    fun rotateCurrentPage(context: Context) {
         val currentPosition = currentPagePosition.value ?: 0
         document.value?.pages?.get(currentPosition)?.let { currentPage ->
             viewModelScope.launch {
                 try {
-                    currentPage.rotateFiles()
+                    val image = currentPage.getImageToPrint()
+                    val rotatedImage = image.rotate(context)
+                    image.deleteFile()
 
-                    val newRotation = if (currentPage.rotation < 360) {
-                        currentPage.rotation + 90
-                    } else {
-                        0
-                    }
+                    val updatedPage = currentPage.copy(
+                        croppedImage = rotatedImage
+                    )
 
-                    val newPage = currentPage.copy(rotation = newRotation)
-
-                    document.value?.pages?.set(currentPosition, newPage)
+                    document.value?.pages?.set(currentPosition, updatedPage)
                     document.notifyObserver()
                 } catch (error: Exception) {
                     Log.e(TAG, error.stackTraceToString())
@@ -174,15 +196,15 @@ class DocumentScannerViewModel : ViewModel() {
         document.value?.pages?.get(currentPosition)?.let { currentPage ->
             viewModelScope.launch {
                 try {
-                    currentPage.deleteCroppedFile()
+                    val image = currentPage.getImageToPrint()
+                    val croppedImage = image.crop(context, imageScanner, points)
+                    image.deleteFile()
 
-                    val scannerResult = imageScanner.processImage(context, currentPage.originalImageUri, points)
-                    val newPage = currentPage.copy(
-                        croppedImageUri = scannerResult.imageUri,
-                        cropPoints = scannerResult.points
+                    val updatedPage = currentPage.copy(
+                        croppedImage = croppedImage
                     )
 
-                    document.value?.pages?.set(currentPosition, newPage)
+                    document.value?.pages?.set(currentPosition, updatedPage)
                     document.notifyObserver()
                 } catch (error: Exception) {
                     Log.e(TAG, error.stackTraceToString())
@@ -200,12 +222,13 @@ class DocumentScannerViewModel : ViewModel() {
     fun generateDocument(context: Context) {
         viewModelScope.launch {
             try {
-                val documentUri = when (document.value?.fileType) {
-                    FileType.JPG -> document.value?.generateJpg(context)
-                    else -> document.value?.generatePdf(context)
+                val currentDocument = requireNotNull(document.value)
+                val generatedDocumentUri = when (currentDocument.fileType) {
+                    FileType.JPG -> currentDocument.generateJpg(context)
+                    else -> currentDocument.generatePdf(context)
                 }
 
-                resultDocument.value = documentUri
+                resultDocument.value = generatedDocumentUri
             } catch (error: Exception) {
                 Log.e(TAG, error.stackTraceToString())
             }

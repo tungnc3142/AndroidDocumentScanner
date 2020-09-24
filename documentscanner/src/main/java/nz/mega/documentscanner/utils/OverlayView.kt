@@ -6,7 +6,6 @@ import android.graphics.Paint
 import android.graphics.PointF
 import android.util.AttributeSet
 import android.view.View
-import androidx.camera.core.AspectRatio
 import androidx.core.content.ContextCompat
 import nz.mega.documentscanner.R
 
@@ -38,36 +37,23 @@ class OverlayView
         }
     }
 
-    fun setLines(
-        points: List<PointF>?,
-        maxWidth: Int,
-        maxHeight: Int,
-        @AspectRatio.Ratio aspectRatio: Int? = null
-    ) {
-        var calculatedWidth = measuredWidth.toFloat()
-        var calculatedHeight = measuredHeight.toFloat()
-
-        val ratio = when (aspectRatio) {
-            AspectRatio.RATIO_16_9 -> 16f / 9f
-            AspectRatio.RATIO_4_3 -> 4f / 3f
-            else -> null
-        }
-
-        if (ratio != null) {
-            if (measuredHeight > measuredWidth) {
-                calculatedWidth = calculatedHeight / ratio
-            } else {
-                calculatedHeight = calculatedWidth / ratio
-            }
-        }
-
-        val xFactor = calculatedWidth / maxWidth
-        val yFactor = calculatedHeight / maxHeight
-
-        this.points = points?.map { point ->
-            point.apply { set(point.x * xFactor, point.y * yFactor) }
-        }
-
+    fun setLines(linePoints: List<PointF>) {
+        points = linePoints
         invalidate()
+    }
+
+    fun setLines(linePoints: List<PointF>, maxWidth: Int, maxHeight: Int) {
+        val viewWidth = measuredWidth.toFloat()
+        val viewHeight = measuredHeight.toFloat()
+
+        val ratioX = viewWidth / maxWidth // Not OK
+        val ratioY = viewHeight / maxHeight
+
+        setLines(linePoints.map { point ->
+            point.apply {
+                x *= ratioX
+                y *= ratioY
+            }
+        })
     }
 }

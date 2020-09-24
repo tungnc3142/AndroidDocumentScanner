@@ -2,129 +2,63 @@ package nz.mega.documentscanner.utils
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.ImageFormat
-import android.graphics.Matrix
-import android.graphics.Rect
-import android.graphics.YuvImage
-import android.media.Image
-import android.net.Uri
-import android.util.DisplayMetrics
-import android.view.Display
-import androidx.camera.core.AspectRatio
+import android.graphics.PointF
+import androidx.core.net.toFile
 import androidx.core.net.toUri
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.bitmap.Rotate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import nz.mega.documentscanner.data.Document
-import nz.mega.documentscanner.utils.FileUtils.JPG_SUFFIX
-import org.opencv.android.Utils
-import org.opencv.core.CvType
-import org.opencv.core.Mat
-import org.opencv.core.Scalar
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.FileOutputStream
-import java.io.OutputStream
-import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
+import nz.mega.documentscanner.data.Image
+import nz.mega.documentscanner.utils.BitmapUtils.toFile
 
 object ImageUtils {
-    private const val RATIO_4_3_VALUE = 4.0 / 3.0
-    private const val RATIO_16_9_VALUE = 16.0 / 9.0
 
-    fun Image.toBitmap(): Bitmap {
-        val buffer = planes[0].buffer
-        buffer.rewind()
-        val bytes = ByteArray(buffer.capacity())
-        buffer.get(bytes)
-        return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-    }
-
-    fun Image.toYuvBitmap(): Bitmap {
-        val yBuffer = planes[0].buffer // Y
-        val uBuffer = planes[1].buffer // U
-        val vBuffer = planes[2].buffer // V
-
-        val ySize = yBuffer.remaining()
-        val uSize = uBuffer.remaining()
-        val vSize = vBuffer.remaining()
-
-        val nv21 = ByteArray(ySize + uSize + vSize)
-
-        //U and V are swapped
-        yBuffer.get(nv21, 0, ySize)
-        vBuffer.get(nv21, ySize, vSize)
-        uBuffer.get(nv21, ySize + vSize, uSize)
-
-        val yuvImage = YuvImage(nv21, ImageFormat.NV21, this.width, this.height, null)
-        val out = ByteArrayOutputStream()
-        yuvImage.compressToJpeg(Rect(0, 0, yuvImage.width, yuvImage.height), 50, out)
-        val imageBytes = out.toByteArray()
-        return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-    }
-
-    fun Bitmap.rotate(degrees: Float): Bitmap {
-        val matrix = Matrix().apply { postRotate(degrees) }
-        return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
-    }
-
-    @AspectRatio.Ratio
-    fun Display.aspectRatio(): Int {
-        val metrics = DisplayMetrics().also(::getRealMetrics)
-        val width = metrics.widthPixels
-        val height = metrics.heightPixels
-        val previewRatio = max(width, height).toDouble() / min(width, height)
-        if (abs(previewRatio - RATIO_4_3_VALUE) <= abs(previewRatio - RATIO_16_9_VALUE)) {
-            return AspectRatio.RATIO_4_3
-        }
-        return AspectRatio.RATIO_16_9
-    }
-
-    fun Bitmap.toFile(file: File): File {
-        val fOut: OutputStream = FileOutputStream(file)
-        compress(Bitmap.CompressFormat.JPEG, 100, fOut)
-        fOut.close()
-        return file
-    }
-
-    @JvmStatic
-    fun bitmapToMat(bitmap: Bitmap): Mat {
-        val mat = Mat(bitmap.height, bitmap.width, CvType.CV_8U, Scalar(4.0))
-        val bitmap32 = bitmap.copy(Bitmap.Config.ARGB_8888, true)
-        Utils.bitmapToMat(bitmap32, mat)
-        return mat
-    }
-
-    @JvmStatic
-    fun matToBitmap(mat: Mat): Bitmap {
-        val bitmap = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888)
-        Utils.matToBitmap(mat, bitmap)
-        return bitmap
-    }
-
-    suspend fun Document.generateJpg(context: Context): Uri =
+    suspend fun createImageFromBitmap(context: Context, bitmap: Bitmap): Image =
         withContext(Dispatchers.IO) {
-            require(pages.isNotEmpty())
+            val file = FileUtils.createPageFile(context).apply {
+                bitmap.toFile(this)
+            }
 
-            val pageUri = pages.first().croppedImageUri ?: pages.first().originalImageUri
+            Image(
+                imageUri = file.toUri(),
+                width = bitmap.width.toFloat(),
+                height = bitmap.height.toFloat()
+            )
+        }
 
-            val bitmap = Glide.with(context)
+    suspend fun Image.rotate(context: Context, degreesToRotate: Int = 90): Image =
+        withContext(Dispatchers.IO) {
+            val bitmap = getBitmap(context, degreesToRotate)
+
+            createImageFromBitmap(context, bitmap).also {
+                bitmap.recycle()
+            }
+        }
+
+    suspend fun Image.deleteFile(): Boolean =
+        withContext(Dispatchers.IO) {
+            imageUri.toFile().delete()
+        }
+
+    suspend fun Image.getBitmap(context: Context, degreesToRotate: Int? = 90): Bitmap =
+        withContext(Dispatchers.IO) {
+            val requestBuilder = Glide.with(context)
                 .asBitmap()
-                .load(pageUri)
-                .encodeQuality(quality.value)
+                .load(imageUri)
                 .skipMemoryCache(true)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .submit()
-                .get()
 
-            val documentFile = FileUtils.createDocumentFile(context, title + JPG_SUFFIX)
+            degreesToRotate?.let { requestBuilder.transform(Rotate(it)) }
 
-            bitmap.toFile(documentFile)
-            bitmap.recycle()
+            requestBuilder.submit().get()
+        }
 
-            documentFile.toUri()
+    suspend fun Image.crop(context: Context, imageScanner: ImageScanner, points: List<PointF>): Image =
+        withContext(Dispatchers.IO) {
+            val bitmap = getBitmap(context, null)
+            val result = imageScanner.getCroppedImage(bitmap, points)
+            createImageFromBitmap(context, result!!.bitmap)
         }
 }

@@ -11,7 +11,7 @@ class ScanPagerViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(item: Page) {
-        val imageUri = item.croppedImageUri ?: item.originalImageUri
+        val imageUri = item.getImageToPrint().imageUri
         Glide.with(itemView)
             .load(imageUri)
             .skipMemoryCache(true)

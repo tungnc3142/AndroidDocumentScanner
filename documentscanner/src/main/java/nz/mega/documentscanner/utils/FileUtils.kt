@@ -1,10 +1,6 @@
 package nz.mega.documentscanner.utils
 
 import android.content.Context
-import android.graphics.BitmapFactory
-import nz.mega.documentscanner.BuildConfig
-import nz.mega.documentscanner.utils.ImageUtils.rotate
-import nz.mega.documentscanner.utils.ImageUtils.toFile
 import java.io.File
 
 object FileUtils {
@@ -24,14 +20,6 @@ object FileUtils {
             }
         }
 
-    fun createPageFile(context: Context): File =
-        File(getParentFile(context, PAGE_FILE_DIR), System.currentTimeMillis().toString()).apply {
-            if (exists()) {
-                delete()
-                createNewFile()
-            }
-        }
-
     fun createDocumentFile(context: Context, title: String): File =
         File(getParentFile(context, DOCUMENT_FILE_DIR), title).apply {
             if (exists()) {
@@ -40,14 +28,14 @@ object FileUtils {
             }
         }
 
+    fun createPageFile(context: Context): File =
+        File(getParentFile(context, PAGE_FILE_DIR), System.currentTimeMillis().toString())
+
+    fun createPhotoFile(context: Context): File =
+        File(context.cacheDir, System.currentTimeMillis().toString())
+
     fun clearExistingFiles(context: Context): Boolean =
         getParentFile(context, ROOT_FILE_DIR).deleteRecursively()
-
-    fun File.rotate(degrees: Float): File {
-        val bitmap = BitmapFactory.decodeFile(path)
-        val rotatedBitmap = bitmap.rotate(degrees)
-        return rotatedBitmap.toFile(this)
-    }
 
     fun getProviderAuthority(context: Context): String =
         "${context.packageName}.scans.provider"

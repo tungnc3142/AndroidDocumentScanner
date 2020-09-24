@@ -5,8 +5,8 @@ import nz.mega.documentscanner.utils.MathUtils.angle
 import nz.mega.documentscanner.utils.MathUtils.scaleRectangle
 import nz.mega.documentscanner.utils.MathUtils.toMatOfPointFloat
 import nz.mega.documentscanner.utils.MathUtils.toMatOfPointInt
-import nz.mega.documentscanner.utils.ImageUtils.bitmapToMat
-import nz.mega.documentscanner.utils.ImageUtils.matToBitmap
+import nz.mega.documentscanner.utils.BitmapUtils.bitmapToMat
+import nz.mega.documentscanner.utils.BitmapUtils.matToBitmap
 import org.opencv.core.*
 import org.opencv.imgproc.Imgproc
 import java.util.*

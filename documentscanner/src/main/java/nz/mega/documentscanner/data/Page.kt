@@ -1,50 +1,17 @@
 package nz.mega.documentscanner.data
 
 import android.graphics.PointF
-import android.net.Uri
-import androidx.core.net.toFile
 import androidx.recyclerview.widget.DiffUtil
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import nz.mega.documentscanner.utils.FileUtils.rotate
 
 data class Page constructor(
     val id: Long = System.currentTimeMillis(),
-    val originalImageUri: Uri,
-    val width: Int,
-    val height: Int,
-    val croppedImageUri: Uri? = null,
-    val cropPoints: List<PointF>? = null,
-    var rotation: Int = 0
+    val originalImage: Image,
+    var croppedImage: Image? = null,
+    var cropPoints: List<PointF>? = null
 ) {
 
-    suspend fun rotateFiles(degrees: Float = 90f) {
-        withContext(Dispatchers.IO) {
-            croppedImageUri?.toFile()?.rotate(degrees)
-            originalImageUri.toFile().rotate(degrees)
-        }
-    }
-
-    suspend fun deleteFiles() {
-        withContext(Dispatchers.IO) {
-            croppedImageUri?.toFile()?.delete()
-            originalImageUri.toFile().delete()
-        }
-    }
-
-    suspend fun deleteCroppedFile() {
-        withContext(Dispatchers.IO) {
-            croppedImageUri?.toFile()?.delete()
-        }
-    }
-
-    fun getContourPoints(): List<PointF> =
-        listOf(
-            PointF(0f, 0f),
-            PointF(width.toFloat(), 0f),
-            PointF(0f, height.toFloat()),
-            PointF(width.toFloat(), height.toFloat())
-        )
+    fun getImageToPrint(): Image =
+        croppedImage ?: originalImage
 
     class ItemDiffUtil : DiffUtil.ItemCallback<Page>() {
 

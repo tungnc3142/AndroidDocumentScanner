@@ -2,34 +2,43 @@ package nz.mega.documentscanner.camera
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.graphics.PointF
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.camera.core.*
+import androidx.camera.core.Camera
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.ImageProxy
+import androidx.camera.core.Preview
+import androidx.camera.core.TorchState
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
-import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.launch
 import nz.mega.documentscanner.DocumentScannerViewModel
 import nz.mega.documentscanner.R
+import nz.mega.documentscanner.data.CropResult
 import nz.mega.documentscanner.databinding.FragmentCameraBinding
 import nz.mega.documentscanner.utils.AnimationUtils.animateCaptureButton
 import nz.mega.documentscanner.utils.AnimationUtils.dismissAndShow
+import nz.mega.documentscanner.utils.BitmapUtils.toBitmap
+import nz.mega.documentscanner.utils.BitmapUtils.toYuvBitmap
 import nz.mega.documentscanner.utils.FileUtils
-import nz.mega.documentscanner.utils.ImageUtils.aspectRatio
-import java.io.File
+import nz.mega.documentscanner.utils.ImageScanner
+import nz.mega.documentscanner.utils.ViewUtils.aspectRatio
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-class CameraFragment : Fragment(), ImageCapture.OnImageSavedCallback {
+class CameraFragment : Fragment() {
 
     companion object {
         private const val TAG = "CameraFragment"
@@ -40,9 +49,10 @@ class CameraFragment : Fragment(), ImageCapture.OnImageSavedCallback {
     private val cameraExecutor: ExecutorService by lazy { Executors.newSingleThreadExecutor() }
     private val snackBar: Snackbar by lazy { buildSnackBar() }
     private val screenAspectRatio: Int by lazy { binding.cameraView.display.aspectRatio() }
+    private val imageScanner: ImageScanner by lazy { ImageScanner() }
 
     private var camera: Camera? = null
-    private var photoFile: File? = null
+    private var previewCropResult: CropResult? = null
 
     private lateinit var binding: FragmentCameraBinding
     private lateinit var imageAnalyzer: ImageAnalysis
@@ -87,7 +97,7 @@ class CameraFragment : Fragment(), ImageCapture.OnImageSavedCallback {
                 .setTargetAspectRatio(screenAspectRatio)
                 .build()
                 .apply {
-                    setAnalyzer(cameraExecutor, DocumentAnalyzer(lifecycleScope, ::onAnalyzerResult))
+                    setAnalyzer(cameraExecutor, ::analyzePreviewImage)
                 }
 
             val cameraSelector = CameraSelector.Builder()
@@ -116,44 +126,58 @@ class CameraFragment : Fragment(), ImageCapture.OnImageSavedCallback {
         binding.btnTorch.setOnClickListener { toggleTorch() }
     }
 
-    private fun onAnalyzerResult(points: List<PointF>, width: Int, height: Int) {
-        requireActivity().runOnUiThread {
-            binding.cameraOverlay.setLines(points, width, height, screenAspectRatio)
+    private fun analyzePreviewImage(imageProxy: ImageProxy) {
+        lifecycleScope.launch {
+            try {
+                val image = requireNotNull(imageProxy.image)
+                val imageRotation = imageProxy.imageInfo.rotationDegrees.toFloat()
+                val bitmap = image.toYuvBitmap(imageRotation)
+
+                previewCropResult = imageScanner.getCropPoints(bitmap)?.also { result ->
+                    binding.cameraOverlay.setLines(result.cropPoints, result.width, result.height)
+                }
+
+                bitmap.recycle()
+                imageProxy.close()
+            } catch (error: Exception) {
+                Log.e(TAG, error.stackTraceToString())
+                previewCropResult = null
+            }
         }
     }
 
     private fun takePicture() {
         showLoading(true)
 
-        photoFile = FileUtils.createPageFile(requireContext())
-        imageCapture.takePicture(
-            ImageCapture.OutputFileOptions.Builder(photoFile!!).build(),
-            cameraExecutor,
-            this
-        )
-    }
+        val photoFile = FileUtils.createPhotoFile(requireContext())
+        val options = ImageCapture.OutputFileOptions.Builder(photoFile).build()
+        imageCapture.takePicture(options, cameraExecutor, object : ImageCapture.OnImageSavedCallback {
+                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                    lifecycleScope.launch {
+                        val photoBitmap = photoFile.toBitmap(requireContext())
+                        photoFile.delete()
 
-    override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-        requireActivity().runOnUiThread {
-            val imageUri = photoFile!!.toUri()
-
-            viewModel.addPage(requireContext(), imageUri).observe(viewLifecycleOwner) { result ->
-                if (result) {
-                    showSnackBar(null)
-                    photoFile = null
-                    findNavController().navigate(CameraFragmentDirections.actionCameraFragmentToScanFragment())
-                } else {
-                    showSnackBar("The document could not be recognized", false)
+                        viewModel.addPage(requireContext(), photoBitmap, previewCropResult).observe(viewLifecycleOwner) { result ->
+                            if (result) {
+                                showSnackBar(null)
+                                findNavController().navigate(CameraFragmentDirections.actionCameraFragmentToScanFragment())
+                            } else {
+                                showSnackBar("Picture process error", false)
+                            }
+                            showLoading(false)
+                        }
+                    }
                 }
-                showLoading(false)
-            }
-        }
-    }
 
-    override fun onError(error: ImageCaptureException) {
-        Log.e(TAG, "Take Picture error: " + error.stackTraceToString())
-        showSnackBar(error.message.toString(), false)
-        showLoading(false)
+                override fun onError(error: ImageCaptureException) {
+                    activity?.runOnUiThread {
+                        Log.e(TAG, "Take Picture error: " + error.stackTraceToString())
+                        photoFile.delete()
+                        showSnackBar(error.message.toString(), false)
+                        showLoading(false)
+                    }
+                }
+            })
     }
 
     private fun allPermissionsGranted(): Boolean =

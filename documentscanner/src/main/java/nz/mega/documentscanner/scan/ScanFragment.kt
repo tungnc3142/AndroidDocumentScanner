@@ -68,7 +68,7 @@ class ScanFragment : Fragment() {
         binding.viewPager.adapter = adapter
         binding.btnBack.setOnClickListener { findNavController().popBackStack(R.id.cameraFragment, false) }
         binding.btnAdd.setOnClickListener { findNavController().navigate(ScanFragmentDirections.actionScanFragmentToCameraFragment()) }
-        binding.btnRotate.setOnClickListener { viewModel.rotateCurrentPage() }
+        binding.btnRotate.setOnClickListener { viewModel.rotateCurrentPage(requireContext()) }
         binding.btnDelete.setOnClickListener { viewModel.deleteCurrentPage() }
         binding.btnCrop.setOnClickListener { findNavController().navigate(ScanFragmentDirections.actionScanFragmentToCropFragment()) }
         binding.btnDone.setOnClickListener { findNavController().navigate(ScanFragmentDirections.actionScanFragmentToSaveFragment()) }
