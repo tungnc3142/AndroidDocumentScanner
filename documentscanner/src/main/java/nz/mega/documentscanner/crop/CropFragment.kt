@@ -15,7 +15,6 @@ import nz.mega.documentscanner.DocumentScannerViewModel
 import nz.mega.documentscanner.R
 import nz.mega.documentscanner.data.Page
 import nz.mega.documentscanner.databinding.FragmentCropBinding
-import nz.mega.documentscanner.utils.ViewUtils.getContourPoints
 
 class CropFragment : Fragment() {
 
@@ -61,8 +60,7 @@ class CropFragment : Fragment() {
                 .into(binding.imgCrop)
 
             binding.cropView.post {
-                val points = page.cropPoints ?: binding.cropView.getContourPoints()
-                showCropPoints(points, page.originalImage.width, page.originalImage.height)
+                showCropPoints(page.cropPoints, page.originalImage.width, page.originalImage.height)
             }
         } else {
             Toast.makeText(requireContext(), "Unknown error", Toast.LENGTH_SHORT).show()
@@ -70,22 +68,25 @@ class CropFragment : Fragment() {
         }
     }
 
-    private fun showCropPoints(points: List<PointF>, maxWidth: Float, maxHeight: Float) {
-        val cropViewWidth = binding.cropView.measuredWidth
-        val cropViewHeight = binding.cropView.measuredHeight
+    private fun showCropPoints(points: List<PointF>?, maxWidth: Float, maxHeight: Float) {
+        if (!points.isNullOrEmpty()) {
+            val cropViewWidth = binding.cropView.measuredWidth
+            val cropViewHeight = binding.cropView.measuredHeight
 
-        xFactor = cropViewWidth / maxWidth
-        yFactor = cropViewHeight / maxHeight
+            xFactor = cropViewWidth / maxWidth
+            yFactor = cropViewHeight / maxHeight
 
-        val relativePoints = points.map { point ->
-            point.apply {
-                point.x *= xFactor
-                point.y *= yFactor
+            val relativePoints = points.map { point ->
+                point.apply {
+                    point.x *= xFactor
+                    point.y *= yFactor
+                }
             }
-        }
 
-        binding.cropView.points = binding.cropView.getOrderedPoints(relativePoints)
-        binding.cropView.invalidate()
+            binding.cropView.points = binding.cropView.getOrderedPoints(relativePoints)
+        } else {
+            binding.cropView.points = null
+        }
     }
 
     private fun getCropPoints() {

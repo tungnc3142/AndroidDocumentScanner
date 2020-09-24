@@ -1,6 +1,5 @@
 package nz.mega.documentscanner.utils
 
-import android.graphics.PointF
 import android.util.DisplayMetrics
 import android.view.Display
 import android.view.View
@@ -24,14 +23,6 @@ object ViewUtils {
             currentItem = lastPosition
         }
     }
-
-    fun View.getContourPoints(): List<PointF> =
-        listOf(
-            PointF(0f, 0f),
-            PointF(measuredWidth.toFloat(), 0f),
-            PointF(0f, measuredHeight.toFloat()),
-            PointF(measuredWidth.toFloat(), measuredHeight.toFloat())
-        )
 
     @AspectRatio.Ratio
     fun Display.aspectRatio(): Int {

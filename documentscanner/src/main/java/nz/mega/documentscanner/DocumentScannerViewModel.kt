@@ -160,7 +160,6 @@ class DocumentScannerViewModel : ViewModel() {
                     document.value?.pages?.remove(currentPage)
 
                     updateDocumentFileType()
-
                     document.notifyObserver()
                 } catch (error: Exception) {
                     Log.e(TAG, error.stackTraceToString())

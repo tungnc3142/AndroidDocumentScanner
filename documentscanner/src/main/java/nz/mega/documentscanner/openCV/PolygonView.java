@@ -15,6 +15,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Magnifier;
 
+import androidx.annotation.Nullable;
+
 import nz.mega.documentscanner.R;
 
 import java.util.ArrayList;
@@ -136,10 +138,28 @@ public class PolygonView extends FrameLayout {
         return orderedPoints;
     }
 
-    public void setPoints(Map<Integer, PointF> pointFMap) {
-        if (pointFMap.size() == 4) {
+    public void setPoints(@Nullable Map<Integer, PointF> pointFMap) {
+        if (pointFMap != null && pointFMap.size() == 4) {
             setPointsCoordinates(pointFMap);
+        } else {
+            setPointsCoordinates(getContourPoints());
         }
+    }
+
+    private Map<Integer, PointF> getContourPoints() {
+        Float startX = (float) pointer1.getMeasuredWidth();
+        Float startY = (float) pointer1.getMeasuredHeight() * 2;
+        Float endX = getWidth() - (startX * 2);
+        Float endY = getHeight() - (startY * 2);
+
+        List<PointF> points = new ArrayList<PointF>() {{
+            add(new PointF(startX, startY));
+            add(new PointF(endX, startY));
+            add(new PointF(startX, endY));
+            add(new PointF(endX, endY));
+        }};
+
+        return getOrderedPoints(points);
     }
 
     public void setPointColor(int color)
@@ -160,6 +180,8 @@ public class PolygonView extends FrameLayout {
 
         pointer4.setX(pointFMap.get(3).x);
         pointer4.setY(pointFMap.get(3).y);
+
+        invalidate();
     }
 
     @Override
