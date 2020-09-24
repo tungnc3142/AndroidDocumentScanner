@@ -26,6 +26,7 @@ class DocumentScannerActivity : AppCompatActivity(), NavController.OnDestination
     companion object {
         private const val TAG = "DocumentScannerActivity"
         private const val EXTRA_SAVE_DESTINATIONS = "EXTRA_SAVE_DESTINATIONS"
+        private const val EXTRA_PICKED_SAVE_DESTINATION = "EXTRA_PICKED_SAVE_DESTINATION"
 
         @JvmStatic
         fun getIntent(context: Context, saveDestinations: Array<String>? = null): Intent =
@@ -73,15 +74,18 @@ class DocumentScannerActivity : AppCompatActivity(), NavController.OnDestination
 
     private fun setupObservers() {
         viewModel.getResultDocument().observe(this, ::onResultDocument)
-        viewModel.setSaveDestinations(
-            saveDestinations
-                ?: arrayOf("Cloud Drive", "Chat")
-        ) // TODO Remove hardcoded destinations
+
+        if (!saveDestinations.isNullOrEmpty()) {
+            viewModel.setSaveDestinations(saveDestinations!!)
+        } else if (BuildConfig.DEBUG) {
+            viewModel.setSaveDestinations(arrayOf("Cloud Drive", "Chat"))
+        }
     }
 
     private fun onResultDocument(documentUri: Uri) {
         if (callingActivity != null) {
             val intent = Intent().apply {
+                putExtra(EXTRA_PICKED_SAVE_DESTINATION, viewModel.getSaveDestination())
                 setDataAndType(documentUri, contentResolver.getType(documentUri))
             }
             setResult(Activity.RESULT_OK, intent)
@@ -97,6 +101,7 @@ class DocumentScannerActivity : AppCompatActivity(), NavController.OnDestination
                 .setChooserTitle(fileTitle)
                 .setStream(fileUri)
                 .createChooserIntent()
+                .apply { putExtra(EXTRA_PICKED_SAVE_DESTINATION, viewModel.getSaveDestination()) }
 
             startActivity(shareIntent)
         }

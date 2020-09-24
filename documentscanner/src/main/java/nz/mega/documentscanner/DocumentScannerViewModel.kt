@@ -60,6 +60,9 @@ class DocumentScannerViewModel : ViewModel() {
             }
         }
 
+    fun getSaveDestination(): String? =
+        document.value?.saveDestination
+
     fun getDocumentPages(): LiveData<List<Page>> =
         document.map { it.pages.toList() }
 
