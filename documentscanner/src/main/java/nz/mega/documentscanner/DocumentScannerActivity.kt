@@ -14,6 +14,7 @@ import androidx.core.content.FileProvider
 import androidx.core.net.toFile
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import nz.mega.documentscanner.databinding.ActivityDocumentScannerBinding
 import nz.mega.documentscanner.utils.FileUtils
@@ -40,10 +41,6 @@ class DocumentScannerActivity : AppCompatActivity(), NavController.OnDestination
     private val viewModel: DocumentScannerViewModel by viewModels()
     private val saveDestinations: Array<String>? by extra(EXTRA_SAVE_DESTINATIONS)
 
-    private val navController: NavController by lazy {
-        (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment).navController
-    }
-
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,11 +51,11 @@ class DocumentScannerActivity : AppCompatActivity(), NavController.OnDestination
         setContentView(binding.root)
         setupObservers()
 
-        navController.addOnDestinationChangedListener(this)
+        findNavController().addOnDestinationChangedListener(this)
     }
 
     override fun onDestroy() {
-        navController.removeOnDestinationChangedListener(this)
+        findNavController().removeOnDestinationChangedListener(this)
         super.onDestroy()
     }
 
@@ -110,4 +107,7 @@ class DocumentScannerActivity : AppCompatActivity(), NavController.OnDestination
     override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
         currentFocus?.hideKeyboard()
     }
+
+    private fun findNavController(): NavController =
+        (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment).navController
 }
