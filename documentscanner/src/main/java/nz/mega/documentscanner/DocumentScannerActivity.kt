@@ -82,11 +82,11 @@ class DocumentScannerActivity : AppCompatActivity() {
 
     private fun onResultDocument(documentUri: Uri) {
         if (callingActivity != null) {
-            val intent = Intent().apply {
+            val resultIntent = Intent().apply {
                 putExtra(EXTRA_PICKED_SAVE_DESTINATION, viewModel.getSaveDestination())
                 setDataAndType(documentUri, contentResolver.getType(documentUri))
             }
-            setResult(Activity.RESULT_OK, intent)
+            setResult(Activity.RESULT_OK, resultIntent)
             finish()
         } else {
             val providerAuthority = FileUtils.getProviderAuthority(this)

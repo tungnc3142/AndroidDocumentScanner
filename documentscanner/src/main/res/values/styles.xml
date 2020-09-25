@@ -4,4 +4,10 @@
         <item name="backgroundTint">?colorSecondary</item>
         <item name="android:textColor">?colorOnSecondary</item>
     </style>
+
+    <style name="Widget.DocumentScanner.Chip" parent="Widget.MaterialComponents.Chip.Choice">
+        <item name="chipBackgroundColor">@color/chip_bg</item>
+        <item name="android:textColor">@color/chip_text</item>
+        <item name="android:textAppearance">@style/TextAppearance.DocumentScanner.Body2.Bold</item>
+    </style>
 </resources>

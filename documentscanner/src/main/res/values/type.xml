@@ -15,6 +15,10 @@
         <item name="lineHeight">20sp</item>
     </style>
 
+    <style name="TextAppearance.DocumentScanner.Body2.Bold">
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <style name="TextAppearance.DocumentScanner.Caption" parent="TextAppearance.MaterialComponents.Caption">
         <item name="android:textSize">13sp</item>
         <item name="lineHeight">15sp</item>

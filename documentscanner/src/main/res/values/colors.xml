@@ -14,5 +14,7 @@
     <color name="onSecondaryColor">#FFFFFF</color>
     <color name="colorSurface">#FFFFFF</color>
     <color name="colorOnSurface">#000000</color>
+    <color name="colorPrimarySurface">#8A000000</color>
     <color name="backgroundColor">#000000</color>
+    <color name="dividerColor">#DE000000</color>
 </resources>

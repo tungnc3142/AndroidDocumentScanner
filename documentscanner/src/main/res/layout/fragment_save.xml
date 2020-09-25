@@ -43,7 +43,7 @@
         android:paddingBottom="8dp"
         android:text="@string/title_file_name"
         android:textAppearance="?textAppearanceBody2"
-        android:textColor="?colorOnSurface"
+        android:textColor="?colorPrimarySurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/txt_title"
@@ -77,8 +77,7 @@
         android:layout_height="1dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:alpha="0.87"
-        android:background="?colorOnSurface"
+        android:background="@color/dividerColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/edit_file_name"
@@ -94,7 +93,7 @@
         android:paddingBottom="8dp"
         android:text="@string/title_file_type"
         android:textAppearance="?textAppearanceBody2"
-        android:textColor="?colorOnSurface"
+        android:textColor="?colorPrimarySurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/separator_file_name"
@@ -119,7 +118,6 @@
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_file_type_pdf"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
@@ -128,7 +126,6 @@
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_file_type_jpg"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/file_type_jpg"
@@ -151,8 +148,7 @@
         android:layout_height="1dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:alpha="0.87"
-        android:background="?colorOnSurface"
+        android:background="@color/dividerColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/chip_group_file_type"
@@ -168,7 +164,7 @@
         android:paddingBottom="8dp"
         android:text="@string/title_quality"
         android:textAppearance="?textAppearanceBody2"
-        android:textColor="?colorOnSurface"
+        android:textColor="?colorPrimarySurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/separator_file_type"
@@ -193,7 +189,6 @@
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_quality_high"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/quality_high"
@@ -201,7 +196,6 @@
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_quality_medium"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
@@ -210,7 +204,6 @@
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_quality_low"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/quality_low"
@@ -224,8 +217,7 @@
         android:layout_height="1dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:alpha="0.87"
-        android:background="?colorOnSurface"
+        android:background="@color/dividerColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/chip_group_quality"
@@ -241,7 +233,7 @@
         android:paddingBottom="8dp"
         android:text="@string/title_destination"
         android:textAppearance="?textAppearanceBody2"
-        android:textColor="?colorOnSurface"
+        android:textColor="?colorPrimarySurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/separator_quality"
@@ -270,8 +262,7 @@
         android:layout_height="1dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:alpha="0.87"
-        android:background="?colorOnSurface"
+        android:background="@color/dividerColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/chip_group_destinations"

@@ -7,11 +7,13 @@
         <item name="colorOnSecondary">@color/onSecondaryColor</item>
         <item name="colorSurface">@color/colorSurface</item>
         <item name="colorOnSurface">@color/colorOnSurface</item>
+        <item name="colorPrimarySurface">@color/colorPrimarySurface</item>
         <item name="backgroundColor">@color/backgroundColor</item>
         <item name="android:textColorPrimary">@color/onPrimaryColor</item>
         <item name="android:textColorSecondary">@color/onPrimaryColor</item>
         <item name="android:windowBackground">@color/backgroundColor</item>
         <item name="android:statusBarColor">@color/backgroundColor</item>
+        <item name="chipStyle">@style/Widget.DocumentScanner.Chip</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.DocumentScanner.MaterialAlertDialog</item>
 
         <item name="textAppearanceHeadline6">@style/TextAppearance.DocumentScanner.Headline6</item>
