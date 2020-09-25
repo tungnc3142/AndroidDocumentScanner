@@ -13,8 +13,6 @@ import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toFile
 import androidx.navigation.NavController
-import androidx.navigation.NavDestination
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import nz.mega.documentscanner.databinding.ActivityDocumentScannerBinding
 import nz.mega.documentscanner.utils.FileUtils
@@ -22,7 +20,7 @@ import nz.mega.documentscanner.utils.IntentUtils.extra
 import nz.mega.documentscanner.utils.ViewUtils.hideKeyboard
 import org.opencv.android.OpenCVLoader
 
-class DocumentScannerActivity : AppCompatActivity(), NavController.OnDestinationChangedListener {
+class DocumentScannerActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "DocumentScannerActivity"
@@ -40,6 +38,9 @@ class DocumentScannerActivity : AppCompatActivity(), NavController.OnDestination
 
     private val viewModel: DocumentScannerViewModel by viewModels()
     private val saveDestinations: Array<String>? by extra(EXTRA_SAVE_DESTINATIONS)
+    private val destinationChangedListener: NavController.OnDestinationChangedListener by lazy {
+        NavController.OnDestinationChangedListener { _, _, _ -> currentFocus?.hideKeyboard() }
+    }
 
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,11 +52,11 @@ class DocumentScannerActivity : AppCompatActivity(), NavController.OnDestination
         setContentView(binding.root)
         setupObservers()
 
-        findNavController().addOnDestinationChangedListener(this)
+        findNavController().addOnDestinationChangedListener(destinationChangedListener)
     }
 
     override fun onDestroy() {
-        findNavController().removeOnDestinationChangedListener(this)
+        findNavController().removeOnDestinationChangedListener(destinationChangedListener)
         super.onDestroy()
     }
 
@@ -102,10 +103,6 @@ class DocumentScannerActivity : AppCompatActivity(), NavController.OnDestination
 
             startActivity(shareIntent)
         }
-    }
-
-    override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
-        currentFocus?.hideKeyboard()
     }
 
     private fun findNavController(): NavController =
