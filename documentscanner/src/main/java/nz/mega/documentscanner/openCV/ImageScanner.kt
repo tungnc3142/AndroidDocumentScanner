@@ -1,35 +1,113 @@
 package nz.mega.documentscanner.openCV
 
 import android.graphics.Bitmap
-import nz.mega.documentscanner.utils.OpenCvUtils.angle
-import nz.mega.documentscanner.utils.OpenCvUtils.scaleRectangle
-import nz.mega.documentscanner.utils.OpenCvUtils.toMatOfPointFloat
-import nz.mega.documentscanner.utils.OpenCvUtils.toMatOfPointInt
-import nz.mega.documentscanner.utils.BitmapUtils.bitmapToMat
-import nz.mega.documentscanner.utils.BitmapUtils.matToBitmap
-import org.opencv.core.*
+import android.graphics.PointF
+import androidx.camera.core.ImageProxy
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import nz.mega.documentscanner.data.BitmapCropResult
+import nz.mega.documentscanner.utils.BitmapUtils
+import nz.mega.documentscanner.openCV.OpenCvUtils.yuvToRgba
+import org.opencv.core.Core
+import org.opencv.core.CvType
+import org.opencv.core.Mat
+import org.opencv.core.MatOfInt
+import org.opencv.core.MatOfPoint
+import org.opencv.core.MatOfPoint2f
+import org.opencv.core.Point
+import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
-import java.util.*
+import java.util.ArrayList
+import java.util.Collections
+import java.util.Comparator
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.max
 
-class NativeClass {
+object ImageScanner {
 
-    companion object {
-        private const val THRESHOLD_LEVEL = 2
-        private const val AREA_LOWER_THRESHOLD = 0.2
-        private const val AREA_UPPER_THRESHOLD = 0.98
-        private const val DOWNSCALE_IMAGE_SIZE = 600.0
+    private const val THRESHOLD_LEVEL = 2
+    private const val AREA_LOWER_THRESHOLD = 0.2
+    private const val AREA_UPPER_THRESHOLD = 0.98
+    private const val DOWNSCALE_IMAGE_SIZE = 600.0
+
+    private val areaDescendingComparator: Comparator<MatOfPoint2f> by lazy {
+        Comparator { m1, m2 ->
+            val area1 = Imgproc.contourArea(m1)
+            val area2 = Imgproc.contourArea(m2)
+            ceil(area2 - area1).toInt()
+        }
     }
 
-    private val areaDescendingComparator: Comparator<MatOfPoint2f> = Comparator { m1, m2 ->
-        val area1 = Imgproc.contourArea(m1)
-        val area2 = Imgproc.contourArea(m2)
-        ceil(area2 - area1).toInt()
+    suspend fun getCroppedImage(
+        bitmap: Bitmap,
+        providedPoints: List<PointF>? = null
+    ): BitmapCropResult? = withContext(Dispatchers.IO) {
+        val cropPoints = providedPoints ?: getPoint(bitmap)?.toArray()
+            ?.map { PointF(it.x.toFloat(), it.y.toFloat()) }
+
+        if (!cropPoints.isNullOrEmpty()) {
+            val croppedBitmap = getScannedBitmap(
+                bitmap,
+                cropPoints[0].x,
+                cropPoints[0].y,
+                cropPoints[1].x,
+                cropPoints[1].y,
+                cropPoints[2].x,
+                cropPoints[2].y,
+                cropPoints[3].x,
+                cropPoints[3].y,
+            )
+
+            BitmapCropResult(
+                croppedBitmap,
+                bitmap.width,
+                bitmap.height,
+                cropPoints
+            )
+        } else {
+            null
+        }
     }
 
-    fun getScannedBitmap(
+    suspend fun getCropLines(imageProxy: ImageProxy, maxWidth: Int, maxHeight: Int): FloatArray? =
+        withContext(Dispatchers.IO) {
+            var array: FloatArray? = null
+            val mat: Mat = imageProxy.yuvToRgba()
+            val ratioX = maxWidth.toFloat() / mat.width()
+            val ratioY = maxHeight.toFloat() / mat.height()
+
+            getPoint(mat)?.toArray()
+                ?.map { point ->
+                    PointF(point.x.toFloat() * ratioX, point.y.toFloat() * ratioY)
+                }
+                ?.let { points ->
+                    array = floatArrayOf(
+                        points[0].x,
+                        points[0].y,
+                        points[1].x,
+                        points[1].y,
+                        points[1].x,
+                        points[1].y,
+                        points[2].x,
+                        points[2].y,
+                        points[2].x,
+                        points[2].y,
+                        points[3].x,
+                        points[3].y,
+                        points[3].x,
+                        points[3].y,
+                        points[0].x,
+                        points[0].y,
+                    )
+                }
+
+            mat.release()
+
+            array
+        }
+
+    private fun getScannedBitmap(
         bitmap: Bitmap?,
         x1: Float,
         y1: Float,
@@ -47,18 +125,18 @@ class NativeClass {
                 x2.toDouble(), y2.toDouble()
             ), Point(x3.toDouble(), y3.toDouble()), Point(x4.toDouble(), y4.toDouble())
         )
-        val dstMat = perspective.transform(bitmapToMat(bitmap!!), rectangle)
-        val resultBitmap = matToBitmap(dstMat)
+        val dstMat = perspective.transform(BitmapUtils.bitmapToMat(bitmap!!), rectangle)
+        val resultBitmap = BitmapUtils.matToBitmap(dstMat)
         dstMat.release()
         return resultBitmap
     }
 
-    fun getPoint(bitmap: Bitmap): MatOfPoint2f? {
-        val mat = bitmapToMat(bitmap)
+    private fun getPoint(bitmap: Bitmap): MatOfPoint2f? {
+        val mat = BitmapUtils.bitmapToMat(bitmap)
         return getPoint(mat)
     }
 
-    fun getPoint(src: Mat): MatOfPoint2f? {
+    private fun getPoint(src: Mat): MatOfPoint2f? {
         // Downscale image for better performance.
         val ratio = DOWNSCALE_IMAGE_SIZE / max(src.width(), src.height())
         val downscaledSize = Size(src.width() * ratio, src.height() * ratio)
@@ -70,11 +148,10 @@ class NativeClass {
         }
         Collections.sort(rectangles, areaDescendingComparator)
         val largestRectangle = rectangles[0]
-        return scaleRectangle(largestRectangle, 1f / ratio)
+        return OpenCvUtils.scaleRectangle(largestRectangle, 1f / ratio)
     }
 
-    //public native float[] getPoints(Bitmap bitmap);
-    fun getPoints(src: Mat): List<MatOfPoint2f> {
+    private fun getPoints(src: Mat): List<MatOfPoint2f> {
 
         // Blur the image to filter out the noise.
         val blurred = Mat()
@@ -131,7 +208,7 @@ class NativeClass {
                     Imgproc.CHAIN_APPROX_SIMPLE
                 )
                 for (contour in contours) {
-                    val contourFloat = toMatOfPointFloat(
+                    val contourFloat = OpenCvUtils.toMatOfPointFloat(
                         contour
                     )
                     val arcLen = Imgproc.arcLength(contourFloat, true) * 0.02
@@ -149,7 +226,7 @@ class NativeClass {
     }
 
     private fun isRectangle(polygon: MatOfPoint2f, srcArea: Int): Boolean {
-        val polygonInt = toMatOfPointInt(polygon)
+        val polygonInt = OpenCvUtils.toMatOfPointInt(polygon)
         if (polygon.rows() != 4) {
             return false
         }
@@ -166,7 +243,7 @@ class NativeClass {
         val approxPoints = polygon.toArray()
         for (i in 2..4) {
             val cosine = abs(
-                angle(
+                OpenCvUtils.angle(
                     approxPoints[i % 4], approxPoints[i - 2], approxPoints[i - 1]
                 )
             )

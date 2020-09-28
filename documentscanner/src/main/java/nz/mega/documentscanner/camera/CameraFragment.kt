@@ -27,11 +27,11 @@ import kotlinx.coroutines.launch
 import nz.mega.documentscanner.DocumentScannerViewModel
 import nz.mega.documentscanner.R
 import nz.mega.documentscanner.databinding.FragmentCameraBinding
+import nz.mega.documentscanner.openCV.ImageScanner
 import nz.mega.documentscanner.utils.AnimationUtils.animateCaptureButton
 import nz.mega.documentscanner.utils.AnimationUtils.dismissAndShow
 import nz.mega.documentscanner.utils.BitmapUtils.toBitmap
 import nz.mega.documentscanner.utils.FileUtils
-import nz.mega.documentscanner.utils.ImageScanner
 import nz.mega.documentscanner.utils.ViewUtils.aspectRatio
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -47,7 +47,6 @@ class CameraFragment : Fragment() {
     private val cameraExecutor: ExecutorService by lazy { Executors.newSingleThreadExecutor() }
     private val snackBar: Snackbar by lazy { buildSnackBar() }
     private val screenAspectRatio: Int by lazy { binding.cameraView.display.aspectRatio() }
-    private val imageScanner: ImageScanner by lazy { ImageScanner() }
 
     private var camera: Camera? = null
 
@@ -131,7 +130,7 @@ class CameraFragment : Fragment() {
             try {
                 val maxWidth = binding.cameraOverlay.measuredWidth
                 val maxHeight = binding.cameraOverlay.measuredHeight
-                binding.cameraOverlay.lines = imageScanner.getCropLines(imageProxy, maxWidth, maxHeight)
+                binding.cameraOverlay.lines = ImageScanner.getCropLines(imageProxy, maxWidth, maxHeight)
 
                 imageProxy.close()
             } catch (error: Exception) {

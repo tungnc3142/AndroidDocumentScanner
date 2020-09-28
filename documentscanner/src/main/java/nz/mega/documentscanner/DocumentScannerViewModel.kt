@@ -16,11 +16,11 @@ import nz.mega.documentscanner.data.Document.FileType
 import nz.mega.documentscanner.data.Document.Quality
 import nz.mega.documentscanner.data.Image
 import nz.mega.documentscanner.data.Page
+import nz.mega.documentscanner.openCV.ImageScanner
 import nz.mega.documentscanner.utils.DocumentGenerator.generateJpg
 import nz.mega.documentscanner.utils.DocumentGenerator.generatePdf
 import nz.mega.documentscanner.utils.DocumentUtils.deleteAllPages
 import nz.mega.documentscanner.utils.DocumentUtils.deletePage
-import nz.mega.documentscanner.utils.ImageScanner
 import nz.mega.documentscanner.utils.ImageUtils
 import nz.mega.documentscanner.utils.ImageUtils.deleteFile
 import nz.mega.documentscanner.utils.ImageUtils.getBitmap
@@ -37,7 +37,6 @@ class DocumentScannerViewModel : ViewModel() {
     private val saveDestinations: MutableLiveData<Array<String>> = MutableLiveData()
     private val currentPagePosition: MutableLiveData<Int> = MutableLiveData(0)
     private val resultDocument: MutableLiveData<Uri> = MutableLiveData()
-    private val imageScanner: ImageScanner by lazy { ImageScanner() }
 
     fun getResultDocument(): LiveData<Uri> =
         resultDocument
@@ -122,7 +121,7 @@ class DocumentScannerViewModel : ViewModel() {
                 var cropPoints: List<PointF>? = null
                 var croppedImage: Image? = null
 
-                val cropResult = imageScanner.getCroppedImage(originalBitmap, cropPoints)
+                val cropResult = ImageScanner.getCroppedImage(originalBitmap, cropPoints)
                 if (cropResult != null) {
                     cropPoints = cropResult.cropPoints
                     croppedImage = ImageUtils.createImageFromBitmap(context, cropResult.bitmap)
@@ -182,7 +181,7 @@ class DocumentScannerViewModel : ViewModel() {
 
                     val image = currentPage.originalImage
                     val originalImageBitmap = image.getBitmap(context, null)
-                    val cropResult = imageScanner.getCroppedImage(originalImageBitmap, cropPoints)
+                    val cropResult = ImageScanner.getCroppedImage(originalImageBitmap, cropPoints)
                     val croppedBitmap = cropResult!!.bitmap
                     val croppedImage = ImageUtils.createImageFromBitmap(context, croppedBitmap)
 

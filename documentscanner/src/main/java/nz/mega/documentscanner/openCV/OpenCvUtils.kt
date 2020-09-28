@@ -1,4 +1,4 @@
-package nz.mega.documentscanner.utils
+package nz.mega.documentscanner.openCV
 
 import android.graphics.ImageFormat
 import androidx.camera.core.ImageProxy

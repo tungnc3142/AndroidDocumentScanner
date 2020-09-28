@@ -1,4 +1,4 @@
-package nz.mega.documentscanner.utils
+package nz.mega.documentscanner.view
 
 import android.view.View
 import androidx.annotation.Px

@@ -17,7 +17,7 @@
         app:layout_constraintTop_toTopOf="parent"
         />
 
-    <nz.mega.documentscanner.utils.OverlayView
+    <nz.mega.documentscanner.view.OverlayView
         android:id="@+id/camera_overlay"
         android:layout_width="0dp"
         android:layout_height="0dp"

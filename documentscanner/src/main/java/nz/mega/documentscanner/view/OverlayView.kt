@@ -1,4 +1,4 @@
-package nz.mega.documentscanner.utils
+package nz.mega.documentscanner.view
 
 import android.content.Context
 import android.graphics.Canvas

@@ -15,7 +15,7 @@ import nz.mega.documentscanner.R
 import nz.mega.documentscanner.data.Page
 import nz.mega.documentscanner.databinding.FragmentScanBinding
 import nz.mega.documentscanner.utils.DialogFactory
-import nz.mega.documentscanner.utils.OffsetPageTransformer
+import nz.mega.documentscanner.view.OffsetPageTransformer
 import nz.mega.documentscanner.utils.ViewUtils.scrollToLastPosition
 
 class ScanFragment : Fragment() {
