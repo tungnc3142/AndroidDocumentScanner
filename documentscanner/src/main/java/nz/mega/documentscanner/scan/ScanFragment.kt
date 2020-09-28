@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -74,7 +75,12 @@ class ScanFragment : Fragment() {
         binding.viewPager.adapter = adapter
         binding.btnBack.setOnClickListener { showDiscardDialog() }
         binding.btnAdd.setOnClickListener { findNavController().navigate(ScanFragmentDirections.actionScanFragmentToCameraFragment()) }
-        binding.btnRotate.setOnClickListener { viewModel.rotateCurrentPage(requireContext()) }
+        binding.btnRotate.setOnClickListener {
+            showProgress(true)
+            viewModel.rotateCurrentPage(requireContext()).observe(viewLifecycleOwner) {
+                showProgress(false)
+            }
+        }
         binding.btnDelete.setOnClickListener {
             DialogFactory.createDeleteCurrentScanDialog(requireContext()) {
                 viewModel.deleteCurrentPage()
@@ -135,5 +141,10 @@ class ScanFragment : Fragment() {
                 findNavController().popBackStack(R.id.cameraFragment, false)
             }
         }
+    }
+
+    private fun showProgress(show: Boolean) {
+        binding.progress.isVisible = show
+        binding.btnDone.isEnabled = !show
     }
 }

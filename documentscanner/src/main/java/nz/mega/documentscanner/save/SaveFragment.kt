@@ -81,7 +81,7 @@ class SaveFragment : Fragment() {
         }
 
         binding.btnBack.setOnClickListener { findNavController().popBackStack() }
-        binding.btnSave.setOnClickListener { viewModel.generateDocument(requireContext()) }
+        binding.btnSave.setOnClickListener { createDocument() }
     }
 
     private fun setupObservers() {
@@ -149,5 +149,17 @@ class SaveFragment : Fragment() {
         if (binding.chipGroupQuality.checkedChipId != chipResId) {
             binding.chipGroupQuality.check(chipResId)
         }
+    }
+
+    private fun createDocument() {
+        showProgress(true)
+        viewModel.generateDocument(requireContext()).observe(viewLifecycleOwner) {
+            showProgress(false)
+        }
+    }
+
+    private fun showProgress(show: Boolean) {
+        binding.progress.isVisible = show
+        binding.btnSave.isEnabled = !show
     }
 }

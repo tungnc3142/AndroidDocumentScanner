@@ -140,7 +140,7 @@ class CameraFragment : Fragment() {
     }
 
     private fun takePicture() {
-        showLoading(true)
+        showProgress(true)
 
         val photoFile = FileUtils.createPhotoFile(requireContext())
         val options = ImageCapture.OutputFileOptions.Builder(photoFile).build()
@@ -158,7 +158,7 @@ class CameraFragment : Fragment() {
                             } else {
                                 showSnackBar("Picture process error", false)
                             }
-                            showLoading(false)
+                            showProgress(false)
                         }
                     }
                 }
@@ -168,7 +168,7 @@ class CameraFragment : Fragment() {
                         Log.e(TAG, "Take Picture error: " + error.stackTraceToString())
                         photoFile.delete()
                         showSnackBar(error.message.toString(), false)
-                        showLoading(false)
+                        showProgress(false)
                     }
                 }
             })
@@ -196,7 +196,7 @@ class CameraFragment : Fragment() {
         }
     }
 
-    private fun showLoading(show: Boolean) {
+    private fun showProgress(show: Boolean) {
         binding.progress.isVisible = show
         binding.btnCapture.isEnabled = !show
     }

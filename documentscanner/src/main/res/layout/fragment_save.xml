@@ -286,13 +286,27 @@
         tools:visibility="visible"
         />
 
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:elevation="4dp"
+        android:indeterminateTint="?colorOnSurface"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/btn_save"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="visible"
+        />
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_save"
-        style="@style/Widget.DocumentScanner.Button.Save"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:text="@string/action_save"
+        android:theme="@style/ThemeOverlay.DocumentScanner.Secondary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

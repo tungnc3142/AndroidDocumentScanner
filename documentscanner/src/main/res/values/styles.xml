@@ -1,10 +1,5 @@
 <resources>
 
-    <style name="Widget.DocumentScanner.Button.Save" parent="@style/Widget.MaterialComponents.Button">
-        <item name="backgroundTint">?colorSecondary</item>
-        <item name="android:textColor">?colorOnSecondary</item>
-    </style>
-
     <style name="Widget.DocumentScanner.Chip" parent="Widget.MaterialComponents.Chip.Choice">
         <item name="chipBackgroundColor">@color/chip_bg</item>
         <item name="android:textColor">@color/chip_text</item>

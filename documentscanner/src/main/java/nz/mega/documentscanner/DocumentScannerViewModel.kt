@@ -113,7 +113,7 @@ class DocumentScannerViewModel : ViewModel() {
     }
 
     fun addPage(context: Context, originalBitmap: Bitmap): LiveData<Boolean> {
-        val addPageResult = MutableLiveData<Boolean>()
+        val operationResult = MutableLiveData<Boolean>()
 
         viewModelScope.launch {
             try {
@@ -140,17 +140,19 @@ class DocumentScannerViewModel : ViewModel() {
 
                 updateDocumentFileType()
                 document.notifyObserver()
-                addPageResult.postValue(true)
+                operationResult.postValue(true)
             } catch (error: Exception) {
                 Log.e(TAG, error.stackTraceToString())
-                addPageResult.postValue(false)
+                operationResult.postValue(false)
             }
         }
 
-        return addPageResult
+        return operationResult
     }
 
-    fun rotateCurrentPage(context: Context) {
+    fun rotateCurrentPage(context: Context): LiveData<Boolean> {
+        val operationResult = MutableLiveData<Boolean>()
+
         val currentPosition = currentPagePosition.value ?: 0
         document.value?.pages?.get(currentPosition)?.let { currentPage ->
             viewModelScope.launch {
@@ -165,14 +167,21 @@ class DocumentScannerViewModel : ViewModel() {
 
                     document.value?.pages?.set(currentPosition, updatedPage)
                     document.notifyObserver()
+
+                    operationResult.postValue(true)
                 } catch (error: Exception) {
                     Log.e(TAG, error.stackTraceToString())
+                    operationResult.postValue(false)
                 }
             }
         }
+
+        return operationResult
     }
 
-    fun cropCurrentPage(context: Context, cropPoints: List<PointF>) {
+    fun cropCurrentPage(context: Context, cropPoints: List<PointF>): LiveData<Boolean> {
+        val operationResult = MutableLiveData<Boolean>()
+
         val currentPosition = currentPagePosition.value ?: 0
         document.value?.pages?.get(currentPosition)?.let { currentPage ->
             viewModelScope.launch {
@@ -197,11 +206,38 @@ class DocumentScannerViewModel : ViewModel() {
                     originalImageBitmap.recycle()
                     croppedBitmap.recycle()
                     document.notifyObserver()
+
+                    operationResult.postValue(true)
                 } catch (error: Exception) {
                     Log.e(TAG, error.stackTraceToString())
+                    operationResult.postValue(false)
                 }
             }
         }
+
+        return operationResult
+    }
+
+    fun generateDocument(context: Context): MutableLiveData<Boolean> {
+        val operationResult = MutableLiveData<Boolean>()
+
+        viewModelScope.launch {
+            try {
+                val currentDocument = requireNotNull(document.value)
+                val generatedDocumentUri = when (currentDocument.fileType) {
+                    FileType.JPG -> currentDocument.generateJpg(context)
+                    else -> currentDocument.generatePdf(context)
+                }
+
+                resultDocument.value = generatedDocumentUri
+                operationResult.postValue(true)
+            } catch (error: Exception) {
+                Log.e(TAG, error.stackTraceToString())
+                operationResult.postValue(false)
+            }
+        }
+
+        return operationResult
     }
 
     fun deleteCurrentPage() {
@@ -222,22 +258,6 @@ class DocumentScannerViewModel : ViewModel() {
     private fun updateDocumentFileType() {
         if (document.value?.pages?.size ?: 0 > 1) {
             document.value?.fileType = FileType.PDF
-        }
-    }
-
-    fun generateDocument(context: Context) {
-        viewModelScope.launch {
-            try {
-                val currentDocument = requireNotNull(document.value)
-                val generatedDocumentUri = when (currentDocument.fileType) {
-                    FileType.JPG -> currentDocument.generateJpg(context)
-                    else -> currentDocument.generatePdf(context)
-                }
-
-                resultDocument.value = generatedDocumentUri
-            } catch (error: Exception) {
-                Log.e(TAG, error.stackTraceToString())
-            }
         }
     }
 }

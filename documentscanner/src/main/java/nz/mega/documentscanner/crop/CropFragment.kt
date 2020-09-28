@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -46,7 +47,7 @@ class CropFragment : Fragment() {
     private fun setupView() {
         binding.cropView.setPointColor(ContextCompat.getColor(requireContext(), R.color.secondaryColor))
         binding.btnBack.setOnClickListener { findNavController().popBackStack() }
-        binding.btnDone.setOnClickListener { getCropPoints() }
+        binding.btnDone.setOnClickListener { saveCrop() }
     }
 
     private fun setupObservers() {
@@ -59,34 +60,39 @@ class CropFragment : Fragment() {
                 .load(page.originalImage.imageUri)
                 .into(binding.imgCrop)
 
-            setCropPoints(page.cropPoints, page.originalImage.width, page.originalImage.height)
+            binding.cropView.post {
+                xFactor = binding.cropView.measuredWidth / page.originalImage.width
+                yFactor = binding.cropView.measuredHeight / page.originalImage.height
+
+                binding.cropView.points = page.cropPoints?.let { cropPoints ->
+                    val relativePoints = cropPoints.map { point ->
+                        PointF(point.x * xFactor, point.y * yFactor)
+                    }
+
+                    binding.cropView.getOrderedPoints(relativePoints)
+                }
+            }
         } else {
             Toast.makeText(requireContext(), "Unknown error", Toast.LENGTH_SHORT).show()
             findNavController().popBackStack()
         }
     }
 
-    private fun setCropPoints(points: List<PointF>?, maxWidth: Float, maxHeight: Float) {
-        binding.cropView.post {
-            xFactor = binding.cropView.measuredWidth / maxWidth
-            yFactor = binding.cropView.measuredHeight / maxHeight
+    private fun saveCrop() {
+        showProgress(true)
 
-            binding.cropView.points = points?.let { cropPoints ->
-                val relativePoints = cropPoints.map { point ->
-                    PointF(point.x * xFactor, point.y * yFactor)
-                }
-
-                binding.cropView.getOrderedPoints(relativePoints)
-            }
-        }
-    }
-
-    private fun getCropPoints() {
         val relativePoints = binding.cropView.points.map { point ->
             PointF(point.value.x / xFactor, point.value.y / yFactor)
         }
 
-        viewModel.cropCurrentPage(requireContext(), relativePoints)
-        findNavController().popBackStack()
+        viewModel.cropCurrentPage(requireContext(), relativePoints).observe(viewLifecycleOwner) {
+            showProgress(false)
+            findNavController().popBackStack()
+        }
+    }
+
+    private fun showProgress(show: Boolean) {
+        binding.progress.isVisible = show
+        binding.btnDone.isEnabled = !show
     }
 }
