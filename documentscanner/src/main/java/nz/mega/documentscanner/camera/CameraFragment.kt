@@ -45,15 +45,14 @@ class CameraFragment : Fragment() {
 
     private val viewModel: DocumentScannerViewModel by activityViewModels()
     private val cameraExecutor: ExecutorService by lazy { Executors.newSingleThreadExecutor() }
-    private val snackBar: Snackbar by lazy { buildSnackBar() }
     private val screenAspectRatio: Int by lazy { binding.cameraView.display.aspectRatio() }
-
-    private var camera: Camera? = null
+    private val snackBar: Snackbar by lazy { buildSnackBar() }
 
     private lateinit var binding: FragmentCameraBinding
-    private lateinit var imageAnalyzer: ImageAnalysis
-    private lateinit var imageCapture: ImageCapture
-    private lateinit var cameraProvider: ProcessCameraProvider
+    private var cameraProvider: ProcessCameraProvider? = null
+    private var imageAnalyzer: ImageAnalysis? = null
+    private var imageCapture: ImageCapture? = null
+    private var camera: Camera? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -108,9 +107,9 @@ class CameraFragment : Fragment() {
                 .setTargetAspectRatio(screenAspectRatio)
                 .build()
 
-            cameraProvider.unbindAll()
+            cameraProvider?.unbindAll()
 
-            camera = cameraProvider.bindToLifecycle(
+            camera = cameraProvider?.bindToLifecycle(
                 this,
                 cameraSelector,
                 preview,
@@ -119,10 +118,10 @@ class CameraFragment : Fragment() {
             )
 
             preview.setSurfaceProvider(binding.cameraView.createSurfaceProvider())
-        }, ContextCompat.getMainExecutor(requireContext()))
 
-        binding.btnCapture.setOnClickListener { takePicture() }
-        binding.btnTorch.setOnClickListener { toggleTorch() }
+            binding.btnCapture.setOnClickListener { takePicture() }
+            binding.btnTorch.setOnClickListener { toggleTorch() }
+        }, ContextCompat.getMainExecutor(requireContext()))
     }
 
     private fun analyzePreviewImage(imageProxy: ImageProxy) {
@@ -144,7 +143,7 @@ class CameraFragment : Fragment() {
 
         val photoFile = FileUtils.createPhotoFile(requireContext())
         val options = ImageCapture.OutputFileOptions.Builder(photoFile).build()
-        imageCapture.takePicture(options, cameraExecutor, object : ImageCapture.OnImageSavedCallback {
+        imageCapture?.takePicture(options, cameraExecutor, object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                     lifecycleScope.launch {
                         val photoBitmap = photoFile.toBitmap(requireContext())
@@ -238,5 +237,14 @@ class CameraFragment : Fragment() {
             }
             else -> super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
+    }
+
+    override fun onLowMemory() {
+        imageAnalyzer?.apply {
+            clearAnalyzer()
+            cameraProvider?.unbind(this)
+            binding.cameraOverlay.isVisible = false
+        }
+        super.onLowMemory()
     }
 }
