@@ -1,10 +1,10 @@
 package nz.mega.documentscanner.openCV
 
 import android.graphics.Bitmap
-import nz.mega.documentscanner.utils.MathUtils.angle
-import nz.mega.documentscanner.utils.MathUtils.scaleRectangle
-import nz.mega.documentscanner.utils.MathUtils.toMatOfPointFloat
-import nz.mega.documentscanner.utils.MathUtils.toMatOfPointInt
+import nz.mega.documentscanner.utils.OpenCvUtils.angle
+import nz.mega.documentscanner.utils.OpenCvUtils.scaleRectangle
+import nz.mega.documentscanner.utils.OpenCvUtils.toMatOfPointFloat
+import nz.mega.documentscanner.utils.OpenCvUtils.toMatOfPointInt
 import nz.mega.documentscanner.utils.BitmapUtils.bitmapToMat
 import nz.mega.documentscanner.utils.BitmapUtils.matToBitmap
 import org.opencv.core.*
@@ -48,12 +48,17 @@ class NativeClass {
             ), Point(x3.toDouble(), y3.toDouble()), Point(x4.toDouble(), y4.toDouble())
         )
         val dstMat = perspective.transform(bitmapToMat(bitmap!!), rectangle)
-        return matToBitmap(dstMat)
+        val resultBitmap = matToBitmap(dstMat)
+        dstMat.release()
+        return resultBitmap
     }
 
-    fun getPoint(bitmap: Bitmap?): MatOfPoint2f? {
-        val src = bitmapToMat(bitmap!!)
+    fun getPoint(bitmap: Bitmap): MatOfPoint2f? {
+        val mat = bitmapToMat(bitmap)
+        return getPoint(mat)
+    }
 
+    fun getPoint(src: Mat): MatOfPoint2f? {
         // Downscale image for better performance.
         val ratio = DOWNSCALE_IMAGE_SIZE / max(src.width(), src.height())
         val downscaledSize = Size(src.width() * ratio, src.height() * ratio)

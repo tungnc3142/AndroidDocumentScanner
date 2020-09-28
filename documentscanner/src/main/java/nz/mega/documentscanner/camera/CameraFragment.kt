@@ -26,12 +26,10 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import nz.mega.documentscanner.DocumentScannerViewModel
 import nz.mega.documentscanner.R
-import nz.mega.documentscanner.data.CropResult
 import nz.mega.documentscanner.databinding.FragmentCameraBinding
 import nz.mega.documentscanner.utils.AnimationUtils.animateCaptureButton
 import nz.mega.documentscanner.utils.AnimationUtils.dismissAndShow
 import nz.mega.documentscanner.utils.BitmapUtils.toBitmap
-import nz.mega.documentscanner.utils.BitmapUtils.toYuvBitmap
 import nz.mega.documentscanner.utils.FileUtils
 import nz.mega.documentscanner.utils.ImageScanner
 import nz.mega.documentscanner.utils.ViewUtils.aspectRatio
@@ -52,7 +50,6 @@ class CameraFragment : Fragment() {
     private val imageScanner: ImageScanner by lazy { ImageScanner() }
 
     private var camera: Camera? = null
-    private var previewCropResult: CropResult? = null
 
     private lateinit var binding: FragmentCameraBinding
     private lateinit var imageAnalyzer: ImageAnalysis
@@ -70,6 +67,16 @@ class CameraFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupView()
+    }
+
+    override fun onDestroy() {
+        cameraExecutor.shutdown()
+        super.onDestroy()
+    }
+
+    private fun setupView() {
+        binding.btnBack.setOnClickListener { activity?.finish() }
 
         if (allPermissionsGranted()) {
             binding.cameraView.post { setUpCamera() }
@@ -78,27 +85,21 @@ class CameraFragment : Fragment() {
         }
     }
 
-    override fun onDestroy() {
-        cameraExecutor.shutdown()
-        super.onDestroy()
-    }
-
     private fun setUpCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
         cameraProviderFuture.addListener({
             cameraProvider = cameraProviderFuture.get()
 
             imageCapture = ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                 .setTargetAspectRatio(screenAspectRatio)
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                 .build()
 
             imageAnalyzer = ImageAnalysis.Builder()
                 .setTargetAspectRatio(screenAspectRatio)
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
-                .apply {
-                    setAnalyzer(cameraExecutor, ::analyzePreviewImage)
-                }
+                .apply { setAnalyzer(cameraExecutor, ::analyzePreviewImage) }
 
             val cameraSelector = CameraSelector.Builder()
                 .requireLensFacing(CameraSelector.LENS_FACING_BACK)
@@ -122,26 +123,19 @@ class CameraFragment : Fragment() {
         }, ContextCompat.getMainExecutor(requireContext()))
 
         binding.btnCapture.setOnClickListener { takePicture() }
-        binding.btnBack.setOnClickListener { activity?.finish() }
         binding.btnTorch.setOnClickListener { toggleTorch() }
     }
 
     private fun analyzePreviewImage(imageProxy: ImageProxy) {
         lifecycleScope.launch {
             try {
-                val image = requireNotNull(imageProxy.image)
-                val imageRotation = imageProxy.imageInfo.rotationDegrees.toFloat()
-                val bitmap = image.toYuvBitmap(imageRotation)
+                val maxWidth = binding.cameraOverlay.measuredWidth
+                val maxHeight = binding.cameraOverlay.measuredHeight
+                binding.cameraOverlay.lines = imageScanner.getCropLines(imageProxy, maxWidth, maxHeight)
 
-                previewCropResult = imageScanner.getCropPoints(bitmap)?.also { result ->
-                    binding.cameraOverlay.setLines(result.cropPoints, result.width, result.height)
-                }
-
-                bitmap.recycle()
                 imageProxy.close()
             } catch (error: Exception) {
                 Log.e(TAG, error.stackTraceToString())
-                previewCropResult = null
             }
         }
     }
@@ -157,7 +151,8 @@ class CameraFragment : Fragment() {
                         val photoBitmap = photoFile.toBitmap(requireContext())
                         photoFile.delete()
 
-                        viewModel.addPage(requireContext(), photoBitmap, previewCropResult).observe(viewLifecycleOwner) { result ->
+                        viewModel.addPage(requireContext(), photoBitmap).observe(viewLifecycleOwner)
+                        { result ->
                             if (result) {
                                 showSnackBar(null)
                                 findNavController().navigate(CameraFragmentDirections.actionCameraFragmentToScanFragment())

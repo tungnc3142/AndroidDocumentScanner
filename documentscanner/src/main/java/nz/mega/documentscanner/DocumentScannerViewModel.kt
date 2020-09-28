@@ -11,7 +11,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import nz.mega.documentscanner.data.CropResult
 import nz.mega.documentscanner.data.Document
 import nz.mega.documentscanner.data.Document.FileType
 import nz.mega.documentscanner.data.Document.Quality
@@ -114,7 +113,7 @@ class DocumentScannerViewModel : ViewModel() {
         saveDestinations.value = destinations
     }
 
-    fun addPage(context: Context, originalBitmap: Bitmap, providedCrop: CropResult?): LiveData<Boolean> {
+    fun addPage(context: Context, originalBitmap: Bitmap): LiveData<Boolean> {
         val addPageResult = MutableLiveData<Boolean>()
 
         viewModelScope.launch {
@@ -122,11 +121,6 @@ class DocumentScannerViewModel : ViewModel() {
                 val originalImage = ImageUtils.createImageFromBitmap(context, originalBitmap)
                 var cropPoints: List<PointF>? = null
                 var croppedImage: Image? = null
-
-//                TODO Override crop points with previewCropResult
-//                if (previewCropResult != null) {
-//                    cropPoints = previewCropResult.cropPoints
-//                }
 
                 val cropResult = imageScanner.getCroppedImage(originalBitmap, cropPoints)
                 if (cropResult != null) {
