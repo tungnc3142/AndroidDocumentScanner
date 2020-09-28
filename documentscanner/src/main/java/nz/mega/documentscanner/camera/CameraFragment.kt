@@ -51,6 +51,7 @@ class CameraFragment : Fragment() {
     private lateinit var binding: FragmentCameraBinding
     private var cameraProvider: ProcessCameraProvider? = null
     private var imageAnalyzer: ImageAnalysis? = null
+    private var preview: Preview? = null
     private var imageCapture: ImageCapture? = null
     private var camera: Camera? = null
 
@@ -103,21 +104,21 @@ class CameraFragment : Fragment() {
                 .requireLensFacing(CameraSelector.LENS_FACING_BACK)
                 .build()
 
-            val preview = Preview.Builder()
+            preview = Preview.Builder()
                 .setTargetAspectRatio(screenAspectRatio)
                 .build()
 
             cameraProvider?.unbindAll()
 
             camera = cameraProvider?.bindToLifecycle(
-                this,
+                viewLifecycleOwner,
                 cameraSelector,
                 preview,
                 imageCapture,
                 imageAnalyzer
             )
 
-            preview.setSurfaceProvider(binding.cameraView.createSurfaceProvider())
+            preview?.setSurfaceProvider(binding.cameraView.surfaceProvider)
 
             binding.btnCapture.setOnClickListener { takePicture() }
             binding.btnTorch.setOnClickListener { toggleTorch() }
@@ -140,37 +141,38 @@ class CameraFragment : Fragment() {
 
     private fun takePicture() {
         showProgress(true)
+        imageAnalyzer?.clearAnalyzer()
 
         val photoFile = FileUtils.createPhotoFile(requireContext())
         val options = ImageCapture.OutputFileOptions.Builder(photoFile).build()
         imageCapture?.takePicture(options, cameraExecutor, object : ImageCapture.OnImageSavedCallback {
-                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    lifecycleScope.launch {
-                        val photoBitmap = photoFile.toBitmap(requireContext())
-                        photoFile.delete()
+            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                lifecycleScope.launch {
+                    val photoBitmap = photoFile.toBitmap(requireContext())
+                    photoFile.delete()
 
-                        viewModel.addPage(requireContext(), photoBitmap).observe(viewLifecycleOwner)
-                        { result ->
-                            if (result) {
-                                showSnackBar(null)
-                                findNavController().navigate(CameraFragmentDirections.actionCameraFragmentToScanFragment())
-                            } else {
-                                showSnackBar("Picture process error", false)
-                            }
+                    viewModel.addPage(requireContext(), photoBitmap).observe(viewLifecycleOwner)
+                    { result ->
+                        if (result) {
+                            showSnackBar(null)
+                            findNavController().navigate(CameraFragmentDirections.actionCameraFragmentToScanFragment())
+                        } else {
+                            showSnackBar("Picture process error", false)
                             showProgress(false)
                         }
                     }
                 }
+            }
 
-                override fun onError(error: ImageCaptureException) {
-                    activity?.runOnUiThread {
-                        Log.e(TAG, "Take Picture error: " + error.stackTraceToString())
-                        photoFile.delete()
-                        showSnackBar(error.message.toString(), false)
-                        showProgress(false)
-                    }
+            override fun onError(error: ImageCaptureException) {
+                activity?.runOnUiThread {
+                    Log.e(TAG, "Take Picture error: " + error.stackTraceToString())
+                    photoFile.delete()
+                    showSnackBar(error.message.toString(), false)
+                    showProgress(false)
                 }
-            })
+            }
+        })
     }
 
     private fun allPermissionsGranted(): Boolean =
@@ -198,6 +200,15 @@ class CameraFragment : Fragment() {
     private fun showProgress(show: Boolean) {
         binding.progress.isVisible = show
         binding.btnCapture.isEnabled = !show
+
+        if (show) {
+            binding.previewView.setImageBitmap(binding.cameraView.bitmap)
+        } else {
+            binding.previewView.setImageDrawable(null)
+        }
+
+        binding.previewView.isVisible = show
+        binding.cameraView.isVisible = !show
     }
 
     private fun buildSnackBar(): Snackbar =
