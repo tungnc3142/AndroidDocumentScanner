@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PointF;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -16,13 +17,14 @@ import android.widget.ImageView;
 import android.widget.Magnifier;
 
 import androidx.annotation.Nullable;
-
-import nz.mega.documentscanner.R;
+import androidx.core.content.res.ResourcesCompat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import nz.mega.documentscanner.R;
 
 /**
  * Created by jhansi on 28/03/15.
@@ -68,8 +70,6 @@ public class PolygonView extends FrameLayout {
         pointer4 = getImageView(getWidth(), getHeight());
         midPointer13 = getImageView(0, getHeight() / 2);
         midPointer13.setOnTouchListener(new MidPointTouchListenerImpl(pointer1, pointer3));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
-            magnifier = new Magnifier(polygonView);
         midPointer12 = getImageView(0, getWidth() / 2);
         midPointer12.setOnTouchListener(new MidPointTouchListenerImpl(pointer1, pointer2));
 
@@ -88,6 +88,7 @@ public class PolygonView extends FrameLayout {
         addView(pointer3);
         addView(pointer4);
         initPaint();
+        initMagnifier();
     }
 
     @Override
@@ -97,8 +98,8 @@ public class PolygonView extends FrameLayout {
 
     private void initPaint() {
         paint = new Paint();
-        paint.setColor(getResources().getColor(R.color.blue));
-        paint.setStrokeWidth(2);
+        paint.setColor(getResources().getColor(R.color.secondaryColor));
+        paint.setStrokeWidth(getResources().getDimension(R.dimen.polygon_line_width));
         paint.setAntiAlias(true);
     }
 
@@ -201,17 +202,30 @@ public class PolygonView extends FrameLayout {
         midPointer12.setY(pointer2.getY() - ((pointer2.getY() - pointer1.getY()) / 2));
     }
 
-    private void drawMag(float x,float y)
-    {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && magnifier!=null) {
+    private void drawMag(float x, float y) {
+        if (magnifier != null) {
             magnifier.show(x, y);
         }
     }
 
-    private void dismissMag()
-    {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && magnifier!=null) {
+    private void dismissMag() {
+        if (magnifier != null) {
             magnifier.dismiss();
+        }
+    }
+
+    @Nullable
+    private void initMagnifier() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            float radius = getResources().getDimension(R.dimen.polygon_magnifier_radius);
+            int size = getResources().getDimensionPixelSize(R.dimen.polygon_magnifier_size);
+            Drawable overlay = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_highlight, null);
+
+            magnifier = new Magnifier.Builder(this)
+                    .setSize(size, size)
+                    .setCornerRadius(radius)
+                    .setOverlay(overlay)
+                    .build();
         }
     }
 
@@ -219,7 +233,7 @@ public class PolygonView extends FrameLayout {
         ImageView imageView = new ImageView(context);
         LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         imageView.setLayoutParams(layoutParams);
-        imageView.setImageResource(R.drawable.circle);
+        imageView.setImageResource(R.drawable.ic_oval);
         imageView.setX(x);
         imageView.setY(y);
         imageView.setOnTouchListener(new TouchListenerImpl());
@@ -279,9 +293,9 @@ public class PolygonView extends FrameLayout {
                 case MotionEvent.ACTION_UP:
                     int color = 0;
                     if (isValidShape(getPoints())) {
-                        color = getResources().getColor(R.color.blue);
+                        color = getResources().getColor(R.color.secondaryColor);
                     } else {
-                        color = getResources().getColor(R.color.orange);
+                        color = getResources().getColor(R.color.errorColor);
                     }
                     paint.setColor(color);
                     dismissMag();
@@ -329,9 +343,9 @@ public class PolygonView extends FrameLayout {
                 case MotionEvent.ACTION_UP:
                     int color = 0;
                     if (isValidShape(getPoints())) {
-                        color = getResources().getColor(R.color.blue);
+                        color = getResources().getColor(R.color.secondaryColor);
                     } else {
-                        color = getResources().getColor(R.color.orange);
+                        color = getResources().getColor(R.color.errorColor);
                     }
                     paint.setColor(color);
                     dismissMag();

@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    // Scanner Colors
-    <color name="colorGrey">#cccccc</color>
-    <color name="blue">#ff59a9ff</color>
-    <color name="orange">#ffff900d</color>
-    <color name="bottom_background_color">#ffc4c2bc</color>
-    <color name="polygonViewCircleStrokeColor">#ff59a9ff</color>
-    <color name="polygonViewCircleBackground">#90e5f8ff</color>
-
     <color name="primaryColor">#000000</color>
     <color name="onPrimaryColor">#FFFFFF</color>
     <color name="secondaryColor">#00BFA5</color>
@@ -17,4 +9,5 @@
     <color name="colorPrimarySurface">#8A000000</color>
     <color name="backgroundColor">#000000</color>
     <color name="dividerColor">#DE000000</color>
+    <color name="errorColor">#FF6464</color>
 </resources>
