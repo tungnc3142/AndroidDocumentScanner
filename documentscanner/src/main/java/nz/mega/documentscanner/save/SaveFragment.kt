@@ -118,10 +118,21 @@ class SaveFragment : Fragment() {
     }
 
     private fun showDocumentFileType(fileType: Document.FileType) {
-        val chipResId = when (fileType) {
-            Document.FileType.PDF -> R.id.chip_file_type_pdf
-            Document.FileType.JPG -> R.id.chip_file_type_jpg
+        val chipResId: Int
+        val imageResId: Int
+
+        when (fileType) {
+            Document.FileType.PDF -> {
+                chipResId = R.id.chip_file_type_pdf
+                imageResId = R.drawable.ic_pdf
+            }
+            Document.FileType.JPG -> {
+                chipResId = R.id.chip_file_type_jpg
+                imageResId = R.drawable.ic_jpeg
+            }
         }
+
+        binding.imgFileType.setImageResource(imageResId)
 
         if (binding.chipGroupFileType.checkedChipId != chipResId) {
             binding.chipGroupFileType.check(chipResId)
