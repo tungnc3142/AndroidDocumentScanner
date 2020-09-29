@@ -28,6 +28,7 @@ class DocumentScannerActivity : AppCompatActivity() {
         private const val EXTRA_PICKED_SAVE_DESTINATION = "EXTRA_PICKED_SAVE_DESTINATION"
 
         @JvmStatic
+        @JvmOverloads
         fun getIntent(context: Context, saveDestinations: Array<String>? = null): Intent =
             Intent(context, DocumentScannerActivity::class.java).apply {
                 saveDestinations?.let { putExtra(EXTRA_SAVE_DESTINATIONS, it) }
