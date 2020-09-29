@@ -26,8 +26,8 @@ class CropFragment : Fragment() {
     private val viewModel: DocumentScannerViewModel by activityViewModels()
 
     private lateinit var binding: FragmentCropBinding
-    private var xFactor = 1f
-    private var yFactor = 1f
+    private var ratioX = 1f
+    private var ratioY = 1f
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -61,12 +61,12 @@ class CropFragment : Fragment() {
                 .into(binding.imgCrop)
 
             binding.cropView.post {
-                xFactor = binding.cropView.measuredWidth / page.originalImage.width
-                yFactor = binding.cropView.measuredHeight / page.originalImage.height
+                ratioX = binding.cropView.measuredWidth / page.originalImage.width
+                ratioY = binding.cropView.measuredHeight / page.originalImage.height
 
                 binding.cropView.points = page.cropPoints?.let { cropPoints ->
                     val relativePoints = cropPoints.map { point ->
-                        PointF(point.x * xFactor, point.y * yFactor)
+                        PointF(point.x * ratioX, point.y * ratioY)
                     }
 
                     binding.cropView.getOrderedPoints(relativePoints)
@@ -82,7 +82,7 @@ class CropFragment : Fragment() {
         showProgress(true)
 
         val relativePoints = binding.cropView.points.map { point ->
-            PointF(point.value.x / xFactor, point.value.y / yFactor)
+            PointF(point.value.x / ratioX, point.value.y / ratioY)
         }
 
         viewModel.cropCurrentPage(requireContext(), relativePoints).observe(viewLifecycleOwner) {

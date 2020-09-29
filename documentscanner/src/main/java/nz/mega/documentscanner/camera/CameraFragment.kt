@@ -128,8 +128,10 @@ class CameraFragment : Fragment() {
     private fun analyzePreviewImage(imageProxy: ImageProxy) {
         lifecycleScope.launch {
             try {
-                val maxWidth = binding.cameraOverlay.measuredWidth
-                val maxHeight = binding.cameraOverlay.measuredHeight
+                val maxWidth = binding.cameraOverlay.measuredWidth.toFloat()
+                val maxHeight = binding.cameraOverlay.measuredHeight.toFloat()
+
+                binding.cameraOverlay.scaleX = imageProxy.width / maxWidth
                 binding.cameraOverlay.lines = ImageScanner.getCropLines(imageProxy, maxWidth, maxHeight)
 
                 imageProxy.close()

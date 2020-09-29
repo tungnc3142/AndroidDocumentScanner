@@ -70,19 +70,19 @@ object ImageScanner {
         }
     }
 
-    suspend fun getCropLines(imageProxy: ImageProxy, maxWidth: Int, maxHeight: Int): FloatArray? =
+    suspend fun getCropLines(imageProxy: ImageProxy, maxWidth: Float, maxHeight: Float): FloatArray? =
         withContext(Dispatchers.IO) {
-            var array: FloatArray? = null
-            val mat: Mat = imageProxy.yuvToRgba()
-            val ratioX = maxWidth.toFloat() / mat.width()
-            val ratioY = maxHeight.toFloat() / mat.height()
+            var resultArray: FloatArray? = null
+            val imageMat: Mat = imageProxy.yuvToRgba()
+            val ratioX = maxWidth / imageMat.width()
+            val ratioY = maxHeight / imageMat.height()
 
-            getPoint(mat)?.toArray()
+            getPoint(imageMat)?.toArray()
                 ?.map { point ->
                     PointF(point.x.toFloat() * ratioX, point.y.toFloat() * ratioY)
                 }
                 ?.let { points ->
-                    array = floatArrayOf(
+                    resultArray = floatArrayOf(
                         points[0].x,
                         points[0].y,
                         points[1].x,
@@ -102,9 +102,9 @@ object ImageScanner {
                     )
                 }
 
-            mat.release()
+            imageMat.release()
 
-            array
+            resultArray
         }
 
     private fun getScannedBitmap(

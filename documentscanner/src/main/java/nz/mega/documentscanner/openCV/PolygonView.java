@@ -233,6 +233,7 @@ public class PolygonView extends FrameLayout {
         ImageView imageView = new ImageView(context);
         LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         imageView.setLayoutParams(layoutParams);
+        imageView.setPadding(10, 10, 10, 10);
         imageView.setImageResource(R.drawable.ic_oval);
         imageView.setX(x);
         imageView.setY(y);
