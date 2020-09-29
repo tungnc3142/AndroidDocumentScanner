@@ -1,12 +1,23 @@
-<!--
-  ~ /**
-  ~  * Created by Ali YÜCE on 3/2/20 11:18 PM
-  ~  * https://github.com/mayuce/
-  ~  * Copyright (c) 2020 . All rights reserved.
-  ~  * Last modified 3/2/20 11:09 PM
-  ~  */
-  -->
-
 <resources>
     <string name="app_name">DocumentScanner</string>
+
+    <string name="title_crop">CROP</string>
+    <string name="title_save_scan">SAVE SCAN</string>
+    <string name="title_file_name">File name</string>
+    <string name="title_file_type">File type</string>
+    <string name="title_quality">Quality</string>
+    <string name="title_destination">Destination</string>
+    <string name="action_retake">Retake</string>
+    <string name="action_add">Add</string>
+    <string name="action_save">Save</string>
+    <string name="file_type_pdf">PDF</string>
+    <string name="file_type_jpg">JPG</string>
+    <string name="quality_high">High</string>
+    <string name="quality_medium">Medium</string>
+    <string name="quality_low">Low</string>
+    <string name="dialog_discard_scan_title">Discard scan?</string>
+    <string name="dialog_discard_scan_body">The current scan will be lost</string>
+    <string name="dialog_discard_all_scans_title">Discard all scans?</string>
+    <string name="dialog_discard_all_scans_body">The current document will be lost</string>
+    <string name="dialog_delete_scan_body">Delete current scan?</string>
 </resources>

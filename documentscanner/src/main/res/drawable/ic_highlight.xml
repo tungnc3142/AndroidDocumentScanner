@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+
+    <size
+        android:width="@dimen/polygon_magnifier_size"
+        android:height="@dimen/polygon_magnifier_size" />
+
+    <stroke
+        android:width="@dimen/polygon_line_width"
+        android:color="@color/secondaryColor" />
+</shape>

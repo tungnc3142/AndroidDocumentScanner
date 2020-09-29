@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/cameraFragment">
+
+    <fragment
+        android:id="@+id/cameraFragment"
+        android:name="nz.mega.documentscanner.camera.CameraFragment"
+        android:label="">
+
+        <action
+            android:id="@+id/action_cameraFragment_to_scanFragment"
+            app:destination="@id/scanFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_out_right"
+            app:popExitAnim="@anim/slide_in_left" >
+
+            <argument
+                android:name="scrollToLast"
+                android:defaultValue="true"
+                app:argType="boolean" />
+        </action>
+    </fragment>
+
+    <fragment
+        android:id="@+id/scanFragment"
+        android:name="nz.mega.documentscanner.scan.ScanFragment"
+        android:label="">
+
+        <argument
+            android:name="scrollToLast"
+            android:defaultValue="false"
+            app:argType="boolean" />
+
+        <action
+            android:id="@+id/action_scanFragment_to_saveFragment"
+            app:destination="@id/saveFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_out_right"
+            app:popExitAnim="@anim/slide_in_left" />
+
+        <action
+            android:id="@+id/action_scanFragment_to_cropFragment"
+            app:destination="@id/cropFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_out_right"
+            app:popExitAnim="@anim/slide_in_left" />
+
+        <action
+            android:id="@+id/action_scanFragment_to_cameraFragment"
+            app:destination="@id/cameraFragment"
+            app:enterAnim="@anim/slide_out_right"
+            app:exitAnim="@anim/slide_in_left" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/cropFragment"
+        android:name="nz.mega.documentscanner.crop.CropFragment" />
+
+    <fragment
+        android:id="@+id/saveFragment"
+        android:name="nz.mega.documentscanner.save.SaveFragment" />
+</navigation>
