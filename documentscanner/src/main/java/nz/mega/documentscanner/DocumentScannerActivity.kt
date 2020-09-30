@@ -23,9 +23,10 @@ import org.opencv.android.OpenCVLoader
 class DocumentScannerActivity : AppCompatActivity() {
 
     companion object {
+        const val EXTRA_PICKED_SAVE_DESTINATION = "EXTRA_PICKED_SAVE_DESTINATION"
+
         private const val TAG = "DocumentScannerActivity"
         private const val EXTRA_SAVE_DESTINATIONS = "EXTRA_SAVE_DESTINATIONS"
-        private const val EXTRA_PICKED_SAVE_DESTINATION = "EXTRA_PICKED_SAVE_DESTINATION"
 
         @JvmStatic
         @JvmOverloads
