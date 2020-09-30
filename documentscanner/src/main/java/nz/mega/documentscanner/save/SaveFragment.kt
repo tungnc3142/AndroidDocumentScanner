@@ -17,6 +17,7 @@ import nz.mega.documentscanner.data.Document
 import nz.mega.documentscanner.data.Page
 import nz.mega.documentscanner.databinding.FragmentSaveBinding
 import nz.mega.documentscanner.databinding.ItemDestinationBinding
+import nz.mega.documentscanner.utils.FileUtils
 
 class SaveFragment : Fragment() {
 
@@ -45,9 +46,8 @@ class SaveFragment : Fragment() {
 
     private fun setupView() {
         binding.editFileName.doAfterTextChanged { editable ->
-            val text = editable?.toString()
-            if (!text.isNullOrBlank()) {
-                viewModel.setDocumentTitle(text)
+            editable?.toString()?.let { title ->
+                viewModel.setDocumentTitle(title)
             }
         }
 
@@ -108,8 +108,14 @@ class SaveFragment : Fragment() {
     }
 
     private fun showDocumentTitle(title: String) {
-        if (binding.editFileName.text.toString() != title) {
+        if (title != binding.editFileName.text.toString()) {
             binding.editFileName.setText(title)
+        }
+        binding.btnSave.isEnabled = !title.isBlank()
+        binding.inputFileName.error = if (title.isBlank()) {
+            getString(R.string.invalid_input)
+        } else {
+            null
         }
     }
 
@@ -120,18 +126,22 @@ class SaveFragment : Fragment() {
     private fun showDocumentFileType(fileType: Document.FileType) {
         val chipResId: Int
         val imageResId: Int
+        val suffix: String
 
         when (fileType) {
             Document.FileType.PDF -> {
                 chipResId = R.id.chip_file_type_pdf
                 imageResId = R.drawable.ic_pdf
+                suffix = FileUtils.PDF_SUFFIX
             }
             Document.FileType.JPG -> {
                 chipResId = R.id.chip_file_type_jpg
                 imageResId = R.drawable.ic_jpeg
+                suffix = FileUtils.JPG_SUFFIX
             }
         }
 
+        binding.inputFileName.suffixText = suffix
         binding.imgFileType.setImageResource(imageResId)
 
         if (binding.chipGroupFileType.checkedChipId != chipResId) {

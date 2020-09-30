@@ -41,7 +41,7 @@
         android:paddingTop="8dp"
         android:paddingEnd="16dp"
         android:paddingBottom="8dp"
-        android:text="@string/title_file_name"
+        android:text="@string/context_new_file_name"
         android:textAppearance="?textAppearanceBody2"
         android:textColor="?colorPrimarySurface"
         app:layout_constraintEnd_toEndOf="parent"
@@ -59,26 +59,31 @@
         app:layout_constraintTop_toBottomOf="@id/txt_file_name"
         />
 
-    <EditText
-        android:id="@+id/edit_file_name"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/input_file_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:drawableEnd="@drawable/ic_baseline_edit_24"
-        android:drawablePadding="32dp"
-        android:inputType="text"
-        android:maxLength="30"
-        android:maxLines="1"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp"
-        android:textAppearance="?textAppearanceSubtitle1"
-        android:textColor="?colorOnSurface"
+        app:endIconDrawable="@drawable/ic_baseline_edit_24"
+        app:endIconMode="custom"
+        app:errorEnabled="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/img_file_type"
         app:layout_constraintTop_toBottomOf="@id/txt_file_name"
-        tools:text="Scanned_20200804_01.pdf"
-        />
+        tools:suffixText=".pdf">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edit_file_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:maxLength="30"
+            android:maxLines="1"
+            tools:text="Scanned_20200804"
+            />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
     <View
         android:id="@+id/separator_file_name"
@@ -89,7 +94,7 @@
         android:background="@color/dividerColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/edit_file_name"
+        app:layout_constraintTop_toBottomOf="@id/input_file_name"
         />
 
     <TextView
@@ -100,7 +105,7 @@
         android:paddingTop="8dp"
         android:paddingEnd="16dp"
         android:paddingBottom="8dp"
-        android:text="@string/title_file_type"
+        android:text="@string/context_file_type"
         android:textAppearance="?textAppearanceBody2"
         android:textColor="?colorPrimarySurface"
         app:layout_constraintEnd_toEndOf="parent"
@@ -305,11 +310,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:text="@string/action_save"
+        android:enabled="false"
+        android:text="@string/save_action"
         android:theme="@style/ThemeOverlay.DocumentScanner.Secondary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        tools:enabled="true"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

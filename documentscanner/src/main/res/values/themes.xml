@@ -14,7 +14,9 @@
         <item name="android:windowBackground">@color/backgroundColor</item>
         <item name="android:statusBarColor">@color/backgroundColor</item>
         <item name="chipStyle">@style/Widget.DocumentScanner.Chip</item>
-        <item name="materialAlertDialogTheme">@style/ThemeOverlay.DocumentScanner.Secondary</item>
+        <item name="textInputStyle">@style/Widget.DocumentScanner.TextInputLayout</item>
+        <item name="editTextStyle">@style/Widget.DocumentScanner.TextInputEditText</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.DocumentScanner.MaterialAlertDialog</item>
         <item name="android:indeterminateTint">@color/onPrimaryColor</item>
 
         <item name="textAppearanceHeadline6">@style/TextAppearance.DocumentScanner.Headline6</item>
@@ -23,7 +25,11 @@
         <item name="textAppearanceCaption">@style/TextAppearance.DocumentScanner.Caption</item>
     </style>
 
-    <style name="ThemeOverlay.DocumentScanner.Secondary" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+    <style name="ThemeOverlay.DocumentScanner.MaterialAlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="colorPrimary">?colorSecondary</item>
+    </style>
+
+    <style name="ThemeOverlay.DocumentScanner.Secondary" parent="">
         <item name="colorPrimary">?colorSecondary</item>
     </style>
 </resources>

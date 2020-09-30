@@ -80,7 +80,7 @@ class DocumentScannerViewModel : ViewModel() {
     }
 
     fun setDocumentTitle(title: String) {
-        if (title.isBlank() || document.value?.title == title) return
+        if (document.value?.title == title) return
 
         document.value?.title = title.trim()
         document.notifyObserver()
