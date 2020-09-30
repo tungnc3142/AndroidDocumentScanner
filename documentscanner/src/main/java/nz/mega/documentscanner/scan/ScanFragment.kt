@@ -74,7 +74,7 @@ class ScanFragment : Fragment() {
         binding.viewPager.registerOnPageChangeCallback(viewPagerCallback)
         binding.viewPager.adapter = adapter
         binding.btnBack.setOnClickListener { showDiscardDialog() }
-        binding.btnAdd.setOnClickListener { findNavController().navigate(ScanFragmentDirections.actionScanFragmentToCameraFragment()) }
+        binding.btnAdd.setOnClickListener { navigateBack() }
         binding.btnRotate.setOnClickListener {
             showProgress(true)
             viewModel.rotateCurrentPage(requireContext()).observe(viewLifecycleOwner) {
@@ -90,7 +90,7 @@ class ScanFragment : Fragment() {
         binding.btnDone.setOnClickListener { findNavController().navigate(ScanFragmentDirections.actionScanFragmentToSaveFragment()) }
         binding.btnRetake.setOnClickListener {
             viewModel.deleteCurrentPage()
-            findNavController().navigate(ScanFragmentDirections.actionScanFragmentToCameraFragment())
+            navigateBack()
         }
     }
 
@@ -117,7 +117,7 @@ class ScanFragment : Fragment() {
                 }
             }
         } else {
-            findNavController().popBackStack(R.id.cameraFragment, false)
+            navigateBack()
         }
     }
 
@@ -128,19 +128,21 @@ class ScanFragment : Fragment() {
             pagesCount == 1 -> {
                 DialogFactory.createDiscardScanDialog(requireContext()) {
                     viewModel.deleteCurrentPage()
-                    findNavController().popBackStack(R.id.cameraFragment, false)
+                    navigateBack()
                 }.show()
             }
             pagesCount > 1 -> {
                 DialogFactory.createDiscardScansDialog(requireContext()) {
                     viewModel.deleteAllPages()
-                    findNavController().popBackStack(R.id.cameraFragment, false)
+                    navigateBack()
                 }.show()
             }
-            else -> {
-                findNavController().popBackStack(R.id.cameraFragment, false)
-            }
+            else -> navigateBack()
         }
+    }
+
+    private fun navigateBack() {
+        findNavController().popBackStack(R.id.cameraFragment, false)
     }
 
     private fun showProgress(show: Boolean) {

@@ -49,12 +49,6 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_out_right"
             app:popExitAnim="@anim/slide_in_left" />
-
-        <action
-            android:id="@+id/action_scanFragment_to_cameraFragment"
-            app:destination="@id/cameraFragment"
-            app:enterAnim="@anim/slide_out_right"
-            app:exitAnim="@anim/slide_in_left" />
     </fragment>
 
     <fragment
