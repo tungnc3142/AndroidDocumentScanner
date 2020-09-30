@@ -7,14 +7,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.camera.core.Camera
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureException
-import androidx.camera.core.ImageProxy
-import androidx.camera.core.Preview
-import androidx.camera.core.TorchState
+import android.widget.Toast
+import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -22,14 +16,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import nz.mega.documentscanner.DocumentScannerViewModel
 import nz.mega.documentscanner.R
 import nz.mega.documentscanner.databinding.FragmentCameraBinding
 import nz.mega.documentscanner.openCV.ImageScanner
-import nz.mega.documentscanner.utils.AnimationUtils.animateCaptureButton
-import nz.mega.documentscanner.utils.AnimationUtils.dismissAndShow
 import nz.mega.documentscanner.utils.BitmapUtils.toBitmap
 import nz.mega.documentscanner.utils.FileUtils
 import nz.mega.documentscanner.utils.ViewUtils.aspectRatio
@@ -46,7 +37,6 @@ class CameraFragment : Fragment() {
     private val viewModel: DocumentScannerViewModel by activityViewModels()
     private val cameraExecutor: ExecutorService by lazy { Executors.newSingleThreadExecutor() }
     private val screenAspectRatio: Int by lazy { binding.cameraView.display.aspectRatio() }
-    private val snackBar: Snackbar by lazy { buildSnackBar() }
 
     private lateinit var binding: FragmentCameraBinding
     private var cameraProvider: ProcessCameraProvider? = null
@@ -156,10 +146,9 @@ class CameraFragment : Fragment() {
                     viewModel.addPage(requireContext(), photoBitmap).observe(viewLifecycleOwner)
                     { result ->
                         if (result) {
-                            showSnackBar(null)
                             findNavController().navigate(CameraFragmentDirections.actionCameraFragmentToScanFragment())
                         } else {
-                            showSnackBar("Picture process error", false)
+                            showToast("Picture process error")
                             showProgress(false)
                         }
                     }
@@ -169,8 +158,8 @@ class CameraFragment : Fragment() {
             override fun onError(error: ImageCaptureException) {
                 activity?.runOnUiThread {
                     Log.e(TAG, "Take Picture error: " + error.stackTraceToString())
+                    showToast(error.message.toString())
                     photoFile.delete()
-                    showSnackBar(error.message.toString(), false)
                     showProgress(false)
                 }
             }
@@ -213,28 +202,8 @@ class CameraFragment : Fragment() {
         binding.cameraView.isVisible = !show
     }
 
-    private fun buildSnackBar(): Snackbar =
-        Snackbar.make(binding.cameraView, "Scanning page...", Snackbar.LENGTH_INDEFINITE)
-            .addCallback(
-                object : Snackbar.Callback() {
-                    override fun onShown(snackBar: Snackbar) {
-                        binding.animateCaptureButton(-snackBar.view.height.toFloat())
-                    }
-
-                    override fun onDismissed(snackBar: Snackbar, event: Int) {
-                        binding.animateCaptureButton(0f)
-                    }
-                }
-            )
-
-    private fun showSnackBar(message: String?, isIndefinite: Boolean = false) {
-        if (message != null) {
-            snackBar.setText(message)
-            snackBar.duration = if (isIndefinite) Snackbar.LENGTH_INDEFINITE else Snackbar.LENGTH_LONG
-            snackBar.dismissAndShow()
-        } else {
-            snackBar.dismiss()
-        }
+    private fun showToast(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
     }
 
     override fun onRequestPermissionsResult(
@@ -246,6 +215,9 @@ class CameraFragment : Fragment() {
             REQUEST_CODE_PERMISSIONS -> {
                 if (allPermissionsGranted()) {
                     setUpCamera()
+                } else {
+                    showToast("Camera permissions not granted")
+                    activity?.finish()
                 }
             }
             else -> super.onRequestPermissionsResult(requestCode, permissions, grantResults)
