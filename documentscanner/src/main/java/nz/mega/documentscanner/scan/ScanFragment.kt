@@ -110,6 +110,7 @@ class ScanFragment : Fragment() {
 
     private fun showPages(items: List<Page>) {
         val currentPosition = viewModel.getCurrentPagePosition()
+        binding.btnDelete.isVisible = items.size > 1
         adapter.submitList(items)
 
         if (items.isNotEmpty()) {
