@@ -32,7 +32,12 @@ class ScanFragment : Fragment() {
         object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 viewModel.setCurrentPagePosition(position)
-                binding.txtPageCount.text = "${position + 1} / ${viewModel.getPagesCount()}"
+
+                binding.txtPageCount.text = String.format(
+                    getString(R.string.format_page_count),
+                    position + 1,
+                    viewModel.getPagesCount()
+                )
             }
         }
     }

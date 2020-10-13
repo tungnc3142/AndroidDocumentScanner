@@ -44,6 +44,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:text="@string/title_crop"
+        android:textAllCaps="true"
         android:textAppearance="?textAppearanceHeadline6"
         app:layout_constraintBottom_toBottomOf="@id/btn_back"
         app:layout_constraintStart_toEndOf="@id/btn_back"
