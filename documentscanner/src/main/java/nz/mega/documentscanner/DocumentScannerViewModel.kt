@@ -17,13 +17,13 @@ import nz.mega.documentscanner.data.Document.Quality
 import nz.mega.documentscanner.data.Image
 import nz.mega.documentscanner.data.Page
 import nz.mega.documentscanner.openCV.ImageScanner
+import nz.mega.documentscanner.utils.BitmapUtils
 import nz.mega.documentscanner.utils.DocumentGenerator.generateJpg
 import nz.mega.documentscanner.utils.DocumentGenerator.generatePdf
 import nz.mega.documentscanner.utils.DocumentUtils.deleteAllPages
 import nz.mega.documentscanner.utils.DocumentUtils.deletePage
 import nz.mega.documentscanner.utils.ImageUtils
 import nz.mega.documentscanner.utils.ImageUtils.deleteFile
-import nz.mega.documentscanner.utils.ImageUtils.getBitmap
 import nz.mega.documentscanner.utils.ImageUtils.rotate
 import nz.mega.documentscanner.utils.LiveDataUtils.notifyObserver
 
@@ -189,7 +189,7 @@ class DocumentScannerViewModel : ViewModel() {
                     if (cropPoints == currentPage.cropPoints) return@launch
 
                     val image = currentPage.originalImage
-                    val originalImageBitmap = image.getBitmap(context, null)
+                    val originalImageBitmap = BitmapUtils.getBitmapFromUri(context, image.imageUri)
                     val cropResult = ImageScanner.getCroppedImage(originalImageBitmap, cropPoints)
                     val croppedBitmap = cropResult!!.bitmap
                     val croppedImage = ImageUtils.createImageFromBitmap(context, croppedBitmap)
@@ -223,13 +223,11 @@ class DocumentScannerViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
-                val currentDocument = requireNotNull(document.value)
-                val generatedDocumentUri = when (currentDocument.fileType) {
-                    FileType.JPG -> currentDocument.generateJpg(context)
-                    else -> currentDocument.generatePdf(context)
+                val document = requireNotNull(document.value)
+                resultDocument.value = when (document.fileType) {
+                    FileType.JPG -> document.generateJpg(context)
+                    FileType.PDF -> document.generatePdf(context)
                 }
-
-                resultDocument.value = generatedDocumentUri
                 operationResult.postValue(true)
             } catch (error: Exception) {
                 Log.e(TAG, error.stackTraceToString())

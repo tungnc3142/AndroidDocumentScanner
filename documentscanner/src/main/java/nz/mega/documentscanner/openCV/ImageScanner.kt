@@ -42,36 +42,41 @@ object ImageScanner {
     suspend fun getCroppedImage(
         bitmap: Bitmap,
         providedPoints: List<PointF>? = null
-    ): BitmapCropResult? = withContext(Dispatchers.IO) {
-        val cropPoints = providedPoints ?: getPoint(bitmap)?.toArray()
-            ?.map { PointF(it.x.toFloat(), it.y.toFloat()) }
+    ): BitmapCropResult? =
+        withContext(Dispatchers.Default) {
+            val cropPoints = providedPoints ?: getPoint(bitmap)?.toArray()
+                ?.map { PointF(it.x.toFloat(), it.y.toFloat()) }
 
-        if (!cropPoints.isNullOrEmpty()) {
-            val croppedBitmap = getScannedBitmap(
-                bitmap,
-                cropPoints[0].x,
-                cropPoints[0].y,
-                cropPoints[1].x,
-                cropPoints[1].y,
-                cropPoints[2].x,
-                cropPoints[2].y,
-                cropPoints[3].x,
-                cropPoints[3].y,
-            )
+            if (!cropPoints.isNullOrEmpty()) {
+                val croppedBitmap = getScannedBitmap(
+                    bitmap,
+                    cropPoints[0].x,
+                    cropPoints[0].y,
+                    cropPoints[1].x,
+                    cropPoints[1].y,
+                    cropPoints[2].x,
+                    cropPoints[2].y,
+                    cropPoints[3].x,
+                    cropPoints[3].y,
+                )
 
-            BitmapCropResult(
-                croppedBitmap,
-                bitmap.width,
-                bitmap.height,
-                cropPoints
-            )
-        } else {
-            null
+                BitmapCropResult(
+                    croppedBitmap,
+                    bitmap.width,
+                    bitmap.height,
+                    cropPoints
+                )
+            } else {
+                null
+            }
         }
-    }
 
-    suspend fun getCropLines(imageProxy: ImageProxy, maxWidth: Float, maxHeight: Float): FloatArray? =
-        withContext(Dispatchers.IO) {
+    suspend fun getCropLines(
+        imageProxy: ImageProxy,
+        maxWidth: Float,
+        maxHeight: Float
+    ): FloatArray? =
+        withContext(Dispatchers.Default) {
             var resultArray: FloatArray? = null
             val imageMat: Mat = imageProxy.yuvToRgba()
             val ratioX = maxWidth / imageMat.width()
@@ -152,7 +157,6 @@ object ImageScanner {
     }
 
     private fun getPoints(src: Mat): List<MatOfPoint2f> {
-
         // Blur the image to filter out the noise.
         val blurred = Mat()
         Imgproc.medianBlur(src, blurred, 9)

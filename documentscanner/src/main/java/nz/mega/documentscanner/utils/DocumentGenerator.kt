@@ -6,35 +6,29 @@ import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import androidx.core.net.toUri
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import nz.mega.documentscanner.data.Document
+import nz.mega.documentscanner.data.Document.FileType
 import nz.mega.documentscanner.utils.BitmapUtils.toFile
-import nz.mega.documentscanner.utils.FileUtils.PDF_SUFFIX
 import java.io.FileOutputStream
 
+@Suppress("BlockingMethodInNonBlockingContext")
 object DocumentGenerator {
 
     suspend fun Document.generatePdf(context: Context): Uri =
-        withContext(Dispatchers.IO) {
+        withContext(Dispatchers.Default) {
             require(pages.isNotEmpty()) { "Empty pages" }
 
             val pdfDocument = PdfDocument()
             val backgroundPaint = Paint().apply { color = Color.WHITE }
 
             pages.forEachIndexed { index, page ->
-                val pageUri = page.getImageToPrint().imageUri
-
-                val bitmap = Glide.with(context)
-                    .asBitmap()
-                    .load(pageUri)
-                    .encodeQuality(quality.value)
-                    .skipMemoryCache(true)
-                    .diskCacheStrategy(DiskCacheStrategy.NONE)
-                    .submit()
-                    .get()
+                val bitmap = BitmapUtils.getBitmapFromUri(
+                    context = context,
+                    uri = page.getImageToPrint().imageUri,
+                    quality = quality.value,
+                )
 
                 val pdfPage = pdfDocument.startPage(
                     PdfDocument.PageInfo.Builder(bitmap.width, bitmap.height, index).create()

@@ -4,9 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import androidx.core.net.toFile
 import androidx.core.net.toUri
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.load.resource.bitmap.Rotate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import nz.mega.documentscanner.data.Image
@@ -28,29 +25,21 @@ object ImageUtils {
         }
 
     suspend fun Image.rotate(context: Context, degreesToRotate: Int = 90): Image =
-        withContext(Dispatchers.IO) {
-            val bitmap = getBitmap(context, degreesToRotate)
+        withContext(Dispatchers.Default) {
+            val bitmap = BitmapUtils.getBitmapFromUri(
+                context = context,
+                uri = imageUri,
+                degreesToRotate = degreesToRotate
+            )
 
-            createImageFromBitmap(context, bitmap).also {
-                bitmap.recycle()
-            }
+            val rotatedImage = createImageFromBitmap(context, bitmap)
+            bitmap.recycle()
+
+            return@withContext rotatedImage
         }
 
     suspend fun Image.deleteFile(): Boolean =
         withContext(Dispatchers.IO) {
             imageUri.toFile().delete()
-        }
-
-    suspend fun Image.getBitmap(context: Context, degreesToRotate: Int? = 90): Bitmap =
-        withContext(Dispatchers.IO) {
-            val requestBuilder = Glide.with(context)
-                .asBitmap()
-                .load(imageUri)
-                .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-
-            degreesToRotate?.let { requestBuilder.transform(Rotate(it)) }
-
-            requestBuilder.submit().get()
         }
 }

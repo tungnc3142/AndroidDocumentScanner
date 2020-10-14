@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -21,7 +22,7 @@ import nz.mega.documentscanner.DocumentScannerViewModel
 import nz.mega.documentscanner.R
 import nz.mega.documentscanner.databinding.FragmentCameraBinding
 import nz.mega.documentscanner.openCV.ImageScanner
-import nz.mega.documentscanner.utils.BitmapUtils.toBitmap
+import nz.mega.documentscanner.utils.BitmapUtils
 import nz.mega.documentscanner.utils.FileUtils
 import nz.mega.documentscanner.utils.ViewUtils.aspectRatio
 import java.util.concurrent.ExecutorService
@@ -140,10 +141,15 @@ class CameraFragment : Fragment() {
         imageCapture?.takePicture(options, cameraExecutor, object : ImageCapture.OnImageSavedCallback {
             override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                 lifecycleScope.launch {
-                    val photoBitmap = photoFile.toBitmap(requireContext())
+                    val bitmap = BitmapUtils.getBitmapFromUri(
+                        context = requireContext(),
+                        uri = photoFile.toUri(),
+                        applyGrayscale = true
+                    )
+
                     photoFile.delete()
 
-                    viewModel.addPage(requireContext(), photoBitmap).observe(viewLifecycleOwner)
+                    viewModel.addPage(requireContext(), bitmap).observe(viewLifecycleOwner)
                     { result ->
                         if (result) {
                             findNavController().navigate(CameraFragmentDirections.actionCameraFragmentToScanFragment())
