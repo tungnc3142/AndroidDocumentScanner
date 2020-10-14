@@ -6,8 +6,6 @@ import java.io.File
 object FileUtils {
 
     const val FILE_NAME_FORMAT = "Scanned_%1tY%<tm%<td%<tH%<tM"
-    const val JPG_SUFFIX = ".jpg"
-    const val PDF_SUFFIX = ".pdf"
 
     private const val ROOT_FILE_DIR = "scans"
     private const val PAGE_FILE_DIR = "$ROOT_FILE_DIR/pages/"

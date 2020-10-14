@@ -44,7 +44,7 @@ object DocumentGenerator {
                 bitmap.recycle()
             }
 
-            val documentFile = FileUtils.createDocumentFile(context, title + PDF_SUFFIX)
+            val documentFile = FileUtils.createDocumentFile(context, title + FileType.PDF.suffix)
 
             FileOutputStream(documentFile).apply {
                 pdfDocument.writeTo(this)
@@ -58,21 +58,12 @@ object DocumentGenerator {
         }
 
     suspend fun Document.generateJpg(context: Context): Uri =
-        withContext(Dispatchers.IO) {
-            require(pages.isNotEmpty())
+        withContext(Dispatchers.Default) {
+            require(pages.isNotEmpty()) { "Empty pages" }
 
             val pageUri = pages.first().getImageToPrint().imageUri
-
-            val bitmap = Glide.with(context)
-                .asBitmap()
-                .load(pageUri)
-                .encodeQuality(quality.value)
-                .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .submit()
-                .get()
-
-            val documentFile = FileUtils.createDocumentFile(context, title + FileUtils.JPG_SUFFIX)
+            val bitmap = BitmapUtils.getBitmapFromUri(context, pageUri)
+            val documentFile = FileUtils.createDocumentFile(context, title + FileType.JPG.suffix)
 
             bitmap.toFile(documentFile)
             bitmap.recycle()

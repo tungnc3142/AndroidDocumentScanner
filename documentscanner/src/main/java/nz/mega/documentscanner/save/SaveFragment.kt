@@ -126,22 +126,19 @@ class SaveFragment : Fragment() {
     private fun showDocumentFileType(fileType: Document.FileType) {
         val chipResId: Int
         val imageResId: Int
-        val suffix: String
 
         when (fileType) {
             Document.FileType.PDF -> {
                 chipResId = R.id.chip_file_type_pdf
                 imageResId = R.drawable.ic_pdf
-                suffix = FileUtils.PDF_SUFFIX
             }
             Document.FileType.JPG -> {
                 chipResId = R.id.chip_file_type_jpg
                 imageResId = R.drawable.ic_jpeg
-                suffix = FileUtils.JPG_SUFFIX
             }
         }
 
-        binding.inputFileName.suffixText = suffix
+        binding.inputFileName.suffixText = fileType.suffix
         binding.imgFileType.setImageResource(imageResId)
 
         if (binding.chipGroupFileType.checkedChipId != chipResId) {
