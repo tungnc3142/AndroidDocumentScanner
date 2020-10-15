@@ -107,7 +107,10 @@ class DocumentScannerActivity : AppCompatActivity() {
                 .setChooserTitle(fileTitle)
                 .setStream(fileUri)
                 .createChooserIntent()
-                .apply { putExtra(EXTRA_PICKED_SAVE_DESTINATION, viewModel.getSaveDestination()) }
+                .apply {
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    putExtra(EXTRA_PICKED_SAVE_DESTINATION, viewModel.getSaveDestination())
+                }
 
             startActivity(shareIntent)
         }
