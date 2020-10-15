@@ -6,8 +6,10 @@ import androidx.camera.core.ImageProxy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import nz.mega.documentscanner.data.BitmapCropResult
-import nz.mega.documentscanner.utils.BitmapUtils
 import nz.mega.documentscanner.openCV.OpenCvUtils.yuvToRgba
+import nz.mega.documentscanner.utils.BitmapUtils.toBitmap
+import nz.mega.documentscanner.utils.BitmapUtils.toMat
+import org.opencv.android.OpenCVLoader
 import org.opencv.core.Core
 import org.opencv.core.CvType
 import org.opencv.core.Mat
@@ -38,6 +40,11 @@ object ImageScanner {
             ceil(area2 - area1).toInt()
         }
     }
+
+    suspend fun init(): Boolean =
+        withContext(Dispatchers.IO) {
+            OpenCVLoader.initDebug()
+        }
 
     suspend fun getCroppedImage(
         bitmap: Bitmap,
@@ -130,16 +137,14 @@ object ImageScanner {
                 x2.toDouble(), y2.toDouble()
             ), Point(x3.toDouble(), y3.toDouble()), Point(x4.toDouble(), y4.toDouble())
         )
-        val dstMat = perspective.transform(BitmapUtils.bitmapToMat(bitmap!!), rectangle)
-        val resultBitmap = BitmapUtils.matToBitmap(dstMat)
+        val dstMat = perspective.transform(bitmap!!.toMat(), rectangle)
+        val resultBitmap = dstMat.toBitmap()
         dstMat.release()
         return resultBitmap
     }
 
-    private fun getPoint(bitmap: Bitmap): MatOfPoint2f? {
-        val mat = BitmapUtils.bitmapToMat(bitmap)
-        return getPoint(mat)
-    }
+    private fun getPoint(bitmap: Bitmap): MatOfPoint2f? =
+        getPoint(bitmap.toMat())
 
     private fun getPoint(src: Mat): MatOfPoint2f? {
         // Downscale image for better performance.

@@ -24,6 +24,7 @@ import nz.mega.documentscanner.databinding.FragmentCameraBinding
 import nz.mega.documentscanner.openCV.ImageScanner
 import nz.mega.documentscanner.utils.BitmapUtils
 import nz.mega.documentscanner.utils.FileUtils
+import nz.mega.documentscanner.utils.FileUtils.deleteSafely
 import nz.mega.documentscanner.utils.ViewUtils.aspectRatio
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -136,40 +137,45 @@ class CameraFragment : Fragment() {
         showProgress(true)
         imageAnalyzer?.clearAnalyzer()
 
-        val photoFile = FileUtils.createPhotoFile(requireContext())
-        val options = ImageCapture.OutputFileOptions.Builder(photoFile).build()
-        imageCapture?.takePicture(options, cameraExecutor, object : ImageCapture.OnImageSavedCallback {
-            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                lifecycleScope.launch {
-                    val bitmap = BitmapUtils.getBitmapFromUri(
-                        context = requireContext(),
-                        uri = photoFile.toUri(),
-                        applyGrayscale = true
-                    )
+        lifecycleScope.launch {
+            val photoFile = FileUtils.createPhotoFile(requireContext())
+            val options = ImageCapture.OutputFileOptions.Builder(photoFile).build()
+            imageCapture?.takePicture(
+                options,
+                cameraExecutor,
+                object : ImageCapture.OnImageSavedCallback {
+                    override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                        lifecycleScope.launch {
+                            val bitmap = BitmapUtils.getBitmapFromUri(
+                                context = requireContext(),
+                                uri = photoFile.toUri(),
+                                applyGrayscale = true
+                            )
 
-                    photoFile.delete()
+                            photoFile.deleteSafely()
 
-                    viewModel.addPage(requireContext(), bitmap).observe(viewLifecycleOwner)
-                    { result ->
-                        if (result) {
-                            findNavController().navigate(CameraFragmentDirections.actionCameraFragmentToScanFragment())
-                        } else {
-                            showToast("Picture process error")
+                            viewModel.addPage(requireContext(), bitmap).observe(viewLifecycleOwner)
+                            { result ->
+                                if (result) {
+                                    findNavController().navigate(CameraFragmentDirections.actionCameraFragmentToScanFragment())
+                                } else {
+                                    showToast("Picture process error")
+                                    showProgress(false)
+                                }
+                            }
+                        }
+                    }
+
+                    override fun onError(error: ImageCaptureException) {
+                        lifecycleScope.launch {
+                            Log.e(TAG, error.stackTraceToString())
+                            showToast(error.message.toString())
+                            photoFile.deleteSafely()
                             showProgress(false)
                         }
                     }
-                }
-            }
-
-            override fun onError(error: ImageCaptureException) {
-                activity?.runOnUiThread {
-                    Log.e(TAG, "Take Picture error: " + error.stackTraceToString())
-                    showToast(error.message.toString())
-                    photoFile.delete()
-                    showProgress(false)
-                }
-            }
-        })
+                })
+        }
     }
 
     private fun allPermissionsGranted(): Boolean =

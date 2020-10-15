@@ -10,8 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import nz.mega.documentscanner.data.Document
 import nz.mega.documentscanner.data.Document.FileType
-import nz.mega.documentscanner.utils.BitmapUtils.toFile
-import java.io.FileOutputStream
+import nz.mega.documentscanner.utils.FileUtils.toFile
 
 @Suppress("BlockingMethodInNonBlockingContext")
 object DocumentGenerator {
@@ -40,18 +39,11 @@ object DocumentGenerator {
                 }
 
                 pdfDocument.finishPage(pdfPage)
-
                 bitmap.recycle()
             }
 
             val documentFile = FileUtils.createDocumentFile(context, title + FileType.PDF.suffix)
-
-            FileOutputStream(documentFile).apply {
-                pdfDocument.writeTo(this)
-                flush()
-                close()
-            }
-
+            pdfDocument.toFile(documentFile)
             pdfDocument.close()
 
             documentFile.toUri()
@@ -63,8 +55,8 @@ object DocumentGenerator {
 
             val pageUri = pages.first().getImageToPrint().imageUri
             val bitmap = BitmapUtils.getBitmapFromUri(context, pageUri)
-            val documentFile = FileUtils.createDocumentFile(context, title + FileType.JPG.suffix)
 
+            val documentFile = FileUtils.createDocumentFile(context, title + FileType.JPG.suffix)
             bitmap.toFile(documentFile)
             bitmap.recycle()
 
