@@ -148,5 +148,8 @@ class ScanFragment : Fragment() {
     private fun showProgress(show: Boolean) {
         binding.progress.isVisible = show
         binding.btnDone.isEnabled = !show
+        binding.btnCrop.isEnabled = !show
+        binding.btnRotate.isEnabled = !show
+        binding.btnDelete.isEnabled = !show
     }
 }
