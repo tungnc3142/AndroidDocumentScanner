@@ -140,7 +140,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:drawableTop="@drawable/ic_baseline_add_circle_outline_24"
-        android:text="@string/general_add"
+        android:text="@string/action_add"
         android:textAppearance="?textAppearanceCaption"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
