@@ -34,7 +34,7 @@ class ScanFragment : Fragment() {
                 viewModel.setCurrentPagePosition(position)
 
                 binding.txtPageCount.text = String.format(
-                    getString(R.string.format_page_count),
+                    getString(R.string.scan_format_page_count),
                     position + 1,
                     viewModel.getPagesCount()
                 )
