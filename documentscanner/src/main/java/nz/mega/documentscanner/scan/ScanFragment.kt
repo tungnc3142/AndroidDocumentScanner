@@ -32,7 +32,12 @@ class ScanFragment : Fragment() {
         object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 viewModel.setCurrentPagePosition(position)
-                binding.txtPageCount.text = "${position + 1} / ${viewModel.getPagesCount()}"
+
+                binding.txtPageCount.text = String.format(
+                    getString(R.string.scan_format_page_count),
+                    position + 1,
+                    viewModel.getPagesCount()
+                )
             }
         }
     }
@@ -105,6 +110,7 @@ class ScanFragment : Fragment() {
 
     private fun showPages(items: List<Page>) {
         val currentPosition = viewModel.getCurrentPagePosition()
+        binding.btnDelete.isVisible = items.size > 1
         adapter.submitList(items)
 
         if (items.isNotEmpty()) {
