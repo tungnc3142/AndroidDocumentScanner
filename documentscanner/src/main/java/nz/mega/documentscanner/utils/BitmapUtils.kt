@@ -21,7 +21,6 @@ object BitmapUtils {
             Glide.with(context)
                 .asBitmap()
                 .load(this@toBitmap)
-                .transform(GrayscaleTransformation())
                 .skipMemoryCache(true)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .submit().get()
