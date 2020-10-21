@@ -113,7 +113,7 @@ class SaveFragment : Fragment() {
         }
         binding.btnSave.isEnabled = !title.isBlank()
         binding.inputFileName.error = if (title.isBlank()) {
-            getString(R.string.invalid_input)
+            getString(R.string.scan_invalid_input)
         } else {
             null
         }

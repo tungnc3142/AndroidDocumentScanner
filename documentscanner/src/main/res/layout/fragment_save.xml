@@ -24,7 +24,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:text="@string/title_save_scan"
+        android:text="@string/scan_title_save_scan"
+        android:textAllCaps="true"
         android:textAppearance="?textAppearanceHeadline6"
         android:textColor="?colorOnSurface"
         app:layout_constraintBottom_toBottomOf="@id/btn_back"
@@ -41,7 +42,7 @@
         android:paddingTop="8dp"
         android:paddingEnd="16dp"
         android:paddingBottom="8dp"
-        android:text="@string/context_new_file_name"
+        android:text="@string/scan_file_name"
         android:textAppearance="?textAppearanceBody2"
         android:textColor="?colorPrimarySurface"
         app:layout_constraintEnd_toEndOf="parent"
@@ -105,7 +106,7 @@
         android:paddingTop="8dp"
         android:paddingEnd="16dp"
         android:paddingBottom="8dp"
-        android:text="@string/context_file_type"
+        android:text="@string/scan_file_type"
         android:textAppearance="?textAppearanceBody2"
         android:textColor="?colorPrimarySurface"
         app:layout_constraintEnd_toEndOf="parent"
@@ -135,14 +136,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
-            android:text="@string/file_type_pdf"
+            android:text="@string/scan_file_type_pdf"
             />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_file_type_jpg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/file_type_jpg"
+            android:text="@string/scan_file_type_jpg"
             />
 
     </com.google.android.material.chip.ChipGroup>
@@ -176,7 +177,7 @@
         android:paddingTop="8dp"
         android:paddingEnd="16dp"
         android:paddingBottom="8dp"
-        android:text="@string/title_quality"
+        android:text="@string/scan_quality"
         android:textAppearance="?textAppearanceBody2"
         android:textColor="?colorPrimarySurface"
         app:layout_constraintEnd_toEndOf="parent"
@@ -205,7 +206,7 @@
             android:id="@+id/chip_quality_high"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/quality_high"
+            android:text="@string/scan_quality_high"
             />
 
         <com.google.android.material.chip.Chip
@@ -213,14 +214,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
-            android:text="@string/quality_medium"
+            android:text="@string/scan_quality_medium"
             />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_quality_low"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/quality_low"
+            android:text="@string/scan_quality_low"
             />
 
     </com.google.android.material.chip.ChipGroup>
@@ -245,7 +246,7 @@
         android:paddingTop="8dp"
         android:paddingEnd="16dp"
         android:paddingBottom="8dp"
-        android:text="@string/title_destination"
+        android:text="@string/scan_destination"
         android:textAppearance="?textAppearanceBody2"
         android:textColor="?colorPrimarySurface"
         app:layout_constraintEnd_toEndOf="parent"
@@ -311,7 +312,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:enabled="false"
-        android:text="@string/save_action"
+        android:text="@string/scan_action_save"
         android:theme="@style/ThemeOverlay.DocumentScanner.Secondary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -228,7 +228,7 @@ class CameraFragment : Fragment() {
                 if (allPermissionsGranted()) {
                     setUpCamera()
                 } else {
-                    showToast("Camera permissions not granted")
+                    showToast(getString(R.string.scan_requires_permission))
                     activity?.finish()
                 }
             }

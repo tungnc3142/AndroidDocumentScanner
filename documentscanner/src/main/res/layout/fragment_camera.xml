@@ -45,7 +45,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
         android:background="@drawable/ripple_ic_scan"
-        android:src="@drawable/ic_scan"
+        android:src="@drawable/ic_shutter"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
