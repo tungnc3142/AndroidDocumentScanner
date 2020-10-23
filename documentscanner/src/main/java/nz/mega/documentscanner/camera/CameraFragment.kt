@@ -148,8 +148,7 @@ class CameraFragment : Fragment() {
                         lifecycleScope.launch {
                             val bitmap = BitmapUtils.getBitmapFromUri(
                                 context = requireContext(),
-                                uri = photoFile.toUri(),
-                                applyGrayscale = true
+                                uri = photoFile.toUri()
                             )
 
                             photoFile.deleteSafely()
