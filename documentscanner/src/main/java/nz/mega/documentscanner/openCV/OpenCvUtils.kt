@@ -1,6 +1,7 @@
 package nz.mega.documentscanner.openCV
 
 import android.graphics.ImageFormat
+import android.graphics.PointF
 import androidx.camera.core.ImageProxy
 import org.opencv.core.Core
 import org.opencv.core.CvType
@@ -45,6 +46,27 @@ object OpenCvUtils {
         val result = MatOfPoint2f()
         result.fromList(resultPoints)
         return result
+    }
+
+    fun List<PointF>.rotate(): List<PointF> {
+        require(size == 4) { "Not a rectange" }
+
+        val mat = toMatOfPoint2f()
+        val resultMat = mat.rotate()
+
+        return resultMat.toArray().map { PointF(it.x.toFloat(), it.y.toFloat()) }
+    }
+
+    fun MatOfPoint2f.rotate(): MatOfPoint2f {
+        val resultMat = MatOfPoint2f()
+        Core.rotate(this, resultMat, Core.ROTATE_90_CLOCKWISE)
+        return resultMat
+    }
+
+    fun List<PointF>.toMatOfPoint2f(): MatOfPoint2f {
+        val rectangle = MatOfPoint2f()
+        rectangle.fromList(map { Point(it.x.toDouble(), it.y.toDouble()) })
+        return rectangle
     }
 
     fun ImageProxy.yuvToRgba(): Mat {

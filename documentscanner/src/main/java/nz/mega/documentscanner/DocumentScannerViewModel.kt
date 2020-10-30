@@ -22,10 +22,10 @@ import nz.mega.documentscanner.utils.DocumentGenerator.generateJpg
 import nz.mega.documentscanner.utils.DocumentGenerator.generatePdf
 import nz.mega.documentscanner.utils.DocumentUtils.deleteAllPages
 import nz.mega.documentscanner.utils.DocumentUtils.deletePage
-import nz.mega.documentscanner.utils.ImageUtils
 import nz.mega.documentscanner.utils.ImageUtils.deleteFile
-import nz.mega.documentscanner.utils.ImageUtils.rotate
+import nz.mega.documentscanner.utils.ImageUtils.toImage
 import nz.mega.documentscanner.utils.LiveDataUtils.notifyObserver
+import nz.mega.documentscanner.utils.PageUtils.rotate
 
 class DocumentScannerViewModel : ViewModel() {
 
@@ -117,14 +117,14 @@ class DocumentScannerViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
-                val originalImage = ImageUtils.createImageFromBitmap(context, originalBitmap)
+                val originalImage = originalBitmap.toImage(context)
                 var cropPoints: List<PointF>? = null
                 var croppedImage: Image? = null
 
                 val cropResult = ImageScanner.getCroppedImage(originalBitmap, cropPoints)
                 if (cropResult != null) {
                     cropPoints = cropResult.cropPoints
-                    croppedImage = ImageUtils.createImageFromBitmap(context, cropResult.bitmap)
+                    croppedImage = cropResult.bitmap.toImage(context)
                 }
 
                 val page = Page(
@@ -157,17 +157,10 @@ class DocumentScannerViewModel : ViewModel() {
         document.value?.pages?.get(currentPosition)?.let { currentPage ->
             viewModelScope.launch {
                 try {
-                    val image = currentPage.getImageToPrint()
-                    val rotatedImage = image.rotate(context)
-                    image.deleteFile()
-
-                    val updatedPage = currentPage.copy(
-                        croppedImage = rotatedImage
-                    )
-
+                    val updatedPage = currentPage.rotate(context)
                     document.value?.pages?.set(currentPosition, updatedPage)
-                    document.notifyObserver()
 
+                    document.notifyObserver()
                     operationResult.postValue(true)
                 } catch (error: Exception) {
                     Log.e(TAG, error.stackTraceToString())
@@ -192,7 +185,7 @@ class DocumentScannerViewModel : ViewModel() {
                     val originalImageBitmap = BitmapUtils.getBitmapFromUri(context, image.imageUri)
                     val cropResult = ImageScanner.getCroppedImage(originalImageBitmap, cropPoints)
                     val croppedBitmap = cropResult!!.bitmap
-                    val croppedImage = ImageUtils.createImageFromBitmap(context, croppedBitmap)
+                    val croppedImage = croppedBitmap.toImage(context)
 
                     currentPage.croppedImage?.deleteFile()
 

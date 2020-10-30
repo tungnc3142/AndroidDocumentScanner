@@ -6,6 +6,7 @@ import androidx.camera.core.ImageProxy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import nz.mega.documentscanner.data.BitmapCropResult
+import nz.mega.documentscanner.openCV.OpenCvUtils.toMatOfPoint2f
 import nz.mega.documentscanner.openCV.OpenCvUtils.yuvToRgba
 import nz.mega.documentscanner.utils.BitmapUtils.toBitmap
 import nz.mega.documentscanner.utils.BitmapUtils.toMat
@@ -16,7 +17,6 @@ import org.opencv.core.Mat
 import org.opencv.core.MatOfInt
 import org.opencv.core.MatOfPoint
 import org.opencv.core.MatOfPoint2f
-import org.opencv.core.Point
 import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
 import java.util.ArrayList
@@ -51,27 +51,16 @@ object ImageScanner {
         providedPoints: List<PointF>? = null
     ): BitmapCropResult? =
         withContext(Dispatchers.Default) {
-            val cropPoints = providedPoints ?: getPoint(bitmap)?.toArray()
-                ?.map { PointF(it.x.toFloat(), it.y.toFloat()) }
+            val matOfPoints: MatOfPoint2f? = providedPoints?.toMatOfPoint2f() ?: getPoint(bitmap)
 
-            if (!cropPoints.isNullOrEmpty()) {
-                val croppedBitmap = getScannedBitmap(
-                    bitmap,
-                    cropPoints[0].x,
-                    cropPoints[0].y,
-                    cropPoints[1].x,
-                    cropPoints[1].y,
-                    cropPoints[2].x,
-                    cropPoints[2].y,
-                    cropPoints[3].x,
-                    cropPoints[3].y,
-                )
+            if (matOfPoints != null) {
+                val croppedBitmap = getScannedBitmap(bitmap, matOfPoints)
 
                 BitmapCropResult(
                     croppedBitmap,
                     bitmap.width,
                     bitmap.height,
-                    cropPoints
+                    matOfPoints.toArray().map { PointF(it.x.toFloat(), it.y.toFloat()) }
                 )
             } else {
                 null
@@ -120,24 +109,11 @@ object ImageScanner {
         }
 
     private fun getScannedBitmap(
-        bitmap: Bitmap?,
-        x1: Float,
-        y1: Float,
-        x2: Float,
-        y2: Float,
-        x3: Float,
-        y3: Float,
-        x4: Float,
-        y4: Float
+        bitmap: Bitmap,
+        rectangle: MatOfPoint2f
     ): Bitmap {
         val perspective = PerspectiveTransformation()
-        val rectangle = MatOfPoint2f()
-        rectangle.fromArray(
-            Point(x1.toDouble(), y1.toDouble()), Point(
-                x2.toDouble(), y2.toDouble()
-            ), Point(x3.toDouble(), y3.toDouble()), Point(x4.toDouble(), y4.toDouble())
-        )
-        val dstMat = perspective.transform(bitmap!!.toMat(), rectangle)
+        val dstMat = perspective.transform(bitmap.toMat(), rectangle)
         val resultBitmap = dstMat.toBitmap()
         dstMat.release()
         return resultBitmap

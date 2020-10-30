@@ -10,15 +10,15 @@ import nz.mega.documentscanner.utils.FileUtils.toFile
 
 object ImageUtils {
 
-    suspend fun createImageFromBitmap(context: Context, bitmap: Bitmap): Image {
+    suspend fun Bitmap.toImage(context: Context): Image {
         val file = FileUtils.createPageFile(context).apply {
-            bitmap.toFile(this)
+            toFile(this)
         }
 
         return Image(
             imageUri = file.toUri(),
-            width = bitmap.width.toFloat(),
-            height = bitmap.height.toFloat()
+            width = width.toFloat(),
+            height = height.toFloat()
         )
     }
 
@@ -29,9 +29,9 @@ object ImageUtils {
             degreesToRotate = degreesToRotate
         )
 
-        val rotatedImage = createImageFromBitmap(context, bitmap)
-        bitmap.recycle()
+        val rotatedImage = bitmap.toImage(context)
 
+        bitmap.recycle()
         return rotatedImage
     }
 
