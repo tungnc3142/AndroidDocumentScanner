@@ -10,12 +10,15 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import kotlinx.coroutines.launch
 import nz.mega.documentscanner.DocumentScannerViewModel
 import nz.mega.documentscanner.R
 import nz.mega.documentscanner.data.Page
 import nz.mega.documentscanner.databinding.FragmentCropBinding
+import nz.mega.documentscanner.utils.PageUtils.getCroppedBitmap
 
 class CropFragment : Fragment() {
 
@@ -56,20 +59,24 @@ class CropFragment : Fragment() {
 
     private fun showCurrentPage(page: Page?) {
         if (page != null) {
-            Glide.with(this)
-                .load(page.originalImage.imageUri)
-                .into(binding.imgCrop)
+            lifecycleScope.launch {
+                val bitmap = page.getCroppedBitmap(requireContext())
 
-            binding.cropView.post {
-                ratioX = binding.cropView.measuredWidth / page.originalImage.width
-                ratioY = binding.cropView.measuredHeight / page.originalImage.height
+                Glide.with(this@CropFragment)
+                    .load(bitmap)
+                    .into(binding.imgCrop)
 
-                binding.cropView.points = page.cropPoints?.let { cropPoints ->
-                    val relativePoints = cropPoints.map { point ->
-                        PointF(point.x * ratioX, point.y * ratioY)
-                    }
+                binding.cropView.post {
+                    ratioX = binding.cropView.measuredWidth / bitmap.width.toFloat()
+                    ratioY = binding.cropView.measuredHeight / bitmap.height.toFloat()
 
-                    binding.cropView.getOrderedPoints(relativePoints)
+//                    binding.cropView.points = page.cropPoints?.let { cropPoints ->
+//                        val relativePoints = cropPoints.map { point ->
+//                            PointF(point.x * ratioX, point.y * ratioY)
+//                        }
+//
+//                        binding.cropView.getOrderedPoints(relativePoints)
+//                    }
                 }
             }
         } else {
@@ -85,10 +92,10 @@ class CropFragment : Fragment() {
             PointF(point.value.x / ratioX, point.value.y / ratioY)
         }
 
-        viewModel.cropCurrentPage(requireContext(), relativePoints).observe(viewLifecycleOwner) {
-            showProgress(false)
-            findNavController().popBackStack()
-        }
+//        viewModel.cropPage(requireContext(), relativePoints).observe(viewLifecycleOwner) {
+//            showProgress(false)
+//            findNavController().popBackStack()
+//        }
     }
 
     private fun showProgress(show: Boolean) {

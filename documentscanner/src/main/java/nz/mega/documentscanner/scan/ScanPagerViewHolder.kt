@@ -2,20 +2,16 @@ package nz.mega.documentscanner.scan
 
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import nz.mega.documentscanner.data.Page
+import nz.mega.documentscanner.data.PageItem
 import nz.mega.documentscanner.databinding.ItemScanBinding
 
 class ScanPagerViewHolder(
     private val binding: ItemScanBinding
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(item: Page) {
-        val imageUri = item.getImageToPrint().imageUri
+    fun bind(item: PageItem) {
         Glide.with(itemView)
-            .load(imageUri)
-            .skipMemoryCache(true)
-            .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .load(item.image)
             .into(binding.imgItem)
     }
 }

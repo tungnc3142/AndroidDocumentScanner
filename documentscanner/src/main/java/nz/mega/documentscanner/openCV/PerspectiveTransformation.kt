@@ -5,13 +5,9 @@ import org.opencv.core.MatOfPoint2f
 import org.opencv.core.Point
 import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
-import java.util.*
+import java.util.ArrayList
 
-class PerspectiveTransformation {
-
-    companion object {
-        private const val DEBUG_TAG = "PerspectiveTransformation"
-    }
+object PerspectiveTransformation {
 
     fun transform(src: Mat, corners: MatOfPoint2f): Mat {
         val sortedCorners = sortCorners(corners)

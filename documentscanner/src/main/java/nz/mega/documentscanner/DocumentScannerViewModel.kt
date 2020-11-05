@@ -2,30 +2,32 @@ package nz.mega.documentscanner
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.PointF
 import android.net.Uri
 import android.util.Log
+import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import nz.mega.documentscanner.data.Document
 import nz.mega.documentscanner.data.Document.FileType
 import nz.mega.documentscanner.data.Document.Quality
-import nz.mega.documentscanner.data.Image
 import nz.mega.documentscanner.data.Page
+import nz.mega.documentscanner.data.PageItem
 import nz.mega.documentscanner.openCV.ImageScanner
-import nz.mega.documentscanner.utils.BitmapUtils
 import nz.mega.documentscanner.utils.DocumentGenerator.generateJpg
 import nz.mega.documentscanner.utils.DocumentGenerator.generatePdf
 import nz.mega.documentscanner.utils.DocumentUtils.deleteAllPages
 import nz.mega.documentscanner.utils.DocumentUtils.deletePage
-import nz.mega.documentscanner.utils.ImageUtils.deleteFile
-import nz.mega.documentscanner.utils.ImageUtils.toImage
+import nz.mega.documentscanner.utils.DocumentUtils.toPageItems
+import nz.mega.documentscanner.utils.FileUtils.createPageFile
 import nz.mega.documentscanner.utils.LiveDataUtils.notifyObserver
+import nz.mega.documentscanner.utils.PageUtils.crop
 import nz.mega.documentscanner.utils.PageUtils.rotate
+import org.opencv.core.MatOfPoint2f
 
 class DocumentScannerViewModel : ViewModel() {
 
@@ -61,17 +63,17 @@ class DocumentScannerViewModel : ViewModel() {
     fun getSaveDestination(): String? =
         document.value?.saveDestination
 
-    fun getDocumentPages(): LiveData<List<Page>> =
-        document.map { it.pages.toList() }
+    fun getDocumentPages(context: Context): LiveData<List<PageItem>> =
+        document.switchMap { getPageItemsFromDocument(context, it) }
 
     fun getCurrentPage(): LiveData<Page?> =
         currentPagePosition.map { document.value?.pages?.elementAtOrNull(it) }
 
-    fun getCurrentPagePosition(): Int =
-        currentPagePosition.value ?: 0
+    fun getCurrentPagePosition(): LiveData<Int> =
+        currentPagePosition
 
-    fun getPagesCount(): Int =
-        document.value?.pages?.size ?: 0
+    fun getPagesCount(): LiveData<Int> =
+        document.map { it.pages.size }
 
     fun setCurrentPagePosition(position: Int) {
         if (currentPagePosition.value != position) {
@@ -112,32 +114,22 @@ class DocumentScannerViewModel : ViewModel() {
         saveDestinations.value = destinations
     }
 
-    fun addPage(context: Context, originalBitmap: Bitmap): LiveData<Boolean> {
+    fun addPage(context: Context, bitmap: Bitmap): LiveData<Boolean> {
         val operationResult = MutableLiveData<Boolean>()
 
         viewModelScope.launch {
             try {
-                val originalImage = originalBitmap.toImage(context)
-                var cropPoints: List<PointF>? = null
-                var croppedImage: Image? = null
-
-                val cropResult = ImageScanner.getCroppedImage(originalBitmap, cropPoints)
-                if (cropResult != null) {
-                    cropPoints = cropResult.cropPoints
-                    croppedImage = cropResult.bitmap.toImage(context)
-                }
+                val file = createPageFile(context, bitmap)
+                val cropMat = ImageScanner.getCropPoints(bitmap)
 
                 val page = Page(
-                    originalImage = originalImage,
-                    croppedImage = croppedImage,
-                    cropPoints = cropPoints
+                    imageUri = file.toUri(),
+                    cropMat = cropMat
                 )
 
                 document.value?.pages?.add(page)
 
-                originalBitmap.recycle()
-                cropResult?.bitmap?.recycle()
-
+                bitmap.recycle()
                 updateDocumentFileType()
                 document.notifyObserver()
                 operationResult.postValue(true)
@@ -150,15 +142,17 @@ class DocumentScannerViewModel : ViewModel() {
         return operationResult
     }
 
-    fun rotateCurrentPage(context: Context): LiveData<Boolean> {
+    fun rotatePage(
+        context: Context,
+        position: Int = currentPagePosition.value ?: 0
+    ): LiveData<Boolean> {
         val operationResult = MutableLiveData<Boolean>()
 
-        val currentPosition = currentPagePosition.value ?: 0
-        document.value?.pages?.get(currentPosition)?.let { currentPage ->
+        document.value?.pages?.get(position)?.let { page ->
             viewModelScope.launch {
                 try {
-                    val updatedPage = currentPage.rotate(context)
-                    document.value?.pages?.set(currentPosition, updatedPage)
+                    val updatedPage = page.rotate(context)
+                    document.value?.pages?.set(position, updatedPage)
 
                     document.notifyObserver()
                     operationResult.postValue(true)
@@ -172,34 +166,26 @@ class DocumentScannerViewModel : ViewModel() {
         return operationResult
     }
 
-    fun cropCurrentPage(context: Context, cropPoints: List<PointF>): LiveData<Boolean> {
+    fun cropPage(
+        context: Context,
+        cropMat: MatOfPoint2f,
+        position: Int = currentPagePosition.value ?: 0
+    ): LiveData<Boolean> {
         val operationResult = MutableLiveData<Boolean>()
 
-        val currentPosition = currentPagePosition.value ?: 0
-        document.value?.pages?.get(currentPosition)?.let { currentPage ->
+        document.value?.pages?.get(position)?.let { page ->
             viewModelScope.launch {
                 try {
-                    if (cropPoints == currentPage.cropPoints) return@launch
+                    if (page.cropMat == cropMat) {
+                        operationResult.postValue(true)
+                        return@launch
+                    }
 
-                    val image = currentPage.originalImage
-                    val originalImageBitmap = BitmapUtils.getBitmapFromUri(context, image.imageUri)
-                    val cropResult = ImageScanner.getCroppedImage(originalImageBitmap, cropPoints)
-                    val croppedBitmap = cropResult!!.bitmap
-                    val croppedImage = croppedBitmap.toImage(context)
+                    val updatedPage = page.crop(context, cropMat)
+                    document.value?.pages?.set(position, updatedPage)
 
-                    currentPage.croppedImage?.deleteFile()
-
-                    val updatedPage = currentPage.copy(
-                        croppedImage = croppedImage,
-                        cropPoints = cropResult.cropPoints
-                    )
-
-                    document.value?.pages?.set(currentPosition, updatedPage)
-
-                    originalImageBitmap.recycle()
-                    croppedBitmap.recycle()
+                    cropMat.release()
                     document.notifyObserver()
-
                     operationResult.postValue(true)
                 } catch (error: Exception) {
                     Log.e(TAG, error.stackTraceToString())
@@ -209,6 +195,20 @@ class DocumentScannerViewModel : ViewModel() {
         }
 
         return operationResult
+    }
+
+    fun deletePage(position: Int = currentPagePosition.value ?: 0) {
+        viewModelScope.launch {
+            document.value?.deletePage(position)
+            document.notifyObserver()
+        }
+    }
+
+    fun deleteAllPages() {
+        viewModelScope.launch {
+            document.value?.deleteAllPages()
+            document.notifyObserver()
+        }
     }
 
     fun generateDocument(context: Context): MutableLiveData<Boolean> {
@@ -231,19 +231,18 @@ class DocumentScannerViewModel : ViewModel() {
         return operationResult
     }
 
-    fun deleteCurrentPage() {
-        viewModelScope.launch {
-            val currentPosition = currentPagePosition.value ?: 0
-            document.value?.deletePage(currentPosition)
-            document.notifyObserver()
-        }
-    }
+    private fun getPageItemsFromDocument(
+        context: Context,
+        document: Document
+    ): LiveData<List<PageItem>> {
+        val result = MutableLiveData<List<PageItem>>()
 
-    fun deleteAllPages() {
         viewModelScope.launch {
-            document.value?.deleteAllPages()
-            document.notifyObserver()
+            val pageItems = document.toPageItems(context)
+            result.postValue(pageItems)
         }
+
+        return result
     }
 
     private fun updateDocumentFileType() {

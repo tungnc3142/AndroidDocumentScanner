@@ -1,8 +1,11 @@
 package nz.mega.documentscanner.openCV
 
+import android.graphics.Bitmap
 import android.graphics.ImageFormat
-import android.graphics.PointF
 import androidx.camera.core.ImageProxy
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import nz.mega.documentscanner.utils.BitmapUtils.toBitmap
 import org.opencv.core.Core
 import org.opencv.core.CvType
 import org.opencv.core.Mat
@@ -48,28 +51,21 @@ object OpenCvUtils {
         return result
     }
 
-    fun List<PointF>.rotate(): List<PointF> {
-        require(size == 4) { "Not a rectange" }
-
-        val mat = toMatOfPoint2f()
-        val resultMat = mat.rotate()
-
-        return resultMat.toArray().map { PointF(it.x.toFloat(), it.y.toFloat()) }
+    fun Mat.crop(cropMat: MatOfPoint2f): Bitmap {
+        val dstMat = PerspectiveTransformation.transform(this, cropMat)
+        val resultBitmap = dstMat.toBitmap()
+        dstMat.release()
+        return resultBitmap
     }
 
-    fun MatOfPoint2f.rotate(): MatOfPoint2f {
-        val resultMat = MatOfPoint2f()
-        Core.rotate(this, resultMat, Core.ROTATE_90_CLOCKWISE)
-        return resultMat
-    }
+    suspend fun MatOfPoint2f.rotate(): MatOfPoint2f =
+        withContext(Dispatchers.Default) {
+            val resultMat = MatOfPoint2f()
+            Core.rotate(this@rotate, resultMat, Core.ROTATE_90_CLOCKWISE)
+            resultMat
+        }
 
-    fun List<PointF>.toMatOfPoint2f(): MatOfPoint2f {
-        val rectangle = MatOfPoint2f()
-        rectangle.fromList(map { Point(it.x.toDouble(), it.y.toDouble()) })
-        return rectangle
-    }
-
-    fun ImageProxy.yuvToRgba(): Mat {
+    fun ImageProxy.yuvToRgbaMat(): Mat {
         require(format == ImageFormat.YUV_420_888 && planes.size == 3)
 
         val rgbaMat = Mat()

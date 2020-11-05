@@ -13,11 +13,11 @@ import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
 import nz.mega.documentscanner.DocumentScannerViewModel
 import nz.mega.documentscanner.R
-import nz.mega.documentscanner.data.Page
+import nz.mega.documentscanner.data.PageItem
 import nz.mega.documentscanner.databinding.FragmentScanBinding
 import nz.mega.documentscanner.utils.DialogFactory
-import nz.mega.documentscanner.view.OffsetPageTransformer
 import nz.mega.documentscanner.utils.ViewUtils.scrollToLastPosition
+import nz.mega.documentscanner.view.OffsetPageTransformer
 
 class ScanFragment : Fragment() {
 
@@ -36,7 +36,7 @@ class ScanFragment : Fragment() {
                 binding.txtPageCount.text = String.format(
                     getString(R.string.scan_format_page_count),
                     position + 1,
-                    viewModel.getPagesCount()
+                    viewModel.getPagesCount().value
                 )
             }
         }
@@ -82,34 +82,34 @@ class ScanFragment : Fragment() {
         binding.btnAdd.setOnClickListener { navigateBack() }
         binding.btnRotate.setOnClickListener {
             showProgress(true)
-            viewModel.rotateCurrentPage(requireContext()).observe(viewLifecycleOwner) {
+            viewModel.rotatePage(requireContext()).observe(viewLifecycleOwner) {
                 showProgress(false)
             }
         }
         binding.btnDelete.setOnClickListener {
             DialogFactory.createDeleteCurrentScanDialog(requireContext()) {
-                viewModel.deleteCurrentPage()
+                viewModel.deletePage()
             }.show()
         }
         binding.btnCrop.setOnClickListener { findNavController().navigate(ScanFragmentDirections.actionScanFragmentToCropFragment()) }
         binding.btnDone.setOnClickListener { findNavController().navigate(ScanFragmentDirections.actionScanFragmentToSaveFragment()) }
         binding.btnRetake.setOnClickListener {
-            viewModel.deleteCurrentPage()
+            viewModel.deletePage()
             navigateBack()
         }
     }
 
     private fun setupObservers() {
         viewModel.getDocumentTitle().observe(viewLifecycleOwner, ::showDocumentTitle)
-        viewModel.getDocumentPages().observe(viewLifecycleOwner, ::showPages)
+        viewModel.getDocumentPages(requireContext()).observe(viewLifecycleOwner, ::showPages)
     }
 
     private fun showDocumentTitle(title: String) {
         binding.txtScanTitle.text = title
     }
 
-    private fun showPages(items: List<Page>) {
-        val currentPosition = viewModel.getCurrentPagePosition()
+    private fun showPages(items: List<PageItem>) {
+        val currentPosition = viewModel.getCurrentPagePosition().value ?: 0
         binding.btnDelete.isVisible = items.size > 1
         adapter.submitList(items)
 
@@ -128,12 +128,12 @@ class ScanFragment : Fragment() {
     }
 
     private fun showDiscardDialog() {
-        val pagesCount = viewModel.getPagesCount()
+        val pagesCount = viewModel.getPagesCount().value ?: 0
 
         when {
             pagesCount == 1 -> {
                 DialogFactory.createDiscardScanDialog(requireContext()) {
-                    viewModel.deleteCurrentPage()
+                    viewModel.deletePage()
                     navigateBack()
                 }.show()
             }
