@@ -70,13 +70,13 @@ class CropFragment : Fragment() {
                     ratioX = binding.cropView.measuredWidth / bitmap.width.toFloat()
                     ratioY = binding.cropView.measuredHeight / bitmap.height.toFloat()
 
-//                    binding.cropView.points = page.cropPoints?.let { cropPoints ->
-//                        val relativePoints = cropPoints.map { point ->
-//                            PointF(point.x * ratioX, point.y * ratioY)
-//                        }
-//
-//                        binding.cropView.getOrderedPoints(relativePoints)
-//                    }
+                    binding.cropView.points = page.cropMat?.let { mat ->
+                        val relativePoints = mat.toArray().map { point ->
+                            PointF((point.x * ratioX).toFloat(), (point.y * ratioY).toFloat())
+                        }
+
+                        binding.cropView.getOrderedPoints(relativePoints)
+                    }
                 }
             }
         } else {
