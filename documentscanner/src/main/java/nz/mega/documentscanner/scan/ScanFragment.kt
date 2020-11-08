@@ -32,12 +32,6 @@ class ScanFragment : Fragment() {
         object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 viewModel.setCurrentPagePosition(position)
-
-                binding.txtPageCount.text = String.format(
-                    getString(R.string.scan_format_page_count),
-                    position + 1,
-                    viewModel.getPagesCount().value
-                )
             }
         }
     }
@@ -102,6 +96,7 @@ class ScanFragment : Fragment() {
     private fun setupObservers() {
         viewModel.getDocumentTitle().observe(viewLifecycleOwner, ::showDocumentTitle)
         viewModel.getDocumentPages(requireContext()).observe(viewLifecycleOwner, ::showPages)
+        viewModel.getCurrentPagePosition().observe(viewLifecycleOwner, ::showPageCount)
     }
 
     private fun showDocumentTitle(title: String) {
@@ -127,8 +122,16 @@ class ScanFragment : Fragment() {
         }
     }
 
+    private fun showPageCount(currentPosition: Int) {
+        binding.txtPageCount.text = String.format(
+            getString(R.string.scan_format_page_count),
+            currentPosition + 1,
+            viewModel.getPagesCount()
+        )
+    }
+
     private fun showDiscardDialog() {
-        val pagesCount = viewModel.getPagesCount().value ?: 0
+        val pagesCount = viewModel.getPagesCount()
 
         when {
             pagesCount == 1 -> {

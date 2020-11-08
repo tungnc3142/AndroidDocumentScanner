@@ -65,4 +65,9 @@ object PageUtils {
             cropMat = cropMat
         )
     }
+
+    suspend fun Page.clear() {
+        imageUri.toFile().deleteSafely()
+        cropMat?.release()
+    }
 }

@@ -78,6 +78,7 @@ class SaveFragment : Fragment() {
                 }
         }
 
+        binding.groupFileType.isVisible = viewModel.getPagesCount() == 1
         binding.btnBack.setOnClickListener { findNavController().popBackStack() }
         binding.btnSave.setOnClickListener { createDocument() }
     }
@@ -87,9 +88,6 @@ class SaveFragment : Fragment() {
         viewModel.getDocumentTitle().observe(viewLifecycleOwner, ::showDocumentTitle)
         viewModel.getDocumentFileType().observe(viewLifecycleOwner, ::showDocumentFileType)
         viewModel.getDocumentQuality().observe(viewLifecycleOwner, ::showDocumentQuality)
-        viewModel.getPagesCount().observe(viewLifecycleOwner) { pagesCount ->
-            binding.groupFileType.isVisible = pagesCount == 1
-        }
     }
 
     private fun showSaveDestinations(destinations: List<Pair<String, Boolean>>) {
