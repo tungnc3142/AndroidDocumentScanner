@@ -1,24 +1,27 @@
 package nz.mega.documentscanner.crop
 
 import android.graphics.PointF
+import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
-import kotlinx.coroutines.launch
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import nz.mega.documentscanner.DocumentScannerViewModel
 import nz.mega.documentscanner.R
 import nz.mega.documentscanner.data.Page
 import nz.mega.documentscanner.databinding.FragmentCropBinding
-import nz.mega.documentscanner.utils.PageUtils.getCroppedBitmap
+import org.opencv.core.MatOfPoint2f
+import org.opencv.core.Point
 
 class CropFragment : Fragment() {
 
@@ -58,48 +61,72 @@ class CropFragment : Fragment() {
     }
 
     private fun showCurrentPage(page: Page?) {
-        if (page != null) {
-            lifecycleScope.launch {
-                val bitmap = page.getCroppedBitmap(requireContext())
+        if (page == null) {
+            findNavController().popBackStack()
+            return
+        }
 
-                Glide.with(this@CropFragment)
-                    .load(bitmap)
-                    .into(binding.imgCrop)
+        binding.imgCrop.rotation = page.rotation.toFloat()
+        binding.cropView.rotation = page.rotation.toFloat()
 
-                binding.cropView.post {
-                    ratioX = binding.cropView.measuredWidth / bitmap.width.toFloat()
-                    ratioY = binding.cropView.measuredHeight / bitmap.height.toFloat()
+        Glide.with(this@CropFragment)
+            .load(page.imageUri)
+            .addListener(object : RequestListener<Drawable> {
+                override fun onResourceReady(
+                    resource: Drawable,
+                    model: Any,
+                    target: Target<Drawable>,
+                    dataSource: DataSource,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    val points = page.cropMat?.let { mat ->
+                        val viewWidth = binding.cropView.measuredWidth.toFloat()
+                        val viewHeight = binding.cropView.measuredHeight.toFloat()
 
-                    binding.cropView.points = page.cropMat?.let { mat ->
+                        binding.cropView.scaleX = resource.intrinsicWidth / viewWidth
+                        binding.cropView.scaleY = resource.intrinsicHeight / viewHeight
+
+                        ratioX = viewWidth / page.width
+                        ratioY = viewHeight / page.height
+
                         val relativePoints = mat.toArray().map { point ->
-                            PointF((point.x * ratioX).toFloat(), (point.y * ratioY).toFloat())
+                            PointF(
+                                (point.x * ratioX).toFloat(),
+                                (point.y * ratioY).toFloat()
+                            )
                         }
 
                         binding.cropView.getOrderedPoints(relativePoints)
                     }
+
+                    binding.cropView.points = points
+                    return false
                 }
-            }
-        } else {
-            Toast.makeText(requireContext(), "Unknown error", Toast.LENGTH_SHORT).show()
-            findNavController().popBackStack()
-        }
+
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any,
+                    target: Target<Drawable>,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    Log.e(TAG, "Glide Error: " + e?.stackTraceToString())
+                    return false
+                }
+            })
+            .into(binding.imgCrop)
     }
 
     private fun saveCrop() {
-        showProgress(true)
+        binding.btnDone.isEnabled = false
 
         val relativePoints = binding.cropView.points.map { point ->
-            PointF(point.value.x / ratioX, point.value.y / ratioY)
+            Point((point.value.x / ratioX).toDouble(), (point.value.y / ratioY).toDouble())
         }
 
-//        viewModel.cropPage(requireContext(), relativePoints).observe(viewLifecycleOwner) {
-//            showProgress(false)
-//            findNavController().popBackStack()
-//        }
-    }
+        val cropMat = MatOfPoint2f().apply { fromList(relativePoints) }
+        viewModel.cropPage(cropMat)
 
-    private fun showProgress(show: Boolean) {
-        binding.progress.isVisible = show
-        binding.btnDone.isEnabled = !show
+        binding.btnDone.isEnabled = true
+        findNavController().popBackStack()
     }
 }

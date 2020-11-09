@@ -25,8 +25,6 @@ import nz.mega.documentscanner.utils.DocumentUtils.deletePage
 import nz.mega.documentscanner.utils.DocumentUtils.toPageItems
 import nz.mega.documentscanner.utils.FileUtils.createPageFile
 import nz.mega.documentscanner.utils.LiveDataUtils.notifyObserver
-import nz.mega.documentscanner.utils.PageUtils.crop
-import nz.mega.documentscanner.utils.PageUtils.rotate
 import org.opencv.core.MatOfPoint2f
 
 class DocumentScannerViewModel : ViewModel() {
@@ -123,6 +121,8 @@ class DocumentScannerViewModel : ViewModel() {
                 val cropMat = ImageScanner.getCropPoints(bitmap)
 
                 val page = Page(
+                    width = bitmap.width,
+                    height = bitmap.height,
                     imageUri = file.toUri(),
                     cropMat = cropMat
                 )
@@ -142,59 +142,27 @@ class DocumentScannerViewModel : ViewModel() {
         return operationResult
     }
 
-    fun rotatePage(
-        context: Context,
-        position: Int = currentPagePosition.value ?: 0
-    ): LiveData<Boolean> {
-        val operationResult = MutableLiveData<Boolean>()
-
+    fun rotatePage(position: Int = currentPagePosition.value ?: 0) {
         document.value?.pages?.get(position)?.let { page ->
-            viewModelScope.launch {
-                try {
-                    val updatedPage = page.rotate(context)
-                    document.value?.pages?.set(position, updatedPage)
+            val updatedPage = page.rotate()
 
-                    document.notifyObserver()
-                    operationResult.postValue(true)
-                } catch (error: Exception) {
-                    Log.e(TAG, error.stackTraceToString())
-                    operationResult.postValue(false)
-                }
-            }
+            document.value?.pages?.set(position, updatedPage)
+            document.notifyObserver()
         }
-
-        return operationResult
     }
 
-    fun cropPage(
-        context: Context,
-        cropMat: MatOfPoint2f,
-        position: Int = currentPagePosition.value ?: 0
-    ): LiveData<Boolean> {
-        val operationResult = MutableLiveData<Boolean>()
-
+    fun cropPage(cropMat: MatOfPoint2f, position: Int = currentPagePosition.value ?: 0) {
         document.value?.pages?.get(position)?.let { page ->
-            viewModelScope.launch {
-                try {
-                    if (page.cropMat == cropMat) {
-                        operationResult.postValue(true)
-                        return@launch
-                    }
-
-                    val updatedPage = page.crop(context, cropMat)
-                    document.value?.pages?.set(position, updatedPage)
-
-                    cropMat.release()
-                    document.notifyObserver()
-                    operationResult.postValue(true)
-                } catch (error: Exception) {
-                    Log.e(TAG, error.stackTraceToString())
-                    operationResult.postValue(false)
-                }
+            if (page.cropMat == cropMat) {
+                return@let
             }
-        }
 
-        return operationResult
+            page.cropMat?.release()
+            page.cropMat = cropMat
+
+            document.value?.pages?.set(position, page)
+            document.notifyObserver()
+        }
     }
 
     fun deletePage(position: Int = currentPagePosition.value ?: 0) {

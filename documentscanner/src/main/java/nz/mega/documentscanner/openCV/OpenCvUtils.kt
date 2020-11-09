@@ -3,8 +3,6 @@ package nz.mega.documentscanner.openCV
 import android.graphics.Bitmap
 import android.graphics.ImageFormat
 import androidx.camera.core.ImageProxy
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import nz.mega.documentscanner.utils.BitmapUtils.toBitmap
 import org.opencv.core.Core
 import org.opencv.core.CvType
@@ -57,13 +55,6 @@ object OpenCvUtils {
         dstMat.release()
         return resultBitmap
     }
-
-    suspend fun MatOfPoint2f.rotate(): MatOfPoint2f =
-        withContext(Dispatchers.Default) {
-            val resultMat = MatOfPoint2f()
-            Core.rotate(this@rotate, resultMat, Core.ROTATE_90_CLOCKWISE)
-            resultMat
-        }
 
     fun ImageProxy.yuvToRgbaMat(): Mat {
         require(format == ImageFormat.YUV_420_888 && planes.size == 3)

@@ -2,6 +2,7 @@ package nz.mega.documentscanner.utils
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Matrix
 import android.net.Uri
 import androidx.annotation.IntRange
 import com.bumptech.glide.Glide
@@ -49,5 +50,14 @@ object BitmapUtils {
         val bitmap = Bitmap.createBitmap(cols(), rows(), Bitmap.Config.ARGB_8888)
         Utils.matToBitmap(this, bitmap)
         return bitmap
+    }
+
+    suspend fun Bitmap.rotate(degrees: Int): Bitmap = withContext(Dispatchers.Default) {
+        if (degrees == 0) return@withContext this@rotate
+
+        val matrix = Matrix().apply { postRotate(degrees.toFloat()) }
+        val rotated = Bitmap.createBitmap(this@rotate, 0, 0, width, height, matrix, true)
+        recycle()
+        return@withContext rotated
     }
 }

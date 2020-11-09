@@ -74,12 +74,7 @@ class ScanFragment : Fragment() {
         binding.viewPager.adapter = adapter
         binding.btnBack.setOnClickListener { showDiscardDialog() }
         binding.btnAdd.setOnClickListener { navigateBack() }
-        binding.btnRotate.setOnClickListener {
-            showProgress(true)
-            viewModel.rotatePage(requireContext()).observe(viewLifecycleOwner) {
-                showProgress(false)
-            }
-        }
+        binding.btnRotate.setOnClickListener { viewModel.rotatePage() }
         binding.btnDelete.setOnClickListener {
             DialogFactory.createDeleteCurrentScanDialog(requireContext()) {
                 viewModel.deletePage()
@@ -152,13 +147,5 @@ class ScanFragment : Fragment() {
 
     private fun navigateBack() {
         findNavController().popBackStack(R.id.cameraFragment, false)
-    }
-
-    private fun showProgress(show: Boolean) {
-        binding.progress.isVisible = show
-        binding.btnDone.isEnabled = !show
-        binding.btnCrop.isEnabled = !show
-        binding.btnRotate.isEnabled = !show
-        binding.btnDelete.isEnabled = !show
     }
 }
