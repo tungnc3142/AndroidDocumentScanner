@@ -29,7 +29,7 @@ object PageUtils {
         return resultBitmap.rotate(rotation)
     }
 
-    suspend fun Page.clear() {
+    suspend fun Page.delete() {
         imageUri.toFile().deleteSafely()
         cropMat?.release()
     }

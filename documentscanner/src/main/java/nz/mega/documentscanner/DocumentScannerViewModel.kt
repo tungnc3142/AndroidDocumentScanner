@@ -20,7 +20,7 @@ import nz.mega.documentscanner.data.PageItem
 import nz.mega.documentscanner.openCV.ImageScanner
 import nz.mega.documentscanner.utils.DocumentGenerator.generateJpg
 import nz.mega.documentscanner.utils.DocumentGenerator.generatePdf
-import nz.mega.documentscanner.utils.DocumentUtils.deleteAllPages
+import nz.mega.documentscanner.utils.DocumentUtils.deletePages
 import nz.mega.documentscanner.utils.DocumentUtils.deletePage
 import nz.mega.documentscanner.utils.DocumentUtils.toPageItems
 import nz.mega.documentscanner.utils.FileUtils.createPageFile
@@ -74,9 +74,7 @@ class DocumentScannerViewModel : ViewModel() {
         document.value?.pages?.size ?: 0
 
     fun setCurrentPagePosition(position: Int) {
-        if (currentPagePosition.value != position) {
-            currentPagePosition.value = position
-        }
+        currentPagePosition.value = position
     }
 
     fun setDocumentTitle(title: String) {
@@ -172,9 +170,9 @@ class DocumentScannerViewModel : ViewModel() {
         }
     }
 
-    fun deleteAllPages() {
+    fun resetDocument() {
         viewModelScope.launch {
-            document.value?.deleteAllPages()
+            document.value?.deletePages()
             document.notifyObserver()
         }
     }

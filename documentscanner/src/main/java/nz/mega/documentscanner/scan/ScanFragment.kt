@@ -25,6 +25,7 @@ class ScanFragment : Fragment() {
         private const val TAG = "ScanFragment"
     }
 
+    private lateinit var binding: FragmentScanBinding
     private val navigationArguments: ScanFragmentArgs by navArgs()
     private val viewModel: DocumentScannerViewModel by activityViewModels()
     private val adapter: ScanPagerAdapter by lazy { ScanPagerAdapter() }
@@ -37,7 +38,6 @@ class ScanFragment : Fragment() {
     }
 
     private var scrolled = false
-    private lateinit var binding: FragmentScanBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -137,7 +137,7 @@ class ScanFragment : Fragment() {
             }
             pagesCount > 1 -> {
                 DialogFactory.createDiscardScansDialog(requireContext()) {
-                    viewModel.deleteAllPages()
+                    viewModel.resetDocument()
                     navigateBack()
                 }.show()
             }

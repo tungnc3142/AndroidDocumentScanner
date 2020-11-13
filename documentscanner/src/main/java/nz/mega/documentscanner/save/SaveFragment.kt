@@ -49,6 +49,10 @@ class SaveFragment : Fragment() {
             }
         }
 
+        binding.editFileName.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
+            binding.imgEdit.isVisible = !hasFocus
+        }
+
         binding.chipGroupFileType.setOnCheckedChangeListener { _, checkedId ->
             val fileType = when (checkedId) {
                 R.id.chip_file_type_pdf -> Document.FileType.PDF
@@ -85,8 +89,8 @@ class SaveFragment : Fragment() {
 
     private fun setupObservers() {
         viewModel.getSaveDestinations().observe(viewLifecycleOwner, ::showSaveDestinations)
-        viewModel.getDocumentTitle().observe(viewLifecycleOwner, ::showDocumentTitle)
         viewModel.getDocumentFileType().observe(viewLifecycleOwner, ::showDocumentFileType)
+        viewModel.getDocumentTitle().observe(viewLifecycleOwner, ::showDocumentTitle)
         viewModel.getDocumentQuality().observe(viewLifecycleOwner, ::showDocumentQuality)
     }
 
