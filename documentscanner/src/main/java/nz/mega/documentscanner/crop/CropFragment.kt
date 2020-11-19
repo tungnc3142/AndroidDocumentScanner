@@ -66,9 +66,6 @@ class CropFragment : Fragment() {
             return
         }
 
-        binding.imgCrop.rotation = page.rotation.toFloat()
-        binding.cropView.rotation = page.rotation.toFloat()
-
         Glide.with(this@CropFragment)
             .load(page.imageUri)
             .addListener(object : RequestListener<Drawable> {
@@ -79,16 +76,10 @@ class CropFragment : Fragment() {
                     dataSource: DataSource,
                     isFirstResource: Boolean
                 ): Boolean {
-                    val points = page.cropMat?.let { mat ->
-                        val viewWidth = binding.cropView.measuredWidth.toFloat()
-                        val viewHeight = binding.cropView.measuredHeight.toFloat()
+                    ratioX = binding.cropView.width / page.width.toFloat()
+                    ratioY = binding.cropView.height / page.height.toFloat()
 
-                        binding.cropView.scaleX = resource.intrinsicWidth / viewWidth
-                        binding.cropView.scaleY = resource.intrinsicHeight / viewHeight
-
-                        ratioX = viewWidth / page.width
-                        ratioY = viewHeight / page.height
-
+                    binding.cropView.points = page.cropMat?.let { mat ->
                         val relativePoints = mat.toArray().map { point ->
                             PointF(
                                 (point.x * ratioX).toFloat(),
@@ -99,7 +90,6 @@ class CropFragment : Fragment() {
                         binding.cropView.getOrderedPoints(relativePoints)
                     }
 
-                    binding.cropView.points = points
                     return false
                 }
 
