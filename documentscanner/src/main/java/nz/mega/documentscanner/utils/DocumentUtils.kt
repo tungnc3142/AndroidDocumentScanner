@@ -1,6 +1,5 @@
 package nz.mega.documentscanner.utils
 
-import android.content.Context
 import nz.mega.documentscanner.data.Document
 import nz.mega.documentscanner.data.PageItem
 import nz.mega.documentscanner.utils.PageUtils.delete
@@ -19,11 +18,11 @@ object DocumentUtils {
         pages.clear()
     }
 
-    suspend fun Document.toPageItems(context: Context): List<PageItem> =
+    suspend fun Document.toPageItems(): List<PageItem> =
         pages.map { page ->
             PageItem(
                 page.id,
-                page.getCroppedBitmap(context)
+                page.getCroppedBitmap()
             )
         }
 }

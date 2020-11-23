@@ -24,7 +24,7 @@ object DocumentGenerator {
             val backgroundPaint = Paint().apply { color = Color.WHITE }
 
             pages.forEachIndexed { index, page ->
-                val bitmap = page.getCroppedBitmap(context)
+                val bitmap = page.getCroppedBitmap(quality.value)
 
                 val pdfPage = pdfDocument.startPage(
                     PdfDocument.PageInfo.Builder(bitmap.width, bitmap.height, index).create()
@@ -50,7 +50,7 @@ object DocumentGenerator {
         withContext(Dispatchers.Default) {
             require(pages.isNotEmpty()) { "Empty pages" }
 
-            val bitmap = pages.first().getCroppedBitmap(context)
+            val bitmap = pages.first().getCroppedBitmap(quality.value)
             val documentFile = FileUtils.createDocumentFile(context, title + FileType.JPG.suffix)
             bitmap.toFile(documentFile)
             bitmap.recycle()

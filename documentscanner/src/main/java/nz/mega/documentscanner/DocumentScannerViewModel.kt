@@ -204,7 +204,7 @@ class DocumentScannerViewModel : ViewModel() {
         val result = MutableLiveData<List<PageItem>>()
 
         viewModelScope.launch {
-            val pageItems = document.toPageItems(context)
+            val pageItems = document.toPageItems()
             result.postValue(pageItems)
         }
 

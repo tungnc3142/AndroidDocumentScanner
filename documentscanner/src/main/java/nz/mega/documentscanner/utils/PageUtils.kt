@@ -1,6 +1,5 @@
 package nz.mega.documentscanner.utils
 
-import android.content.Context
 import android.graphics.Bitmap
 import androidx.core.net.toFile
 import nz.mega.documentscanner.data.Page
@@ -12,10 +11,10 @@ object PageUtils {
 
     const val PAGE_ROTATION_DEGREES = 90
 
-    suspend fun Page.getCroppedBitmap(context: Context): Bitmap {
+    suspend fun Page.getCroppedBitmap(quality: Int = 100): Bitmap {
         val currentBitmap = BitmapUtils.getBitmapFromUri(
-            context = context,
-            uri = imageUri
+            imageUri = imageUri,
+            quality = quality
         )
 
         val resultBitmap = if (cropMat != null) {

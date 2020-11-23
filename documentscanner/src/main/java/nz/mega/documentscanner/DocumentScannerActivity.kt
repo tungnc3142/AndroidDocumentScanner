@@ -15,6 +15,7 @@ import androidx.core.net.toFile
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import com.facebook.drawee.backends.pipeline.Fresco
 import kotlinx.coroutines.launch
 import nz.mega.documentscanner.databinding.ActivityDocumentScannerBinding
 import nz.mega.documentscanner.openCV.ImageScanner
@@ -50,6 +51,7 @@ class DocumentScannerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initOpenCV()
+        initFresco()
         clearExistingFiles()
 
         binding = ActivityDocumentScannerBinding.inflate(layoutInflater)
@@ -68,6 +70,12 @@ class DocumentScannerActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val result = ImageScanner.init()
             Log.d(TAG, "OpenCV initialized: $result")
+        }
+    }
+
+    private fun initFresco() {
+        if (!Fresco.hasBeenInitialized()) {
+            Fresco.initialize(this)
         }
     }
 
