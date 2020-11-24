@@ -2,11 +2,15 @@ package nz.mega.documentscanner.utils
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.ImageFormat
 import android.graphics.Matrix
+import android.media.Image
 import android.net.Uri
 import androidx.annotation.IntRange
+import com.facebook.common.references.CloseableReference
 import com.facebook.datasource.DataSources
 import com.facebook.drawee.backends.pipeline.Fresco
+import com.facebook.imagepipeline.common.ImageDecodeOptions
 import com.facebook.imagepipeline.common.RotationOptions
 import com.facebook.imagepipeline.image.CloseableBitmap
 import com.facebook.imagepipeline.request.ImageRequestBuilder
@@ -21,26 +25,55 @@ import java.io.ByteArrayOutputStream
 
 object BitmapUtils {
 
+    @Suppress("UNCHECKED_CAST")
     suspend fun getBitmapFromUri(
         imageUri: Uri,
         degreesToRotate: Int = 0,
         @IntRange(from = 0, to = 100) quality: Int = 100
-    ): Bitmap =
-        withContext(Dispatchers.IO) {
-            val imageRequest = ImageRequestBuilder.newBuilderWithSource(imageUri)
-            if (degreesToRotate != 0) {
-                imageRequest.rotationOptions = RotationOptions.forceRotation(degreesToRotate)
+    ): Bitmap = withContext(Dispatchers.Default) {
+        val imageRequest = ImageRequestBuilder.newBuilderWithSource(imageUri)
+            .disableDiskCache()
+            .disableMemoryCache()
+            .setImageDecodeOptions(ImageDecodeOptions.defaults())
+
+        if (degreesToRotate != 0) {
+            imageRequest.rotationOptions = RotationOptions.forceRotation(degreesToRotate)
+        }
+
+        val dataSource = Fresco.getImagePipeline().fetchDecodedImage(imageRequest.build(), this)
+        val result = DataSources.waitForFinalResult(dataSource) as CloseableReference<CloseableBitmap>
+        val resultBitmap = result.get().underlyingBitmap
+        dataSource.close()
+
+        resultBitmap.compress(quality)
+    }
+
+    suspend fun Bitmap.compress(quality: Int) =
+        withContext(Dispatchers.Default) {
+            val outputStream = ByteArrayOutputStream()
+            compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
+            BitmapFactory.decodeStream(ByteArrayInputStream(outputStream.toByteArray()))
+        }
+
+    suspend fun Bitmap.rotate(degrees: Int): Bitmap =
+        withContext(Dispatchers.Default) {
+            if (degrees == 0) return@withContext this@rotate
+
+            val matrix = Matrix().apply { postRotate(degrees.toFloat()) }
+            Bitmap.createBitmap(this@rotate, 0, 0, width, height, matrix, true).also {
+                this@rotate.recycle()
             }
+        }
 
-            val dataSource = Fresco.getImagePipeline().fetchDecodedImage(imageRequest.build(), this)
+    suspend fun Image.toBitmap(): Bitmap =
+        withContext(Dispatchers.Default) {
+            require(format == ImageFormat.JPEG)
 
-            val result = DataSources.waitForFinalResult(dataSource)
-            val resultBitmap = (result?.get() as? CloseableBitmap?)?.underlyingBitmap!!
-            dataSource.close()
-
-            val out = ByteArrayOutputStream()
-            resultBitmap.compress(Bitmap.CompressFormat.JPEG, quality, out)
-            BitmapFactory.decodeStream(ByteArrayInputStream(out.toByteArray()))
+            val buffer = planes[0].buffer
+            buffer.rewind()
+            val bytes = ByteArray(buffer.capacity())
+            buffer.get(bytes)
+            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
         }
 
     fun Bitmap.toMat(): Mat {
@@ -54,14 +87,5 @@ object BitmapUtils {
         val bitmap = Bitmap.createBitmap(cols(), rows(), Bitmap.Config.ARGB_8888)
         Utils.matToBitmap(this, bitmap)
         return bitmap
-    }
-
-    suspend fun Bitmap.rotate(degrees: Int): Bitmap = withContext(Dispatchers.Default) {
-        if (degrees == 0) return@withContext this@rotate
-
-        val matrix = Matrix().apply { postRotate(degrees.toFloat()) }
-        val rotated = Bitmap.createBitmap(this@rotate, 0, 0, width, height, matrix, true)
-        recycle()
-        return@withContext rotated
     }
 }

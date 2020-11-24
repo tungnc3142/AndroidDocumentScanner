@@ -61,8 +61,8 @@ class DocumentScannerViewModel : ViewModel() {
     fun getSaveDestination(): String? =
         document.value?.saveDestination
 
-    fun getDocumentPages(context: Context): LiveData<List<PageItem>> =
-        document.switchMap { getPageItemsFromDocument(context, it) }
+    fun getDocumentPages(): LiveData<List<PageItem>> =
+        document.switchMap { getPageItemsFromDocument(it) }
 
     fun getCurrentPage(): LiveData<Page?> =
         currentPagePosition.map { document.value?.pages?.elementAtOrNull(it) }
@@ -197,10 +197,7 @@ class DocumentScannerViewModel : ViewModel() {
         return operationResult
     }
 
-    private fun getPageItemsFromDocument(
-        context: Context,
-        document: Document
-    ): LiveData<List<PageItem>> {
+    private fun getPageItemsFromDocument(document: Document): LiveData<List<PageItem>> {
         val result = MutableLiveData<List<PageItem>>()
 
         viewModelScope.launch {

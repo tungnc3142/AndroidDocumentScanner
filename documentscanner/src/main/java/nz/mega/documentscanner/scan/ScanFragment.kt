@@ -90,7 +90,7 @@ class ScanFragment : Fragment() {
 
     private fun setupObservers() {
         viewModel.getDocumentTitle().observe(viewLifecycleOwner, ::showDocumentTitle)
-        viewModel.getDocumentPages(requireContext()).observe(viewLifecycleOwner, ::showPages)
+        viewModel.getDocumentPages().observe(viewLifecycleOwner, ::showPages)
         viewModel.getCurrentPagePosition().observe(viewLifecycleOwner, ::showPageCount)
     }
 

@@ -42,11 +42,6 @@ object FileUtils {
                 .apply { bitmap.toFile(this) }
         }
 
-    suspend fun createPhotoFile(context: Context): File =
-        withContext(Dispatchers.IO) {
-            File(context.cacheDir, System.currentTimeMillis().toString())
-        }
-
     suspend fun clearExistingFiles(context: Context): Boolean =
         withContext(Dispatchers.IO) {
             getParentFile(context, ROOT_FILE_DIR).deleteRecursively()
