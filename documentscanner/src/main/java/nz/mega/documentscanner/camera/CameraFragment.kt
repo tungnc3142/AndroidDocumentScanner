@@ -29,7 +29,6 @@ import nz.mega.documentscanner.DocumentScannerViewModel
 import nz.mega.documentscanner.R
 import nz.mega.documentscanner.databinding.FragmentCameraBinding
 import nz.mega.documentscanner.openCV.ImageScanner
-import nz.mega.documentscanner.utils.BitmapUtils.rotate
 import nz.mega.documentscanner.utils.BitmapUtils.toBitmap
 import nz.mega.documentscanner.utils.ViewUtils.aspectRatio
 import java.util.concurrent.ExecutorService
@@ -186,9 +185,7 @@ class CameraFragment : Fragment() {
             @SuppressLint("UnsafeExperimentalUsageError")
             override fun onCaptureSuccess(imageProxy: ImageProxy) {
                 lifecycleScope.launch {
-                    val bitmap = imageProxy.image!!
-                        .toBitmap()
-                        .rotate(imageProxy.imageInfo.rotationDegrees)
+                    val bitmap = imageProxy.toBitmap()
 
                     viewModel.addPage(requireContext(), bitmap).observe(viewLifecycleOwner) { result ->
                         if (result) {

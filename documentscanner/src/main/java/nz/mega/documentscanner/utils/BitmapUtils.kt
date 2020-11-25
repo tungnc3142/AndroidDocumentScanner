@@ -4,22 +4,19 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ImageFormat
 import android.graphics.Matrix
-import android.media.Image
 import android.net.Uri
 import androidx.annotation.IntRange
+import androidx.camera.core.ImageProxy
 import com.facebook.common.references.CloseableReference
 import com.facebook.datasource.DataSources
 import com.facebook.drawee.backends.pipeline.Fresco
-import com.facebook.imagepipeline.common.ImageDecodeOptions
 import com.facebook.imagepipeline.common.RotationOptions
 import com.facebook.imagepipeline.image.CloseableBitmap
 import com.facebook.imagepipeline.request.ImageRequestBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.opencv.android.Utils
-import org.opencv.core.CvType
 import org.opencv.core.Mat
-import org.opencv.core.Scalar
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
@@ -34,7 +31,6 @@ object BitmapUtils {
         val imageRequest = ImageRequestBuilder.newBuilderWithSource(imageUri)
             .disableDiskCache()
             .disableMemoryCache()
-            .setImageDecodeOptions(ImageDecodeOptions.defaults())
 
         if (degreesToRotate != 0) {
             imageRequest.rotationOptions = RotationOptions.forceRotation(degreesToRotate)
@@ -42,10 +38,12 @@ object BitmapUtils {
 
         val dataSource = Fresco.getImagePipeline().fetchDecodedImage(imageRequest.build(), this)
         val result = DataSources.waitForFinalResult(dataSource) as CloseableReference<CloseableBitmap>
-        val resultBitmap = result.get().underlyingBitmap
+        val resultBitmap = result.get().underlyingBitmap.compress(quality)
+
+        CloseableReference.closeSafely(result)
         dataSource.close()
 
-        resultBitmap.compress(quality)
+        return@withContext resultBitmap
     }
 
     suspend fun Bitmap.compress(quality: Int) =
@@ -65,7 +63,7 @@ object BitmapUtils {
             }
         }
 
-    suspend fun Image.toBitmap(): Bitmap =
+    suspend fun ImageProxy.toBitmap(): Bitmap =
         withContext(Dispatchers.Default) {
             require(format == ImageFormat.JPEG)
 
@@ -73,13 +71,13 @@ object BitmapUtils {
             buffer.rewind()
             val bytes = ByteArray(buffer.capacity())
             buffer.get(bytes)
-            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+            val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+            bitmap.rotate(imageInfo.rotationDegrees)
         }
 
     fun Bitmap.toMat(): Mat {
-        val mat = Mat(height, width, CvType.CV_8U, Scalar(4.0))
-        val bitmap32 = copy(Bitmap.Config.ARGB_8888, true)
-        Utils.bitmapToMat(bitmap32, mat)
+        val mat = Mat()
+        Utils.bitmapToMat(this, mat)
         return mat
     }
 

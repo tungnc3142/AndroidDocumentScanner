@@ -8,11 +8,14 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import kotlinx.coroutines.launch
 import nz.mega.documentscanner.DocumentScannerViewModel
 import nz.mega.documentscanner.R
 import nz.mega.documentscanner.data.Page
 import nz.mega.documentscanner.databinding.FragmentCropBinding
+import nz.mega.documentscanner.utils.PageUtils.getOriginalDimensions
 import org.opencv.core.MatOfPoint2f
 import org.opencv.core.Point
 
@@ -59,21 +62,25 @@ class CropFragment : Fragment() {
             return
         }
 
-        binding.imgCrop.setImageURI(page.imageUri)
+        binding.imgCrop.setImageURI(page.originalImageUri)
 
         binding.cropView.post {
-            ratioX = binding.cropView.width / page.width.toFloat()
-            ratioY = binding.cropView.height / page.height.toFloat()
+            lifecycleScope.launch {
+                val pageDimensions = page.getOriginalDimensions()
 
-            binding.cropView.points = page.cropMat?.let { mat ->
-                val relativePoints = mat.toArray().map { point ->
-                    PointF(
-                        (point.x * ratioX).toFloat(),
-                        (point.y * ratioY).toFloat()
-                    )
+                ratioX = binding.cropView.width / pageDimensions.first.toFloat()
+                ratioY = binding.cropView.height / pageDimensions.second.toFloat()
+
+                binding.cropView.points = page.cropMat?.let { mat ->
+                    val relativePoints = mat.toArray().map { point ->
+                        PointF(
+                            (point.x * ratioX).toFloat(),
+                            (point.y * ratioY).toFloat()
+                        )
+                    }
+
+                    binding.cropView.getOrderedPoints(relativePoints)
                 }
-
-                binding.cropView.getOrderedPoints(relativePoints)
             }
         }
     }
@@ -86,7 +93,7 @@ class CropFragment : Fragment() {
         }
 
         val cropMat = MatOfPoint2f().apply { fromList(relativePoints) }
-        viewModel.cropPage(cropMat)
+        viewModel.cropPage(requireContext(), cropMat)
 
         binding.btnDone.isEnabled = true
         findNavController().popBackStack()
