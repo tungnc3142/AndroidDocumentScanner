@@ -17,6 +17,7 @@ import nz.mega.documentscanner.data.Document.Quality
 import nz.mega.documentscanner.data.Page
 import nz.mega.documentscanner.openCV.ImageScanner
 import nz.mega.documentscanner.utils.BitmapUtils
+import nz.mega.documentscanner.utils.BitmapUtils.rotate
 import nz.mega.documentscanner.utils.DocumentGenerator.generateJpg
 import nz.mega.documentscanner.utils.DocumentGenerator.generatePdf
 import nz.mega.documentscanner.utils.DocumentUtils.deletePage
@@ -26,6 +27,7 @@ import nz.mega.documentscanner.utils.LiveDataUtils.notifyObserver
 import nz.mega.documentscanner.utils.PageUtils
 import nz.mega.documentscanner.utils.PageUtils.deleteCropMat
 import nz.mega.documentscanner.utils.PageUtils.deleteTransformImage
+import nz.mega.documentscanner.utils.PageUtils.getNewRotation
 import org.opencv.core.MatOfPoint2f
 import java.io.File
 
@@ -158,10 +160,11 @@ class DocumentScannerViewModel : ViewModel() {
                     imageUri = imageUri,
                     degreesToRotate = PageUtils.PAGE_ROTATION_DEGREES
                 )
-
                 val transformImageFile = FileUtils.createImageFile(context, transformBitmap)
+
                 val updatedPage = page.copy(
-                    transformImageUri = transformImageFile.toUri()
+                    transformImageUri = transformImageFile.toUri(),
+                    rotation = page.getNewRotation()
                 )
 
                 page.deleteTransformImage()
@@ -183,11 +186,8 @@ class DocumentScannerViewModel : ViewModel() {
                     return@let
                 }
 
-                val originalBitmap = BitmapUtils.getBitmapFromUri(
-                    imageUri = page.originalImageUri
-                )
-
-                val transformBitmap = ImageScanner.getCroppedBitmap(originalBitmap, cropMat)
+                val originalBitmap = BitmapUtils.getBitmapFromUri(imageUri = page.originalImageUri)
+                val transformBitmap = ImageScanner.getCroppedBitmap(originalBitmap, cropMat).rotate(page.rotation)
                 val transformImageFile = FileUtils.createImageFile(context, transformBitmap)
 
                 val updatedPage = page.copy(

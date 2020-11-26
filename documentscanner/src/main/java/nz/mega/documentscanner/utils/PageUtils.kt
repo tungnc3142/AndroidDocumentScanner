@@ -29,4 +29,11 @@ object PageUtils {
     fun Page.deleteCropMat() {
         cropMat?.release()
     }
+
+    fun Page.getNewRotation(): Int =
+        if (rotation + PAGE_ROTATION_DEGREES >= PAGE_ROTATION_DEGREES * 4) {
+            0
+        } else {
+            rotation + PAGE_ROTATION_DEGREES
+        }
 }

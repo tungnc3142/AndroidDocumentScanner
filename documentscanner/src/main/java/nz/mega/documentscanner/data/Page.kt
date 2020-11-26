@@ -7,8 +7,9 @@ import org.opencv.core.MatOfPoint2f
 data class Page constructor(
     val id: Long = System.currentTimeMillis(),
     val originalImageUri: Uri,
-    var transformImageUri: Uri?,
-    var cropMat: MatOfPoint2f?
+    val transformImageUri: Uri?,
+    val cropMat: MatOfPoint2f?,
+    val rotation: Int = 0
 ) {
 
     class ItemDiffUtil : DiffUtil.ItemCallback<Page>() {
