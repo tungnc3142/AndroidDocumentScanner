@@ -67,9 +67,11 @@ class CropFragment : Fragment() {
         binding.cropView.post {
             lifecycleScope.launch {
                 val pageDimensions = page.getOriginalDimensions()
+                val pageWidth = pageDimensions.first.toFloat()
+                val pageHeight = pageDimensions.second.toFloat()
 
-                ratioX = binding.cropView.width / pageDimensions.first.toFloat()
-                ratioY = binding.cropView.height / pageDimensions.second.toFloat()
+                ratioX = binding.cropView.width / pageWidth
+                ratioY = binding.cropView.height / pageHeight
 
                 binding.cropView.points = page.cropMat?.let { mat ->
                     val relativePoints = mat.toArray().map { point ->

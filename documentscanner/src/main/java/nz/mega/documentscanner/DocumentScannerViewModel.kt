@@ -184,8 +184,7 @@ class DocumentScannerViewModel : ViewModel() {
                 }
 
                 val originalBitmap = BitmapUtils.getBitmapFromUri(
-                    imageUri = page.originalImageUri,
-                    degreesToRotate = PageUtils.PAGE_ROTATION_DEGREES
+                    imageUri = page.originalImageUri
                 )
 
                 val transformBitmap = ImageScanner.getCroppedBitmap(originalBitmap, cropMat)

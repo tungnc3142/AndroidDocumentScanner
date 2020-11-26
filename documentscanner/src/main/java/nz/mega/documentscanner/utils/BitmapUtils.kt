@@ -10,15 +10,18 @@ import androidx.camera.core.ImageProxy
 import com.facebook.common.references.CloseableReference
 import com.facebook.datasource.DataSources
 import com.facebook.drawee.backends.pipeline.Fresco
+import com.facebook.imagepipeline.common.ResizeOptions
 import com.facebook.imagepipeline.common.RotationOptions
 import com.facebook.imagepipeline.image.CloseableBitmap
 import com.facebook.imagepipeline.request.ImageRequestBuilder
+import com.facebook.imageutils.BitmapUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.opencv.android.Utils
 import org.opencv.core.Mat
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import kotlin.math.max
 
 object BitmapUtils {
 
@@ -28,9 +31,13 @@ object BitmapUtils {
         degreesToRotate: Int = 0,
         @IntRange(from = 0, to = 100) quality: Int = 100
     ): Bitmap = withContext(Dispatchers.Default) {
+        val dimensions = BitmapUtil.decodeDimensions(imageUri)!!
+        val imageWidth = dimensions.first
+        val imageHeight = dimensions.second
+        val maxSize = max(imageWidth, imageHeight)
+
         val imageRequest = ImageRequestBuilder.newBuilderWithSource(imageUri)
-            .disableDiskCache()
-            .disableMemoryCache()
+            .setResizeOptions(ResizeOptions(imageWidth, imageHeight, maxSize.toFloat()))
 
         if (degreesToRotate != 0) {
             imageRequest.rotationOptions = RotationOptions.forceRotation(degreesToRotate)
