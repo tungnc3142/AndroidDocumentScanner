@@ -6,6 +6,9 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import nz.mega.documentscanner.utils.ViewUtils.isRtl
 
+/**
+ * Took from https://proandroiddev.com/look-deep-into-viewpager2-13eb8e06e419
+ */
 class OffsetPageTransformer(
     @Px private val pageOffsetPx: Int,
     @Px private val pageMarginPx: Int
