@@ -13,7 +13,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
 import nz.mega.documentscanner.DocumentScannerViewModel
 import nz.mega.documentscanner.R
-import nz.mega.documentscanner.data.PageItem
+import nz.mega.documentscanner.data.Page
 import nz.mega.documentscanner.databinding.FragmentScanBinding
 import nz.mega.documentscanner.utils.DialogFactory
 import nz.mega.documentscanner.utils.ViewUtils.scrollToLastPosition
@@ -74,7 +74,7 @@ class ScanFragment : Fragment() {
         binding.viewPager.adapter = adapter
         binding.btnBack.setOnClickListener { showDiscardDialog() }
         binding.btnAdd.setOnClickListener { navigateBack() }
-        binding.btnRotate.setOnClickListener { viewModel.rotatePage() }
+        binding.btnRotate.setOnClickListener { viewModel.rotatePage(requireContext()) }
         binding.btnDelete.setOnClickListener {
             DialogFactory.createDeleteCurrentScanDialog(requireContext()) {
                 viewModel.deletePage()
@@ -90,7 +90,7 @@ class ScanFragment : Fragment() {
 
     private fun setupObservers() {
         viewModel.getDocumentTitle().observe(viewLifecycleOwner, ::showDocumentTitle)
-        viewModel.getDocumentPages(requireContext()).observe(viewLifecycleOwner, ::showPages)
+        viewModel.getDocumentPages().observe(viewLifecycleOwner, ::showPages)
         viewModel.getCurrentPagePosition().observe(viewLifecycleOwner, ::showPageCount)
     }
 
@@ -98,7 +98,7 @@ class ScanFragment : Fragment() {
         binding.txtScanTitle.text = title
     }
 
-    private fun showPages(items: List<PageItem>) {
+    private fun showPages(items: List<Page>) {
         val currentPosition = viewModel.getCurrentPagePosition().value ?: 0
         binding.btnDelete.isVisible = items.size > 1
         adapter.submitList(items)

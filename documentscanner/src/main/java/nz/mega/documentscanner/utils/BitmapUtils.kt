@@ -1,48 +1,90 @@
 package nz.mega.documentscanner.utils
 
-import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageFormat
 import android.graphics.Matrix
 import android.net.Uri
 import androidx.annotation.IntRange
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.load.resource.bitmap.Rotate
+import androidx.camera.core.ImageProxy
+import com.facebook.common.references.CloseableReference
+import com.facebook.datasource.DataSources
+import com.facebook.drawee.backends.pipeline.Fresco
+import com.facebook.imagepipeline.common.ResizeOptions
+import com.facebook.imagepipeline.common.RotationOptions
+import com.facebook.imagepipeline.image.CloseableBitmap
+import com.facebook.imagepipeline.request.ImageRequestBuilder
+import com.facebook.imageutils.BitmapUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.opencv.android.Utils
-import org.opencv.core.CvType
 import org.opencv.core.Mat
-import org.opencv.core.Scalar
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import kotlin.math.max
 
 object BitmapUtils {
 
-    @Suppress("BlockingMethodInNonBlockingContext")
+    @Suppress("UNCHECKED_CAST")
     suspend fun getBitmapFromUri(
-        context: Context,
-        uri: Uri,
+        imageUri: Uri,
         degreesToRotate: Int = 0,
         @IntRange(from = 0, to = 100) quality: Int = 100
     ): Bitmap = withContext(Dispatchers.Default) {
-        Glide.with(context)
-            .asBitmap()
-            .load(uri)
-            .encodeQuality(quality)
-            .skipMemoryCache(true)
-            .diskCacheStrategy(DiskCacheStrategy.NONE)
-            .apply {
-                if (degreesToRotate != 0) {
-                    transform(Rotate(degreesToRotate))
-                }
-            }
-            .submit()
-            .get()
+        val dimensions = BitmapUtil.decodeDimensions(imageUri)!!
+        val imageWidth = dimensions.first
+        val imageHeight = dimensions.second
+        val maxSize = max(imageWidth, imageHeight)
+
+        val imageRequest = ImageRequestBuilder.newBuilderWithSource(imageUri)
+            .setResizeOptions(ResizeOptions(imageWidth, imageHeight, maxSize.toFloat()))
+
+        if (degreesToRotate != 0) {
+            imageRequest.rotationOptions = RotationOptions.forceRotation(degreesToRotate)
+        }
+
+        val dataSource = Fresco.getImagePipeline().fetchDecodedImage(imageRequest.build(), this)
+        val result = DataSources.waitForFinalResult(dataSource) as CloseableReference<CloseableBitmap>
+        val resultBitmap = result.get().underlyingBitmap.compress(quality)
+
+        CloseableReference.closeSafely(result)
+        dataSource.close()
+
+        return@withContext resultBitmap
     }
 
+    suspend fun Bitmap.compress(quality: Int) =
+        withContext(Dispatchers.Default) {
+            val outputStream = ByteArrayOutputStream()
+            compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
+            BitmapFactory.decodeStream(ByteArrayInputStream(outputStream.toByteArray()))
+        }
+
+    suspend fun Bitmap.rotate(degrees: Int): Bitmap =
+        withContext(Dispatchers.Default) {
+            if (degrees == 0) return@withContext this@rotate
+
+            val matrix = Matrix().apply { postRotate(degrees.toFloat()) }
+            Bitmap.createBitmap(this@rotate, 0, 0, width, height, matrix, true).also {
+                this@rotate.recycle()
+            }
+        }
+
+    suspend fun ImageProxy.toBitmap(): Bitmap =
+        withContext(Dispatchers.Default) {
+            require(format == ImageFormat.JPEG)
+
+            val buffer = planes[0].buffer
+            buffer.rewind()
+            val bytes = ByteArray(buffer.capacity())
+            buffer.get(bytes)
+            val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+            bitmap.rotate(imageInfo.rotationDegrees)
+        }
+
     fun Bitmap.toMat(): Mat {
-        val mat = Mat(height, width, CvType.CV_8U, Scalar(4.0))
-        val bitmap32 = copy(Bitmap.Config.ARGB_8888, true)
-        Utils.bitmapToMat(bitmap32, mat)
+        val mat = Mat()
+        Utils.bitmapToMat(this, mat)
         return mat
     }
 
@@ -50,14 +92,5 @@ object BitmapUtils {
         val bitmap = Bitmap.createBitmap(cols(), rows(), Bitmap.Config.ARGB_8888)
         Utils.matToBitmap(this, bitmap)
         return bitmap
-    }
-
-    suspend fun Bitmap.rotate(degrees: Int): Bitmap = withContext(Dispatchers.Default) {
-        if (degrees == 0) return@withContext this@rotate
-
-        val matrix = Matrix().apply { postRotate(degrees.toFloat()) }
-        val rotated = Bitmap.createBitmap(this@rotate, 0, 0, width, height, matrix, true)
-        recycle()
-        return@withContext rotated
     }
 }

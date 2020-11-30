@@ -36,15 +36,10 @@ object FileUtils {
             }
         }
 
-    suspend fun createPageFile(context: Context, bitmap: Bitmap): File =
+    suspend fun createImageFile(context: Context, bitmap: Bitmap): File =
         withContext(Dispatchers.IO) {
             File(getParentFile(context, PAGE_FILE_DIR), System.currentTimeMillis().toString())
                 .apply { bitmap.toFile(this) }
-        }
-
-    suspend fun createPhotoFile(context: Context): File =
-        withContext(Dispatchers.IO) {
-            File(context.cacheDir, System.currentTimeMillis().toString())
         }
 
     suspend fun clearExistingFiles(context: Context): Boolean =

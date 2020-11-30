@@ -11,7 +11,6 @@ import kotlinx.coroutines.withContext
 import nz.mega.documentscanner.data.Document
 import nz.mega.documentscanner.data.Document.FileType
 import nz.mega.documentscanner.utils.FileUtils.toFile
-import nz.mega.documentscanner.utils.PageUtils.getCroppedBitmap
 
 @Suppress("BlockingMethodInNonBlockingContext")
 object DocumentGenerator {
@@ -24,7 +23,10 @@ object DocumentGenerator {
             val backgroundPaint = Paint().apply { color = Color.WHITE }
 
             pages.forEachIndexed { index, page ->
-                val bitmap = page.getCroppedBitmap(context)
+                val bitmap = BitmapUtils.getBitmapFromUri(
+                    imageUri = page.transformImageUri ?: page.originalImageUri,
+                    quality = quality.value
+                )
 
                 val pdfPage = pdfDocument.startPage(
                     PdfDocument.PageInfo.Builder(bitmap.width, bitmap.height, index).create()
@@ -50,8 +52,13 @@ object DocumentGenerator {
         withContext(Dispatchers.Default) {
             require(pages.isNotEmpty()) { "Empty pages" }
 
-            val bitmap = pages.first().getCroppedBitmap(context)
+            val page = pages.first()
+            val bitmap = BitmapUtils.getBitmapFromUri(
+                imageUri = page.transformImageUri ?: page.originalImageUri,
+                quality = quality.value
+            )
             val documentFile = FileUtils.createDocumentFile(context, title + FileType.JPG.suffix)
+
             bitmap.toFile(documentFile)
             bitmap.recycle()
 

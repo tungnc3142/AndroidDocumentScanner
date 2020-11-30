@@ -1,23 +1,23 @@
 package nz.mega.documentscanner.data
 
 import android.net.Uri
-import nz.mega.documentscanner.utils.PageUtils.PAGE_ROTATION_DEGREES
+import androidx.recyclerview.widget.DiffUtil
 import org.opencv.core.MatOfPoint2f
 
 data class Page constructor(
     val id: Long = System.currentTimeMillis(),
-    val width: Int,
-    val height: Int,
-    val imageUri: Uri,
-    var cropMat: MatOfPoint2f?,
-    var rotation: Int = 0
+    val originalImageUri: Uri,
+    val transformImageUri: Uri?,
+    val cropMat: MatOfPoint2f?,
+    val rotation: Int = 0
 ) {
-    fun rotate(): Page {
-        if (rotation + PAGE_ROTATION_DEGREES >= PAGE_ROTATION_DEGREES * 4) {
-            rotation = 0
-        } else {
-            rotation += PAGE_ROTATION_DEGREES
-        }
-        return this
+
+    class ItemDiffUtil : DiffUtil.ItemCallback<Page>() {
+
+        override fun areItemsTheSame(oldItem: Page, newItem: Page): Boolean =
+            oldItem.id == newItem.id
+
+        override fun areContentsTheSame(oldItem: Page, newItem: Page): Boolean =
+            oldItem == newItem
     }
 }

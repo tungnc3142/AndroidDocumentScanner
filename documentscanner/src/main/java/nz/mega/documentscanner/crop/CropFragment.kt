@@ -1,25 +1,21 @@
 package nz.mega.documentscanner.crop
 
 import android.graphics.PointF
-import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
+import kotlinx.coroutines.launch
 import nz.mega.documentscanner.DocumentScannerViewModel
 import nz.mega.documentscanner.R
 import nz.mega.documentscanner.data.Page
 import nz.mega.documentscanner.databinding.FragmentCropBinding
+import nz.mega.documentscanner.utils.PageUtils.getOriginalDimensions
 import org.opencv.core.MatOfPoint2f
 import org.opencv.core.Point
 
@@ -39,7 +35,7 @@ class CropFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentCropBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -66,44 +62,29 @@ class CropFragment : Fragment() {
             return
         }
 
-        Glide.with(this@CropFragment)
-            .load(page.imageUri)
-            .addListener(object : RequestListener<Drawable> {
-                override fun onResourceReady(
-                    resource: Drawable,
-                    model: Any,
-                    target: Target<Drawable>,
-                    dataSource: DataSource,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    ratioX = binding.cropView.width / page.width.toFloat()
-                    ratioY = binding.cropView.height / page.height.toFloat()
+        binding.imgCrop.setImageURI(page.originalImageUri)
 
-                    binding.cropView.points = page.cropMat?.let { mat ->
-                        val relativePoints = mat.toArray().map { point ->
-                            PointF(
-                                (point.x * ratioX).toFloat(),
-                                (point.y * ratioY).toFloat()
-                            )
-                        }
+        binding.cropView.post {
+            lifecycleScope.launch {
+                val pageDimensions = page.getOriginalDimensions()
+                val pageWidth = pageDimensions.first.toFloat()
+                val pageHeight = pageDimensions.second.toFloat()
 
-                        binding.cropView.getOrderedPoints(relativePoints)
+                ratioX = binding.cropView.width / pageWidth
+                ratioY = binding.cropView.height / pageHeight
+
+                binding.cropView.points = page.cropMat?.let { mat ->
+                    val relativePoints = mat.toArray().map { point ->
+                        PointF(
+                            (point.x * ratioX).toFloat(),
+                            (point.y * ratioY).toFloat()
+                        )
                     }
 
-                    return false
+                    binding.cropView.getOrderedPoints(relativePoints)
                 }
-
-                override fun onLoadFailed(
-                    e: GlideException?,
-                    model: Any,
-                    target: Target<Drawable>,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    Log.e(TAG, "Glide Error: " + e?.stackTraceToString())
-                    return false
-                }
-            })
-            .into(binding.imgCrop)
+            }
+        }
     }
 
     private fun saveCrop() {
@@ -114,7 +95,7 @@ class CropFragment : Fragment() {
         }
 
         val cropMat = MatOfPoint2f().apply { fromList(relativePoints) }
-        viewModel.cropPage(cropMat)
+        viewModel.cropPage(requireContext(), cropMat)
 
         binding.btnDone.isEnabled = true
         findNavController().popBackStack()
