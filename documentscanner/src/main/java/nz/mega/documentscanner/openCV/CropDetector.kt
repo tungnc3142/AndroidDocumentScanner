@@ -22,6 +22,13 @@ object CropDetector {
     private const val AREA_UPPER_THRESHOLD = 0.98
     private const val DOWNSCALE_IMAGE_SIZE = 600.0
 
+    /**
+     * Given an OpenCV Mat, detect the crop points of the image using OpenCV and
+     * return them into a MatOfPoint2f object.
+     *
+     * @param src Original image OpenCV Mat
+     * @return Containing detected crop points. Can be null if no points were detected
+     */
     fun detect(src: Mat): MatOfPoint2f? {
         // Downscale image for better performance.
         val ratio = DOWNSCALE_IMAGE_SIZE / max(src.width(), src.height())

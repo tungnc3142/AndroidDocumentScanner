@@ -114,6 +114,13 @@ class DocumentScannerViewModel : ViewModel() {
         saveDestinations.value = destinations
     }
 
+    /**
+     * Add page to the scan.
+     *
+     * @param context Activity/Fragment Context needed to create the image file
+     * @param bitmap Bitmap image to add to the scan
+     * @return LiveData that emits true when the action has finished successfully, false otherwise
+     */
     fun addPage(context: Context, bitmap: Bitmap): LiveData<Boolean> {
         val operationResult = MutableLiveData<Boolean>()
 
@@ -151,6 +158,12 @@ class DocumentScannerViewModel : ViewModel() {
         return operationResult
     }
 
+    /**
+     * Rotate scan page 90 degrees clockwise.
+     *
+     * @param context Activity/Fragment Context needed to create the image file
+     * @param position Page position to be rotated. Default value is the current position
+     */
     fun rotatePage(context: Context, position: Int = currentPagePosition.value ?: 0) {
         viewModelScope.launch {
             document.value?.pages?.get(position)?.let { page ->
@@ -175,6 +188,13 @@ class DocumentScannerViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Crop scan page with the provided MatOfPoint2f.
+     *
+     * @param context Activity/Fragment Context needed to create the image file
+     * @param cropMat OpenCV MatOfPoint2f with the desired cropping
+     * @param position Page position to be cropped. Default value is the current position
+     */
     fun cropPage(
         context: Context,
         cropMat: MatOfPoint2f,
@@ -204,6 +224,11 @@ class DocumentScannerViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Delete scan page
+     *
+     * @param position Page position to be deleted. Default value is the current position
+     */
     fun deletePage(position: Int = currentPagePosition.value ?: 0) {
         viewModelScope.launch {
             document.value?.deletePage(position)
@@ -211,6 +236,9 @@ class DocumentScannerViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Reset document by deleting all existing pages
+     */
     fun resetDocument() {
         viewModelScope.launch {
             document.value?.deletePages()
@@ -218,6 +246,12 @@ class DocumentScannerViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Generate document file from the current scan.
+     *
+     * @param context Activity/Fragment Context needed to create the document file
+     * @return LiveData that emits true when the action has finished successfully, false otherwise
+     */
     fun generateDocument(context: Context): MutableLiveData<Boolean> {
         val operationResult = MutableLiveData<Boolean>()
 

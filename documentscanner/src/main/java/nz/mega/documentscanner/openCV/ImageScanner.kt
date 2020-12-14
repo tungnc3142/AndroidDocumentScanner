@@ -13,23 +13,50 @@ import org.opencv.core.MatOfPoint2f
 
 object ImageScanner {
 
+    /**
+     * Initialise Image Scanner. This method should be called before the Image Scanner is going to
+     * be used in order to initialise OpenCV library.
+     *
+     * @return true if it has been initialised successfully, false otherwise.
+     */
     suspend fun init(): Boolean =
         withContext(Dispatchers.IO) {
             OpenCVLoader.initDebug()
         }
 
+    /**
+     * Get crop points from a given Bitmap.
+     *
+     * @param bitmap Image to get crop points from
+     * @return OpenCV MatOfPoint2f containing image crop points
+     */
     suspend fun getCropPoints(bitmap: Bitmap): MatOfPoint2f? =
         withContext(Dispatchers.Default) {
             val bitmapMat = bitmap.toMat()
             CropDetector.detect(bitmapMat)
         }
 
+    /**
+     * Get a cropped bitmap given the original bitmap and provided crop points.
+     *
+     * @param bitmap Original Bitmap to be cropped
+     * @param cropMat Crop points to crop the Bitmap
+     * @return Cropped Bitmap
+     */
     suspend fun getCroppedBitmap(bitmap: Bitmap, cropMat: MatOfPoint2f): Bitmap =
         withContext(Dispatchers.Default) {
             val bitmapMat = bitmap.toMat()
             bitmapMat.crop(cropMat)
         }
 
+    /**
+     * Get crop lines to be drawn given an ImageProxy image, its container view width and height.
+     *
+     * @param imageProxy Multi-plane Android YUV 420 formatted image
+     * @param maxWidth Container view width to calculate the lines
+     * @param maxHeight Container view height to calculate the lines
+     * @return Array of points to draw [x0 y0 x1 y1 x2 y2 ...]
+     */
     suspend fun getCropLines(
         imageProxy: ImageProxy,
         maxWidth: Float,
