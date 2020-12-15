@@ -184,7 +184,7 @@ class CameraFragment : Fragment() {
      * Build image captured callback required to take a picture for when an image capture
      * has been completed.
      *
-     * @return ImageCapture.OnImageCapturedCallback object.
+     * @return built ImageCapture.OnImageCapturedCallback callback
      */
     private fun buildImageCapturedCallback(): ImageCapture.OnImageCapturedCallback =
         object : ImageCapture.OnImageCapturedCallback() {

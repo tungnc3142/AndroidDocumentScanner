@@ -23,7 +23,7 @@ object CropDetector {
     private const val DOWNSCALE_IMAGE_SIZE = 600.0
 
     /**
-     * Given an OpenCV Mat, detect the crop points of the image using OpenCV and
+     * Given an OpenCV Mat, detect the crop points of the Mat using OpenCV and
      * return them into a MatOfPoint2f object.
      *
      * @param src Original image OpenCV Mat
@@ -44,6 +44,12 @@ object CropDetector {
         return OpenCvUtils.scaleRectangle(largestRectangle, 1f / ratio)
     }
 
+    /**
+     * Get crop points from the provided OpenCV Mat.
+     *
+     * @param src Original OpenCV Mat
+     * @return List of detected points. Can be empty
+     */
     private fun getPoints(src: Mat): List<MatOfPoint2f> {
         // Blur the image to filter out the noise.
         val blurred = Mat()
@@ -117,6 +123,13 @@ object CropDetector {
         return rectangles
     }
 
+    /**
+     * Check if the provided OpenCV Mat is a rectangle that fits the provided area.
+     *
+     * @param polygon OpenCV Mat to check
+     * @param srcArea Rectangle area
+     * @return true if it's a Rectangle, false otherwise
+     */
     private fun isRectangle(polygon: MatOfPoint2f, srcArea: Int): Boolean {
         val polygonInt = OpenCvUtils.toMatOfPointInt(polygon)
         if (polygon.rows() != 4) {
@@ -144,6 +157,12 @@ object CropDetector {
         return maxCosine < 0.3
     }
 
+    /**
+     * Build a Comparator to check if the contour area of an OpenCV Mat is bigger than another,
+     * this is required to sort a list of OpenCV Mat.
+     *
+     * @return Comparator
+     */
     private fun getAreaDescendingComparator(): Comparator<MatOfPoint2f> =
         Comparator<MatOfPoint2f> { m1, m2 ->
             val area1 = Imgproc.contourArea(m1)

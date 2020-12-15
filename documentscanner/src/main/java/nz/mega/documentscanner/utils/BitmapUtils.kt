@@ -25,6 +25,15 @@ import kotlin.math.max
 
 object BitmapUtils {
 
+    /**
+     * Get Bitmap image from provided uri in a sync way.
+     *
+     * @param imageUri Uri to get the image from
+     * @param degreesToRotate Degrees to clockwise rotate the image
+     * @param quality  Image quality (0-100) to render the image. 0 meaning compress for
+     *                 small size, 100 meaning compress for max quality
+     * @return Bitmap image
+     */
     @Suppress("UNCHECKED_CAST")
     suspend fun getBitmapFromUri(
         imageUri: Uri,
@@ -53,6 +62,12 @@ object BitmapUtils {
         return@withContext resultBitmap
     }
 
+    /**
+     * Compress Bitmap image with the provided quality in a sync way.
+     *
+     * @param quality  Hint to the compressor, 0-100. 0 meaning compress for
+     *                 small size, 100 meaning compress for max quality
+     */
     suspend fun Bitmap.compress(quality: Int) =
         withContext(Dispatchers.Default) {
             val outputStream = ByteArrayOutputStream()
@@ -60,6 +75,12 @@ object BitmapUtils {
             BitmapFactory.decodeStream(ByteArrayInputStream(outputStream.toByteArray()))
         }
 
+    /**
+     * Rotate Bitmap image with the provided degrees in a sync way.
+     *
+     * @param degrees to be rotated clockwise.
+     * @return Rotated Bitmap image
+     */
     suspend fun Bitmap.rotate(degrees: Int): Bitmap =
         withContext(Dispatchers.Default) {
             if (degrees == 0) return@withContext this@rotate
@@ -70,6 +91,11 @@ object BitmapUtils {
             }
         }
 
+    /**
+     * Convert provided ImageProxy to Bitmap in a sync way.
+     *
+     * @return Bitmap image
+     */
     suspend fun ImageProxy.toBitmap(): Bitmap =
         withContext(Dispatchers.Default) {
             require(format == ImageFormat.JPEG)
@@ -82,12 +108,22 @@ object BitmapUtils {
             bitmap.rotate(imageInfo.rotationDegrees)
         }
 
+    /**
+     * Convert provided Bitmap Image to OpenCV Mat
+     *
+     * @return OpenCV Mat
+     */
     fun Bitmap.toMat(): Mat {
         val mat = Mat()
         Utils.bitmapToMat(this, mat)
         return mat
     }
 
+    /**
+     * Convert provided OpenCV Mat to Bitmap image.
+     *
+     * @return Bitmap image
+     */
     fun Mat.toBitmap(): Bitmap {
         val bitmap = Bitmap.createBitmap(cols(), rows(), Bitmap.Config.ARGB_8888)
         Utils.matToBitmap(this, bitmap)

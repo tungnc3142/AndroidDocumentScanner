@@ -49,6 +49,12 @@ object OpenCvUtils {
         return result
     }
 
+    /**
+     * Crop an OpenCV Mat with the provided points and generate a Bitmap
+     *
+     * @param cropMat Mat of points to crop the mat
+     * @return Image with the original Mat cropped
+     */
     fun Mat.crop(cropMat: MatOfPoint2f): Bitmap {
         val dstMat = PerspectiveTransformation.transform(this, cropMat)
         val resultBitmap = dstMat.toBitmap()

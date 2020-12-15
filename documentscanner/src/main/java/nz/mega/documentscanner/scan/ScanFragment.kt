@@ -115,6 +115,11 @@ class ScanFragment : Fragment() {
         }
     }
 
+    /**
+     * Show current page count position out of the total pages
+     *
+     * @param currentPosition Current page position
+     */
     private fun showPageCount(currentPosition: Int) {
         binding.txtPageCount.text = String.format(
             getString(R.string.scan_format_page_count),
@@ -147,6 +152,12 @@ class ScanFragment : Fragment() {
         findNavController().popBackStack(R.id.cameraFragment, false)
     }
 
+    /**
+     * Build view pager callback required to track the current page selected
+     * has been completed.
+     *
+     * @return built ViewPager2.OnPageChangeCallback callback
+     */
     private fun buildViewPagerCallback(): ViewPager2.OnPageChangeCallback =
         object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
@@ -154,6 +165,11 @@ class ScanFragment : Fragment() {
             }
         }
 
+    /**
+     * Build ViewPager Page Transformer to add required offset between pages
+     *
+     * @return built ViewPager2.PageTransformer
+     */
     private fun buildPageTransformer(): OffsetPageTransformer =
         OffsetPageTransformer(
             resources.getDimensionPixelOffset(R.dimen.scan_page_margin),
