@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?colorSurface"
-    >
+    android:background="?colorSurface">
 
     <ImageButton
         android:id="@+id/btn_back"
@@ -16,8 +15,7 @@
         android:src="@drawable/ic_baseline_arrow_back_24"
         android:tint="?colorOnSurface"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/txt_title"
@@ -30,8 +28,7 @@
         android:textColor="?colorOnSurface"
         app:layout_constraintBottom_toBottomOf="@id/btn_back"
         app:layout_constraintStart_toEndOf="@id/btn_back"
-        app:layout_constraintTop_toTopOf="@id/btn_back"
-        />
+        app:layout_constraintTop_toTopOf="@id/btn_back" />
 
     <TextView
         android:id="@+id/txt_file_name"
@@ -47,30 +44,17 @@
         android:textColor="?colorPrimarySurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/txt_title"
-        />
-
-    <ImageView
-        android:id="@+id/img_file_type"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:src="@drawable/ic_pdf"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/txt_file_name"
-        />
+        app:layout_constraintTop_toBottomOf="@id/txt_title" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/input_file_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        app:endIconDrawable="@drawable/ic_baseline_edit_24"
-        app:endIconMode="custom"
+        android:paddingStart="44dp"
+        android:paddingEnd="44dp"
         app:errorEnabled="true"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/img_file_type"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/txt_file_name"
         tools:suffixText=".pdf">
 
@@ -81,10 +65,29 @@
             android:inputType="text"
             android:maxLength="30"
             android:maxLines="1"
-            tools:text="Scanned_20200804"
-            />
+            tools:text="Scanned_20200804" />
 
     </com.google.android.material.textfield.TextInputLayout>
+
+    <ImageView
+        android:id="@+id/img_file_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_pdf"
+        app:layout_constraintBottom_toBottomOf="@id/input_file_name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/input_file_name" />
+
+    <ImageView
+        android:id="@+id/img_edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_baseline_edit_24"
+        app:layout_constraintBottom_toBottomOf="@id/input_file_name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/input_file_name" />
 
     <View
         android:id="@+id/separator_file_name"
@@ -95,8 +98,7 @@
         android:background="@color/dividerColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/input_file_name"
-        />
+        app:layout_constraintTop_toBottomOf="@id/input_file_name" />
 
     <TextView
         android:id="@+id/txt_file_type"
@@ -111,8 +113,7 @@
         android:textColor="?colorPrimarySurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/separator_file_name"
-        />
+        app:layout_constraintTop_toBottomOf="@id/separator_file_name" />
 
     <com.google.android.material.chip.ChipGroup
         android:id="@+id/chip_group_file_type"
@@ -128,23 +129,20 @@
         app:layout_constraintTop_toBottomOf="@id/txt_file_type"
         app:selectionRequired="true"
         app:singleLine="true"
-        app:singleSelection="true"
-        >
+        app:singleSelection="true">
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_file_type_pdf"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
-            android:text="@string/scan_file_type_pdf"
-            />
+            android:text="@string/scan_file_type_pdf" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_file_type_jpg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/scan_file_type_jpg"
-            />
+            android:text="@string/scan_file_type_jpg" />
 
     </com.google.android.material.chip.ChipGroup>
 
@@ -154,8 +152,7 @@
         android:layout_height="wrap_content"
         android:visibility="gone"
         app:constraint_referenced_ids="txt_file_type, chip_group_file_type, separator_file_type"
-        tools:visibility="visible"
-        />
+        tools:visibility="visible" />
 
     <View
         android:id="@+id/separator_file_type"
@@ -166,8 +163,7 @@
         android:background="@color/dividerColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/chip_group_file_type"
-        />
+        app:layout_constraintTop_toBottomOf="@id/chip_group_file_type" />
 
     <TextView
         android:id="@+id/txt_quality"
@@ -182,8 +178,7 @@
         android:textColor="?colorPrimarySurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/separator_file_type"
-        />
+        app:layout_constraintTop_toBottomOf="@id/separator_file_type" />
 
     <com.google.android.material.chip.ChipGroup
         android:id="@+id/chip_group_quality"
@@ -199,30 +194,26 @@
         app:layout_constraintTop_toBottomOf="@id/txt_quality"
         app:selectionRequired="true"
         app:singleLine="true"
-        app:singleSelection="true"
-        >
+        app:singleSelection="true">
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_quality_high"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/scan_quality_high"
-            />
+            android:text="@string/scan_quality_high" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_quality_medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
-            android:text="@string/scan_quality_medium"
-            />
+            android:text="@string/scan_quality_medium" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_quality_low"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/scan_quality_low"
-            />
+            android:text="@string/scan_quality_low" />
 
     </com.google.android.material.chip.ChipGroup>
 
@@ -235,8 +226,7 @@
         android:background="@color/dividerColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/chip_group_quality"
-        />
+        app:layout_constraintTop_toBottomOf="@id/chip_group_quality" />
 
     <TextView
         android:id="@+id/txt_destination"
@@ -251,8 +241,7 @@
         android:textColor="?colorPrimarySurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/separator_quality"
-        />
+        app:layout_constraintTop_toBottomOf="@id/separator_quality" />
 
     <com.google.android.material.chip.ChipGroup
         android:id="@+id/chip_group_destinations"
@@ -268,8 +257,7 @@
         app:layout_constraintTop_toBottomOf="@id/txt_destination"
         app:selectionRequired="true"
         app:singleLine="true"
-        app:singleSelection="true"
-        />
+        app:singleSelection="true" />
 
     <View
         android:id="@+id/separator_destination"
@@ -280,8 +268,7 @@
         android:background="@color/dividerColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/chip_group_destinations"
-        />
+        app:layout_constraintTop_toBottomOf="@id/chip_group_destinations" />
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/group_destination"
@@ -289,8 +276,7 @@
         android:layout_height="wrap_content"
         android:visibility="gone"
         app:constraint_referenced_ids="txt_destination, chip_group_destinations, separator_destination"
-        tools:visibility="visible"
-        />
+        tools:visibility="visible" />
 
     <ProgressBar
         android:id="@+id/progress"
@@ -303,8 +289,7 @@
         app:layout_constraintBottom_toTopOf="@id/btn_save"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:visibility="visible"
-        />
+        tools:visibility="visible" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_save"
@@ -317,7 +302,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:enabled="true"
-        />
+        tools:enabled="true" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

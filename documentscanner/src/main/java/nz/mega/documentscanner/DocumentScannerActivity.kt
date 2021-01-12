@@ -12,13 +12,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toFile
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import com.facebook.drawee.backends.pipeline.Fresco
+import kotlinx.coroutines.launch
 import nz.mega.documentscanner.databinding.ActivityDocumentScannerBinding
+import nz.mega.documentscanner.openCV.ImageScanner
 import nz.mega.documentscanner.utils.FileUtils
 import nz.mega.documentscanner.utils.IntentUtils.extra
 import nz.mega.documentscanner.utils.ViewUtils.hideKeyboard
-import org.opencv.android.OpenCVLoader
 
 class DocumentScannerActivity : AppCompatActivity() {
 
@@ -48,6 +51,7 @@ class DocumentScannerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initOpenCV()
+        initFresco()
         clearExistingFiles()
 
         binding = ActivityDocumentScannerBinding.inflate(layoutInflater)
@@ -63,13 +67,23 @@ class DocumentScannerActivity : AppCompatActivity() {
     }
 
     private fun initOpenCV() {
-        val result = OpenCVLoader.initDebug()
-        Log.d(TAG, "OpenCV initialized: $result")
+        lifecycleScope.launch {
+            val result = ImageScanner.init()
+            Log.d(TAG, "OpenCV initialized: $result")
+        }
+    }
+
+    private fun initFresco() {
+        if (!Fresco.hasBeenInitialized()) {
+            Fresco.initialize(this)
+        }
     }
 
     private fun clearExistingFiles() {
-        val result = FileUtils.clearExistingFiles(this)
-        Log.d(TAG, "Cleared existing files: $result")
+        lifecycleScope.launch {
+            val result = FileUtils.clearExistingFiles(this@DocumentScannerActivity)
+            Log.d(TAG, "Cleared existing files: $result")
+        }
     }
 
     private fun setupObservers() {
@@ -101,7 +115,10 @@ class DocumentScannerActivity : AppCompatActivity() {
                 .setChooserTitle(fileTitle)
                 .setStream(fileUri)
                 .createChooserIntent()
-                .apply { putExtra(EXTRA_PICKED_SAVE_DESTINATION, viewModel.getSaveDestination()) }
+                .apply {
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    putExtra(EXTRA_PICKED_SAVE_DESTINATION, viewModel.getSaveDestination())
+                }
 
             startActivity(shareIntent)
         }

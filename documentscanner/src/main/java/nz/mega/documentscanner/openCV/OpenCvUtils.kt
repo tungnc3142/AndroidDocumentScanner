@@ -1,7 +1,9 @@
 package nz.mega.documentscanner.openCV
 
+import android.graphics.Bitmap
 import android.graphics.ImageFormat
 import androidx.camera.core.ImageProxy
+import nz.mega.documentscanner.utils.BitmapUtils.toBitmap
 import org.opencv.core.Core
 import org.opencv.core.CvType
 import org.opencv.core.Mat
@@ -47,7 +49,20 @@ object OpenCvUtils {
         return result
     }
 
-    fun ImageProxy.yuvToRgba(): Mat {
+    /**
+     * Crop an OpenCV Mat with the provided points and generate a Bitmap
+     *
+     * @param cropMat Mat of points to crop the mat
+     * @return Image with the original Mat cropped
+     */
+    fun Mat.crop(cropMat: MatOfPoint2f): Bitmap {
+        val dstMat = PerspectiveTransformation.transform(this, cropMat)
+        val resultBitmap = dstMat.toBitmap()
+        dstMat.release()
+        return resultBitmap
+    }
+
+    fun ImageProxy.yuvToRgbaMat(): Mat {
         require(format == ImageFormat.YUV_420_888 && planes.size == 3)
 
         val rgbaMat = Mat()

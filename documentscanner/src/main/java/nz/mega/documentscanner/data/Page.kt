@@ -1,17 +1,16 @@
 package nz.mega.documentscanner.data
 
-import android.graphics.PointF
+import android.net.Uri
 import androidx.recyclerview.widget.DiffUtil
+import org.opencv.core.MatOfPoint2f
 
 data class Page constructor(
     val id: Long = System.currentTimeMillis(),
-    val originalImage: Image,
-    var croppedImage: Image? = null,
-    var cropPoints: List<PointF>? = null
+    val originalImageUri: Uri,
+    val transformImageUri: Uri?,
+    val cropMat: MatOfPoint2f?,
+    val rotation: Int = 0
 ) {
-
-    fun getImageToPrint(): Image =
-        croppedImage ?: originalImage
 
     class ItemDiffUtil : DiffUtil.ItemCallback<Page>() {
 

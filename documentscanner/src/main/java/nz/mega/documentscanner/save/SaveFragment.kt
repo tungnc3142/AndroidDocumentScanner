@@ -14,10 +14,8 @@ import com.google.android.material.chip.Chip
 import nz.mega.documentscanner.DocumentScannerViewModel
 import nz.mega.documentscanner.R
 import nz.mega.documentscanner.data.Document
-import nz.mega.documentscanner.data.Page
 import nz.mega.documentscanner.databinding.FragmentSaveBinding
 import nz.mega.documentscanner.databinding.ItemDestinationBinding
-import nz.mega.documentscanner.utils.FileUtils
 
 class SaveFragment : Fragment() {
 
@@ -51,6 +49,10 @@ class SaveFragment : Fragment() {
             }
         }
 
+        binding.editFileName.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
+            binding.imgEdit.isVisible = !hasFocus
+        }
+
         binding.chipGroupFileType.setOnCheckedChangeListener { _, checkedId ->
             val fileType = when (checkedId) {
                 R.id.chip_file_type_pdf -> Document.FileType.PDF
@@ -80,15 +82,15 @@ class SaveFragment : Fragment() {
                 }
         }
 
+        binding.groupFileType.isVisible = viewModel.getPagesCount() == 1
         binding.btnBack.setOnClickListener { findNavController().popBackStack() }
         binding.btnSave.setOnClickListener { createDocument() }
     }
 
     private fun setupObservers() {
         viewModel.getSaveDestinations().observe(viewLifecycleOwner, ::showSaveDestinations)
-        viewModel.getDocumentTitle().observe(viewLifecycleOwner, ::showDocumentTitle)
-        viewModel.getDocumentPages().observe(viewLifecycleOwner, ::showFileTypeSection)
         viewModel.getDocumentFileType().observe(viewLifecycleOwner, ::showDocumentFileType)
+        viewModel.getDocumentTitle().observe(viewLifecycleOwner, ::showDocumentTitle)
         viewModel.getDocumentQuality().observe(viewLifecycleOwner, ::showDocumentQuality)
     }
 
@@ -119,29 +121,22 @@ class SaveFragment : Fragment() {
         }
     }
 
-    private fun showFileTypeSection(pages: List<Page>) {
-        binding.groupFileType.isVisible = pages.size == 1
-    }
-
     private fun showDocumentFileType(fileType: Document.FileType) {
         val chipResId: Int
         val imageResId: Int
-        val suffix: String
 
         when (fileType) {
             Document.FileType.PDF -> {
                 chipResId = R.id.chip_file_type_pdf
                 imageResId = R.drawable.ic_pdf
-                suffix = FileUtils.PDF_SUFFIX
             }
             Document.FileType.JPG -> {
                 chipResId = R.id.chip_file_type_jpg
                 imageResId = R.drawable.ic_jpeg
-                suffix = FileUtils.JPG_SUFFIX
             }
         }
 
-        binding.inputFileName.suffixText = suffix
+        binding.inputFileName.suffixText = fileType.suffix
         binding.imgFileType.setImageResource(imageResId)
 
         if (binding.chipGroupFileType.checkedChipId != chipResId) {

@@ -5,17 +5,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.bumptech.glide.Glide
+import kotlinx.coroutines.launch
 import nz.mega.documentscanner.DocumentScannerViewModel
 import nz.mega.documentscanner.R
 import nz.mega.documentscanner.data.Page
 import nz.mega.documentscanner.databinding.FragmentCropBinding
+import nz.mega.documentscanner.utils.PageUtils.getOriginalDimensions
+import org.opencv.core.MatOfPoint2f
+import org.opencv.core.Point
 
 class CropFragment : Fragment() {
 
@@ -33,7 +35,7 @@ class CropFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentCropBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -55,44 +57,47 @@ class CropFragment : Fragment() {
     }
 
     private fun showCurrentPage(page: Page?) {
-        if (page != null) {
-            Glide.with(this)
-                .load(page.originalImage.imageUri)
-                .into(binding.imgCrop)
+        if (page == null) {
+            findNavController().popBackStack()
+            return
+        }
 
-            binding.cropView.post {
-                ratioX = binding.cropView.measuredWidth / page.originalImage.width
-                ratioY = binding.cropView.measuredHeight / page.originalImage.height
+        binding.imgCrop.setImageURI(page.originalImageUri)
 
-                binding.cropView.points = page.cropPoints?.let { cropPoints ->
-                    val relativePoints = cropPoints.map { point ->
-                        PointF(point.x * ratioX, point.y * ratioY)
+        binding.cropView.post {
+            lifecycleScope.launch {
+                val pageDimensions = page.getOriginalDimensions()
+                val pageWidth = pageDimensions.first.toFloat()
+                val pageHeight = pageDimensions.second.toFloat()
+
+                ratioX = binding.cropView.width / pageWidth
+                ratioY = binding.cropView.height / pageHeight
+
+                binding.cropView.points = page.cropMat?.let { mat ->
+                    val relativePoints = mat.toArray().map { point ->
+                        PointF(
+                            (point.x * ratioX).toFloat(),
+                            (point.y * ratioY).toFloat()
+                        )
                     }
 
                     binding.cropView.getOrderedPoints(relativePoints)
                 }
             }
-        } else {
-            Toast.makeText(requireContext(), "Unknown error", Toast.LENGTH_SHORT).show()
-            findNavController().popBackStack()
         }
     }
 
     private fun saveCrop() {
-        showProgress(true)
+        binding.btnDone.isEnabled = false
 
         val relativePoints = binding.cropView.points.map { point ->
-            PointF(point.value.x / ratioX, point.value.y / ratioY)
+            Point((point.value.x / ratioX).toDouble(), (point.value.y / ratioY).toDouble())
         }
 
-        viewModel.cropCurrentPage(requireContext(), relativePoints).observe(viewLifecycleOwner) {
-            showProgress(false)
-            findNavController().popBackStack()
-        }
-    }
+        val cropMat = MatOfPoint2f().apply { fromList(relativePoints) }
+        viewModel.cropPage(requireContext(), cropMat)
 
-    private fun showProgress(show: Boolean) {
-        binding.progress.isVisible = show
-        binding.btnDone.isEnabled = !show
+        binding.btnDone.isEnabled = true
+        findNavController().popBackStack()
     }
 }

@@ -1,6 +1,7 @@
 package nz.mega.documentscanner.camera
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -8,7 +9,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.camera.core.*
+import androidx.camera.core.Camera
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.ImageProxy
+import androidx.camera.core.Preview
+import androidx.camera.core.TorchState
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -22,7 +30,6 @@ import nz.mega.documentscanner.R
 import nz.mega.documentscanner.databinding.FragmentCameraBinding
 import nz.mega.documentscanner.openCV.ImageScanner
 import nz.mega.documentscanner.utils.BitmapUtils.toBitmap
-import nz.mega.documentscanner.utils.FileUtils
 import nz.mega.documentscanner.utils.ViewUtils.aspectRatio
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -49,7 +56,7 @@ class CameraFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentCameraBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -134,36 +141,7 @@ class CameraFragment : Fragment() {
     private fun takePicture() {
         showProgress(true)
         imageAnalyzer?.clearAnalyzer()
-
-        val photoFile = FileUtils.createPhotoFile(requireContext())
-        val options = ImageCapture.OutputFileOptions.Builder(photoFile).build()
-        imageCapture?.takePicture(options, cameraExecutor, object : ImageCapture.OnImageSavedCallback {
-            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                lifecycleScope.launch {
-                    val photoBitmap = photoFile.toBitmap(requireContext())
-                    photoFile.delete()
-
-                    viewModel.addPage(requireContext(), photoBitmap).observe(viewLifecycleOwner)
-                    { result ->
-                        if (result) {
-                            findNavController().navigate(CameraFragmentDirections.actionCameraFragmentToScanFragment())
-                        } else {
-                            showToast("Picture process error")
-                            showProgress(false)
-                        }
-                    }
-                }
-            }
-
-            override fun onError(error: ImageCaptureException) {
-                activity?.runOnUiThread {
-                    Log.e(TAG, "Take Picture error: " + error.stackTraceToString())
-                    showToast(error.message.toString())
-                    photoFile.delete()
-                    showProgress(false)
-                }
-            }
-        })
+        imageCapture?.takePicture(cameraExecutor, buildImageCapturedCallback())
     }
 
     private fun allPermissionsGranted(): Boolean =
@@ -201,6 +179,37 @@ class CameraFragment : Fragment() {
         binding.previewView.isVisible = show
         binding.cameraView.isVisible = !show
     }
+
+    /**
+     * Build image captured callback required to take a picture for when an image capture
+     * has been completed.
+     *
+     * @return built ImageCapture.OnImageCapturedCallback callback
+     */
+    private fun buildImageCapturedCallback(): ImageCapture.OnImageCapturedCallback =
+        object : ImageCapture.OnImageCapturedCallback() {
+            @SuppressLint("UnsafeExperimentalUsageError")
+            override fun onCaptureSuccess(imageProxy: ImageProxy) {
+                lifecycleScope.launch {
+                    val bitmap = imageProxy.toBitmap()
+
+                    viewModel.addPage(requireContext(), bitmap).observe(viewLifecycleOwner) { result ->
+                        if (result) {
+                            findNavController().navigate(CameraFragmentDirections.actionCameraFragmentToScanFragment())
+                        } else {
+                            showToast("Picture process error")
+                            showProgress(false)
+                        }
+                    }
+                }
+            }
+
+            override fun onError(error: ImageCaptureException) {
+                Log.e(TAG, error.stackTraceToString())
+                showToast(error.message.toString())
+                showProgress(false)
+            }
+        }
 
     private fun showToast(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()

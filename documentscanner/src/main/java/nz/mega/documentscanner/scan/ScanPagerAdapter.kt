@@ -6,8 +6,7 @@ import androidx.recyclerview.widget.ListAdapter
 import nz.mega.documentscanner.data.Page
 import nz.mega.documentscanner.databinding.ItemScanBinding
 
-class ScanPagerAdapter :
-    ListAdapter<Page, ScanPagerViewHolder>(Page.ItemDiffUtil()) {
+class ScanPagerAdapter : ListAdapter<Page, ScanPagerViewHolder>(Page.ItemDiffUtil()) {
 
     init {
         setHasStableIds(true)
