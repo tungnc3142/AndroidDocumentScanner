@@ -5,4 +5,18 @@
         <item name="android:textColor">@color/chip_text</item>
         <item name="android:textAppearance">@style/TextAppearance.DocumentScanner.Body2.Bold</item>
     </style>
+
+    <style name="Widget.DocumentScanner.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.FilledBox.Dense">
+        <item name="android:textAppearance">?textAppearanceSubtitle1</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidthFocused">1dp</item>
+        <item name="boxBackgroundColor">?colorSurface</item>
+        <item name="materialThemeOverlay">@style/ThemeOverlay.DocumentScanner.Secondary</item>
+    </style>
+
+    <style name="Widget.DocumentScanner.TextInputEditText" parent="Widget.MaterialComponents.TextInputEditText.FilledBox.Dense">
+        <item name="android:textAppearance">?textAppearanceSubtitle1</item>
+        <item name="android:textColor">?colorOnSurface</item>
+        <item name="materialThemeOverlay">@style/ThemeOverlay.DocumentScanner.Secondary</item>
+    </style>
 </resources>

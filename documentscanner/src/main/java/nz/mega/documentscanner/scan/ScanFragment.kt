@@ -16,8 +16,8 @@ import nz.mega.documentscanner.R
 import nz.mega.documentscanner.data.Page
 import nz.mega.documentscanner.databinding.FragmentScanBinding
 import nz.mega.documentscanner.utils.DialogFactory
-import nz.mega.documentscanner.view.OffsetPageTransformer
 import nz.mega.documentscanner.utils.ViewUtils.scrollToLastPosition
+import nz.mega.documentscanner.view.OffsetPageTransformer
 
 class ScanFragment : Fragment() {
 
@@ -25,26 +25,20 @@ class ScanFragment : Fragment() {
         private const val TAG = "ScanFragment"
     }
 
+    private lateinit var binding: FragmentScanBinding
     private val navigationArguments: ScanFragmentArgs by navArgs()
     private val viewModel: DocumentScannerViewModel by activityViewModels()
     private val adapter: ScanPagerAdapter by lazy { ScanPagerAdapter() }
-    private val viewPagerCallback: ViewPager2.OnPageChangeCallback by lazy {
-        object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                viewModel.setCurrentPagePosition(position)
-                binding.txtPageCount.text = "${position + 1} / ${viewModel.getPagesCount()}"
-            }
-        }
-    }
+    private val viewPagerCallback: ViewPager2.OnPageChangeCallback by lazy { buildViewPagerCallback() }
+    private val pageTransformer: OffsetPageTransformer by lazy { buildPageTransformer() }
 
     private var scrolled = false
-    private lateinit var binding: FragmentScanBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentScanBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -66,37 +60,29 @@ class ScanFragment : Fragment() {
     }
 
     private fun setupView() {
-        val pageMargin = resources.getDimensionPixelOffset(R.dimen.scan_page_margin)
-        val pageOffset = resources.getDimensionPixelOffset(R.dimen.scan_page_offset)
-
-        binding.viewPager.offscreenPageLimit = 3
-        binding.viewPager.setPageTransformer(OffsetPageTransformer(pageOffset, pageMargin))
         binding.viewPager.registerOnPageChangeCallback(viewPagerCallback)
+        binding.viewPager.offscreenPageLimit = 3
         binding.viewPager.adapter = adapter
         binding.btnBack.setOnClickListener { showDiscardDialog() }
-        binding.btnAdd.setOnClickListener { findNavController().navigate(ScanFragmentDirections.actionScanFragmentToCameraFragment()) }
-        binding.btnRotate.setOnClickListener {
-            showProgress(true)
-            viewModel.rotateCurrentPage(requireContext()).observe(viewLifecycleOwner) {
-                showProgress(false)
-            }
-        }
+        binding.btnAdd.setOnClickListener { navigateBack() }
+        binding.btnRotate.setOnClickListener { viewModel.rotatePage(requireContext()) }
         binding.btnDelete.setOnClickListener {
             DialogFactory.createDeleteCurrentScanDialog(requireContext()) {
-                viewModel.deleteCurrentPage()
+                viewModel.deletePage()
             }.show()
         }
         binding.btnCrop.setOnClickListener { findNavController().navigate(ScanFragmentDirections.actionScanFragmentToCropFragment()) }
         binding.btnDone.setOnClickListener { findNavController().navigate(ScanFragmentDirections.actionScanFragmentToSaveFragment()) }
         binding.btnRetake.setOnClickListener {
-            viewModel.deleteCurrentPage()
-            findNavController().navigate(ScanFragmentDirections.actionScanFragmentToCameraFragment())
+            viewModel.deletePage()
+            navigateBack()
         }
     }
 
     private fun setupObservers() {
         viewModel.getDocumentTitle().observe(viewLifecycleOwner, ::showDocumentTitle)
         viewModel.getDocumentPages().observe(viewLifecycleOwner, ::showPages)
+        viewModel.getCurrentPagePosition().observe(viewLifecycleOwner, ::showPageCount)
     }
 
     private fun showDocumentTitle(title: String) {
@@ -104,10 +90,18 @@ class ScanFragment : Fragment() {
     }
 
     private fun showPages(items: List<Page>) {
-        val currentPosition = viewModel.getCurrentPagePosition()
+        val currentPosition = viewModel.getCurrentPagePosition().value ?: 0
         adapter.submitList(items)
 
         if (items.isNotEmpty()) {
+            if (items.size == 1) {
+                binding.viewPager.setPageTransformer(null)
+                binding.btnDelete.isVisible = false
+            } else {
+                binding.viewPager.setPageTransformer(pageTransformer)
+                binding.btnDelete.isVisible = true
+            }
+
             binding.viewPager.post {
                 if (!scrolled && navigationArguments.scrollToLast) {
                     binding.viewPager.scrollToLastPosition()
@@ -117,8 +111,21 @@ class ScanFragment : Fragment() {
                 }
             }
         } else {
-            findNavController().popBackStack(R.id.cameraFragment, false)
+            navigateBack()
         }
+    }
+
+    /**
+     * Show current page count position out of the total pages
+     *
+     * @param currentPosition Current page position
+     */
+    private fun showPageCount(currentPosition: Int) {
+        binding.txtPageCount.text = String.format(
+            getString(R.string.scan_format_page_count),
+            currentPosition + 1,
+            viewModel.getPagesCount()
+        )
     }
 
     private fun showDiscardDialog() {
@@ -127,24 +134,45 @@ class ScanFragment : Fragment() {
         when {
             pagesCount == 1 -> {
                 DialogFactory.createDiscardScanDialog(requireContext()) {
-                    viewModel.deleteCurrentPage()
-                    findNavController().popBackStack(R.id.cameraFragment, false)
+                    viewModel.deletePage()
+                    navigateBack()
                 }.show()
             }
             pagesCount > 1 -> {
                 DialogFactory.createDiscardScansDialog(requireContext()) {
-                    viewModel.deleteAllPages()
-                    findNavController().popBackStack(R.id.cameraFragment, false)
+                    viewModel.resetDocument()
+                    navigateBack()
                 }.show()
             }
-            else -> {
-                findNavController().popBackStack(R.id.cameraFragment, false)
-            }
+            else -> navigateBack()
         }
     }
 
-    private fun showProgress(show: Boolean) {
-        binding.progress.isVisible = show
-        binding.btnDone.isEnabled = !show
+    private fun navigateBack() {
+        findNavController().popBackStack(R.id.cameraFragment, false)
     }
+
+    /**
+     * Build view pager callback required to track the current page selected
+     * has been completed.
+     *
+     * @return built ViewPager2.OnPageChangeCallback callback
+     */
+    private fun buildViewPagerCallback(): ViewPager2.OnPageChangeCallback =
+        object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                viewModel.setCurrentPagePosition(position)
+            }
+        }
+
+    /**
+     * Build ViewPager Page Transformer to add required offset between pages
+     *
+     * @return built ViewPager2.PageTransformer
+     */
+    private fun buildPageTransformer(): OffsetPageTransformer =
+        OffsetPageTransformer(
+            resources.getDimensionPixelOffset(R.dimen.scan_page_margin),
+            resources.getDimensionPixelOffset(R.dimen.scan_page_offset)
+        )
 }

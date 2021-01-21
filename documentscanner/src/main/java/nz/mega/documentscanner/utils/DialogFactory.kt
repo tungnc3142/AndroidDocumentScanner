@@ -9,13 +9,13 @@ import nz.mega.documentscanner.R
 object DialogFactory {
 
     fun createDiscardScanDialog(context: Context, callback: () -> Unit): MaterialAlertDialogBuilder =
-        createDialog(context, callback, R.string.dialog_discard_scan_title, R.string.dialog_discard_scan_body)
+        createDialog(context, callback, R.string.scan_dialog_discard_title, R.string.scan_dialog_discard_body)
 
     fun createDiscardScansDialog(context: Context, callback: () -> Unit): MaterialAlertDialogBuilder =
-        createDialog(context, callback, R.string.dialog_discard_all_scans_title, R.string.dialog_discard_all_scans_body)
+        createDialog(context, callback, R.string.scan_dialog_discard_all_title, R.string.scan_dialog_discard_all_body)
 
     fun createDeleteCurrentScanDialog(context: Context, callback: () -> Unit): MaterialAlertDialogBuilder =
-        createDialog(context, callback, R.string.dialog_delete_scan_body, null)
+        createDialog(context, callback, R.string.scan_dialog_delete_body, null)
 
     private fun createDialog(
         context: Context,

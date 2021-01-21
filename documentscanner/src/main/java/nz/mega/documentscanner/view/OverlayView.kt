@@ -21,7 +21,7 @@ class OverlayView
         strokeWidth = resources.getDimension(R.dimen.scan_overlay_stroke_width)
     }
 
-    var lines: FloatArray? = floatArrayOf()
+    var lines: FloatArray? = null
         set(value) {
             field = value
             invalidate()

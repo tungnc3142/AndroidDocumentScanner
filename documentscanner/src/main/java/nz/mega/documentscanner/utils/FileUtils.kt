@@ -1,41 +1,74 @@
 package nz.mega.documentscanner.utils
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.pdf.PdfDocument
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileOutputStream
 
+@Suppress("BlockingMethodInNonBlockingContext")
 object FileUtils {
 
     const val FILE_NAME_FORMAT = "Scanned_%1tY%<tm%<td%<tH%<tM"
-    const val JPG_SUFFIX = ".jpg"
-    const val PDF_SUFFIX = ".pdf"
 
     private const val ROOT_FILE_DIR = "scans"
     private const val PAGE_FILE_DIR = "$ROOT_FILE_DIR/pages/"
     private const val DOCUMENT_FILE_DIR = "$ROOT_FILE_DIR/document/"
 
-    private fun getParentFile(context: Context, parentDir: String): File =
-        File(context.filesDir, parentDir).apply {
-            if (!exists()) {
-                mkdirs()
+    private suspend fun getParentFile(context: Context, parentDir: String): File =
+        withContext(Dispatchers.IO) {
+            File(context.filesDir, parentDir).apply {
+                if (!exists()) {
+                    mkdirs()
+                }
             }
         }
 
-    fun createDocumentFile(context: Context, title: String): File =
-        File(getParentFile(context, DOCUMENT_FILE_DIR), title).apply {
-            if (exists()) {
-                delete()
-                createNewFile()
+    suspend fun createDocumentFile(context: Context, title: String): File =
+        withContext(Dispatchers.IO) {
+            File(getParentFile(context, DOCUMENT_FILE_DIR), title).apply {
+                if (exists()) {
+                    delete()
+                    createNewFile()
+                }
             }
         }
 
-    fun createPageFile(context: Context): File =
-        File(getParentFile(context, PAGE_FILE_DIR), System.currentTimeMillis().toString())
+    suspend fun createImageFile(context: Context, bitmap: Bitmap): File =
+        withContext(Dispatchers.IO) {
+            File(getParentFile(context, PAGE_FILE_DIR), System.currentTimeMillis().toString())
+                .apply { bitmap.toFile(this) }
+        }
 
-    fun createPhotoFile(context: Context): File =
-        File(context.cacheDir, System.currentTimeMillis().toString())
+    suspend fun clearExistingFiles(context: Context): Boolean =
+        withContext(Dispatchers.IO) {
+            getParentFile(context, ROOT_FILE_DIR).deleteRecursively()
+        }
 
-    fun clearExistingFiles(context: Context): Boolean =
-        getParentFile(context, ROOT_FILE_DIR).deleteRecursively()
+    suspend fun File.deleteSafely(): Boolean =
+        withContext(Dispatchers.IO) {
+            delete()
+        }
+
+    suspend fun Bitmap.toFile(file: File) {
+        withContext(Dispatchers.IO) {
+            val outputStream = FileOutputStream(file)
+            compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+            outputStream.flush()
+            outputStream.close()
+        }
+    }
+
+    suspend fun PdfDocument.toFile(file: File) {
+        withContext(Dispatchers.IO) {
+            val outputStream = FileOutputStream(file)
+            writeTo(outputStream)
+            outputStream.flush()
+            outputStream.close()
+        }
+    }
 
     fun getProviderAuthority(context: Context): String =
         "${context.packageName}.scans.provider"
