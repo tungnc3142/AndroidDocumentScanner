@@ -40,9 +40,9 @@ class DocumentScannerViewModel : ViewModel() {
     private val document: MutableLiveData<Document> = MutableLiveData(Document())
     private val saveDestinations: MutableLiveData<Array<String>> = MutableLiveData()
     private val currentPagePosition: MutableLiveData<Int> = MutableLiveData(0)
-    private val resultDocument: MutableLiveData<Uri> = MutableLiveData()
+    private val resultDocument: MutableLiveData<Uri?> = MutableLiveData()
 
-    fun getResultDocument(): LiveData<Uri> =
+    fun getResultDocument(): LiveData<Uri?> =
         resultDocument
 
     fun getDocumentTitle(): LiveData<String> =
@@ -244,6 +244,14 @@ class DocumentScannerViewModel : ViewModel() {
             document.value?.deletePages()
             document.notifyObserver()
         }
+    }
+
+    /**
+     * Reset current document and close the scanner
+     */
+    fun discardScan() {
+        resetDocument()
+        resultDocument.value = null
     }
 
     /**

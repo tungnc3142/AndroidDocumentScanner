@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -30,6 +31,7 @@ import nz.mega.documentscanner.R
 import nz.mega.documentscanner.databinding.FragmentCameraBinding
 import nz.mega.documentscanner.openCV.ImageScanner
 import nz.mega.documentscanner.utils.BitmapUtils.toBitmap
+import nz.mega.documentscanner.utils.DialogFactory
 import nz.mega.documentscanner.utils.ViewUtils.aspectRatio
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -66,13 +68,18 @@ class CameraFragment : Fragment() {
         setupView()
     }
 
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        requireActivity().onBackPressedDispatcher.addCallback(this) { showDiscardDialog() }
+    }
+
     override fun onDestroy() {
         cameraExecutor.shutdown()
         super.onDestroy()
     }
 
     private fun setupView() {
-        binding.btnBack.setOnClickListener { activity?.finish() }
+        binding.btnBack.setOnClickListener { viewModel.discardScan() }
 
         if (allPermissionsGranted()) {
             binding.cameraView.post { setUpCamera() }
@@ -211,6 +218,24 @@ class CameraFragment : Fragment() {
             }
         }
 
+    private fun showDiscardDialog() {
+        val pagesCount = viewModel.getPagesCount()
+
+        when {
+            pagesCount == 1 -> {
+                DialogFactory.createDiscardScanDialog(requireContext()) {
+                    viewModel.discardScan()
+                }.show()
+            }
+            pagesCount > 1 -> {
+                DialogFactory.createDiscardScansDialog(requireContext()) {
+                    viewModel.discardScan()
+                }.show()
+            }
+            else -> viewModel.discardScan()
+        }
+    }
+
     private fun showToast(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
     }
@@ -226,7 +251,7 @@ class CameraFragment : Fragment() {
                     setUpCamera()
                 } else {
                     showToast(getString(R.string.scan_requires_permission))
-                    activity?.finish()
+                    viewModel.discardScan()
                 }
             }
             else -> super.onRequestPermissionsResult(requestCode, permissions, grantResults)
