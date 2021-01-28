@@ -79,7 +79,7 @@ class CameraFragment : Fragment() {
     }
 
     private fun setupView() {
-        binding.btnBack.setOnClickListener { viewModel.discardScan() }
+        binding.btnBack.setOnClickListener { showDiscardDialog() }
 
         if (allPermissionsGranted()) {
             binding.cameraView.post { setUpCamera() }
