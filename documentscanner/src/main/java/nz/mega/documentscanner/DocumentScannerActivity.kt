@@ -96,32 +96,39 @@ class DocumentScannerActivity : AppCompatActivity() {
         }
     }
 
-    private fun onResultDocument(documentUri: Uri) {
-        if (callingActivity != null) {
-            val resultIntent = Intent().apply {
-                putExtra(EXTRA_PICKED_SAVE_DESTINATION, viewModel.getSaveDestination())
-                setDataAndType(documentUri, contentResolver.getType(documentUri))
+    private fun onResultDocument(documentUri: Uri?) {
+        when {
+            documentUri == null -> {
+                setResult(Activity.RESULT_CANCELED)
             }
-            setResult(Activity.RESULT_OK, resultIntent)
-            finish()
-        } else {
-            val providerAuthority = FileUtils.getProviderAuthority(this)
-            val fileUri = FileProvider.getUriForFile(this, providerAuthority, documentUri.toFile())
-            val fileMimeType = contentResolver.getType(fileUri)
-            val fileTitle = viewModel.getDocumentTitle().value
-
-            val shareIntent = ShareCompat.IntentBuilder.from(this)
-                .setType(fileMimeType)
-                .setChooserTitle(fileTitle)
-                .setStream(fileUri)
-                .createChooserIntent()
-                .apply {
-                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            callingActivity != null -> {
+                val resultIntent = Intent().apply {
                     putExtra(EXTRA_PICKED_SAVE_DESTINATION, viewModel.getSaveDestination())
+                    setDataAndType(documentUri, contentResolver.getType(documentUri))
                 }
+                setResult(Activity.RESULT_OK, resultIntent)
+            }
+            else -> {
+                val providerAuthority = FileUtils.getProviderAuthority(this)
+                val fileUri = FileProvider.getUriForFile(this, providerAuthority, documentUri.toFile())
+                val fileMimeType = contentResolver.getType(fileUri)
+                val fileTitle = viewModel.getDocumentTitle().value
 
-            startActivity(shareIntent)
+                val shareIntent = ShareCompat.IntentBuilder.from(this)
+                    .setType(fileMimeType)
+                    .setChooserTitle(fileTitle)
+                    .setStream(fileUri)
+                    .createChooserIntent()
+                    .apply {
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        putExtra(EXTRA_PICKED_SAVE_DESTINATION, viewModel.getSaveDestination())
+                    }
+
+                startActivity(shareIntent)
+            }
         }
+
+        finish()
     }
 
     private fun findNavController(): NavController =
