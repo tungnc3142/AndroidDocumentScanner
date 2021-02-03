@@ -15,24 +15,13 @@
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_out_right"
-            app:popExitAnim="@anim/slide_in_left" >
-
-            <argument
-                android:name="scrollToLast"
-                android:defaultValue="true"
-                app:argType="boolean" />
-        </action>
+            app:popExitAnim="@anim/slide_in_left" />
     </fragment>
 
     <fragment
         android:id="@+id/scanFragment"
         android:name="nz.mega.documentscanner.scan.ScanFragment"
         android:label="">
-
-        <argument
-            android:name="scrollToLast"
-            android:defaultValue="false"
-            app:argType="boolean" />
 
         <action
             android:id="@+id/action_scanFragment_to_saveFragment"
