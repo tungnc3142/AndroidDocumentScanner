@@ -278,13 +278,13 @@
         app:constraint_referenced_ids="txt_destination, chip_group_destinations, separator_destination"
         tools:visibility="visible" />
 
-    <ProgressBar
+    <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:elevation="4dp"
-        android:indeterminateTint="?colorOnSurface"
+        android:indeterminate="true"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/btn_save"
         app:layout_constraintEnd_toEndOf="parent"

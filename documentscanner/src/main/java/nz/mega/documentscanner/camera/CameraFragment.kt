@@ -79,6 +79,7 @@ class CameraFragment : Fragment() {
     }
 
     private fun setupView() {
+        binding.progress.setVisibilityAfterHide(View.GONE)
         binding.btnBack.setOnClickListener { showDiscardDialog() }
 
         if (allPermissionsGranted()) {
@@ -174,12 +175,13 @@ class CameraFragment : Fragment() {
     }
 
     private fun showProgress(show: Boolean) {
-        binding.progress.isVisible = show
         binding.btnCapture.isEnabled = !show
 
         if (show) {
+            binding.progress.show()
             binding.previewView.setImageBitmap(binding.cameraView.bitmap)
         } else {
+            binding.progress.hide()
             binding.previewView.setImageDrawable(null)
         }
 
