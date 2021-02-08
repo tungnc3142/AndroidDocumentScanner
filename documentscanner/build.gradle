@@ -4,7 +4,7 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'androidx.navigation.safeargs.kotlin'
 
-group='com.github.meganz'
+group = 'com.github.meganz'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -18,6 +18,8 @@ android {
         ndk {
             abiFilters 'arm64-v8a', 'armeabi-v7a'
         }
+
+        buildConfigField "String[]", "NDK_ABI_FILTERS", getNdkAbiFiltersArray(ndk.abiFilters)
     }
 
     buildTypes {
@@ -68,4 +70,18 @@ dependencies {
     implementation 'com.google.android.material:material:1.3.0'
 
     implementation 'com.facebook.fresco:fresco:2.3.0'
+}
+
+static def getNdkAbiFiltersArray(Set<String> abiFilters) {
+    StringBuilder builder = new StringBuilder()
+    builder.append("{")
+    abiFilters.each { entry ->
+        builder.append('"')
+        builder.append(entry)
+        builder.append('"')
+        builder.append(", ")
+    }
+    builder.setLength(builder.length() - 2)
+    builder.append("}")
+    return builder.toString()
 }
