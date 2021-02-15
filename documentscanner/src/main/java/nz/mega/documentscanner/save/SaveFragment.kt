@@ -85,6 +85,7 @@ class SaveFragment : Fragment() {
         binding.groupFileType.isVisible = viewModel.getPagesCount() == 1
         binding.btnBack.setOnClickListener { findNavController().popBackStack() }
         binding.btnSave.setOnClickListener { createDocument() }
+        binding.progress.setVisibilityAfterHide(View.GONE)
     }
 
     private fun setupObservers() {
@@ -164,7 +165,12 @@ class SaveFragment : Fragment() {
     }
 
     private fun showProgress(show: Boolean) {
-        binding.progress.isVisible = show
         binding.btnSave.isEnabled = !show
+
+        if (show) {
+            binding.progress.show()
+        } else {
+            binding.progress.hide()
+        }
     }
 }

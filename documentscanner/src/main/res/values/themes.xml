@@ -17,7 +17,7 @@
         <item name="textInputStyle">@style/Widget.DocumentScanner.TextInputLayout</item>
         <item name="editTextStyle">@style/Widget.DocumentScanner.TextInputEditText</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.DocumentScanner.MaterialAlertDialog</item>
-        <item name="android:indeterminateTint">@color/onPrimaryColor</item>
+        <item name="circularProgressIndicatorStyle">@style/Widget.DocumentScanner.CircularProgressIndicator</item>
 
         <item name="textAppearanceHeadline6">@style/TextAppearance.DocumentScanner.Headline6</item>
         <item name="textAppearanceSubtitle1">@style/TextAppearance.DocumentScanner.Subtitle1</item>

@@ -2,9 +2,11 @@ package nz.mega.documentscanner.openCV
 
 import android.graphics.Bitmap
 import android.graphics.PointF
+import android.os.Build
 import androidx.camera.core.ImageProxy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import nz.mega.documentscanner.BuildConfig
 import nz.mega.documentscanner.openCV.OpenCvUtils.crop
 import nz.mega.documentscanner.openCV.OpenCvUtils.yuvToRgbaMat
 import nz.mega.documentscanner.utils.BitmapUtils.toMat
@@ -19,10 +21,23 @@ object ImageScanner {
      *
      * @return true if it has been initialised successfully, false otherwise.
      */
-    suspend fun init(): Boolean =
-        withContext(Dispatchers.IO) {
+    suspend fun init(): Boolean {
+        if (!isCpuCompatible()) {
+            error("CPU is not compatible with ${BuildConfig.NDK_ABI_FILTERS.contentToString()}")
+        }
+
+        return withContext(Dispatchers.IO) {
             OpenCVLoader.initDebug()
         }
+    }
+
+    /**
+     * Check if current CPU architecture is compatible with declared NDK ABI Filters.
+     *
+     * @return  true if the CPU is compatible, false otherwise.
+     */
+    fun isCpuCompatible(): Boolean =
+        BuildConfig.NDK_ABI_FILTERS.contains(Build.SUPPORTED_ABIS.first())
 
     /**
      * Get crop points from a given Bitmap.
