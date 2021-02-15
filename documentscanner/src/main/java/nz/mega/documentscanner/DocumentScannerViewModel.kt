@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
+import androidx.recyclerview.widget.RecyclerView.NO_POSITION
 import kotlinx.coroutines.launch
 import nz.mega.documentscanner.data.Document
 import nz.mega.documentscanner.data.Document.FileType
@@ -40,9 +41,10 @@ class DocumentScannerViewModel : ViewModel() {
     private val document: MutableLiveData<Document> = MutableLiveData(Document())
     private val saveDestinations: MutableLiveData<Array<String>> = MutableLiveData()
     private val currentPagePosition: MutableLiveData<Int> = MutableLiveData(0)
-    private val resultDocument: MutableLiveData<Uri> = MutableLiveData()
+    private val resultDocument: MutableLiveData<Uri?> = MutableLiveData()
+    private var retakePosition: Int = NO_POSITION
 
-    fun getResultDocument(): LiveData<Uri> =
+    fun getResultDocument(): LiveData<Uri?> =
         resultDocument
 
     fun getDocumentTitle(): LiveData<String> =
@@ -142,11 +144,17 @@ class DocumentScannerViewModel : ViewModel() {
                     cropMat = cropMat
                 )
 
-                document.value?.pages?.add(page)
+                if (retakePosition == NO_POSITION) {
+                    document.value?.pages?.add(page)
+                } else {
+                    document.value?.pages?.add(retakePosition, page)
+                    retakePosition = NO_POSITION
+                }
 
                 bitmap.recycle()
                 transformBitmap?.recycle()
                 document.notifyObserver()
+                setCurrentPagePosition(document.value?.pages?.indexOf(page) ?: 0)
                 updateDocumentFileType()
                 operationResult.postValue(true)
             } catch (error: Exception) {
@@ -225,6 +233,16 @@ class DocumentScannerViewModel : ViewModel() {
     }
 
     /**
+     * Retake scan page
+     *
+     * @param position Page position to be retaken. Default value is the current position
+     */
+    fun retakePage(position: Int = currentPagePosition.value ?: 0) {
+        retakePosition = position
+        deletePage(position)
+    }
+
+    /**
      * Delete scan page
      *
      * @param position Page position to be deleted. Default value is the current position
@@ -244,6 +262,14 @@ class DocumentScannerViewModel : ViewModel() {
             document.value?.deletePages()
             document.notifyObserver()
         }
+    }
+
+    /**
+     * Reset current document and close the scanner
+     */
+    fun discardScan() {
+        resetDocument()
+        resultDocument.value = null
     }
 
     /**

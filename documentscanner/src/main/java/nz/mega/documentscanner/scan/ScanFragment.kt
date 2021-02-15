@@ -9,14 +9,12 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
 import nz.mega.documentscanner.DocumentScannerViewModel
 import nz.mega.documentscanner.R
 import nz.mega.documentscanner.data.Page
 import nz.mega.documentscanner.databinding.FragmentScanBinding
 import nz.mega.documentscanner.utils.DialogFactory
-import nz.mega.documentscanner.utils.ViewUtils.scrollToLastPosition
 import nz.mega.documentscanner.view.OffsetPageTransformer
 
 class ScanFragment : Fragment() {
@@ -26,13 +24,11 @@ class ScanFragment : Fragment() {
     }
 
     private lateinit var binding: FragmentScanBinding
-    private val navigationArguments: ScanFragmentArgs by navArgs()
     private val viewModel: DocumentScannerViewModel by activityViewModels()
     private val adapter: ScanPagerAdapter by lazy { ScanPagerAdapter() }
     private val viewPagerCallback: ViewPager2.OnPageChangeCallback by lazy { buildViewPagerCallback() }
     private val pageTransformer: OffsetPageTransformer by lazy { buildPageTransformer() }
-
-    private var scrolled = false
+    private var callbackRegistered = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -56,13 +52,14 @@ class ScanFragment : Fragment() {
 
     override fun onDestroyView() {
         binding.viewPager.unregisterOnPageChangeCallback(viewPagerCallback)
+        callbackRegistered = false
         super.onDestroyView()
     }
 
     private fun setupView() {
-        binding.viewPager.registerOnPageChangeCallback(viewPagerCallback)
         binding.viewPager.offscreenPageLimit = 3
         binding.viewPager.adapter = adapter
+        binding.viewPager.setPageTransformer(pageTransformer)
         binding.btnBack.setOnClickListener { showDiscardDialog() }
         binding.btnAdd.setOnClickListener { navigateBack() }
         binding.btnRotate.setOnClickListener { viewModel.rotatePage(requireContext()) }
@@ -74,7 +71,7 @@ class ScanFragment : Fragment() {
         binding.btnCrop.setOnClickListener { findNavController().navigate(ScanFragmentDirections.actionScanFragmentToCropFragment()) }
         binding.btnDone.setOnClickListener { findNavController().navigate(ScanFragmentDirections.actionScanFragmentToSaveFragment()) }
         binding.btnRetake.setOnClickListener {
-            viewModel.deletePage()
+            viewModel.retakePage()
             navigateBack()
         }
     }
@@ -90,24 +87,20 @@ class ScanFragment : Fragment() {
     }
 
     private fun showPages(items: List<Page>) {
-        val currentPosition = viewModel.getCurrentPagePosition().value ?: 0
         adapter.submitList(items)
 
         if (items.isNotEmpty()) {
-            if (items.size == 1) {
-                binding.viewPager.setPageTransformer(null)
-                binding.btnDelete.isVisible = false
-            } else {
-                binding.viewPager.setPageTransformer(pageTransformer)
-                binding.btnDelete.isVisible = true
-            }
+            binding.btnDelete.isVisible = items.size != 1
 
             binding.viewPager.post {
-                if (!scrolled && navigationArguments.scrollToLast) {
-                    binding.viewPager.scrollToLastPosition()
-                    scrolled = true
-                } else if (binding.viewPager.currentItem != currentPosition) {
+                val currentPosition = viewModel.getCurrentPagePosition().value ?: 0
+                if (binding.viewPager.currentItem != currentPosition) {
                     binding.viewPager.currentItem = currentPosition
+                }
+
+                if (!callbackRegistered) {
+                    binding.viewPager.registerOnPageChangeCallback(viewPagerCallback)
+                    callbackRegistered = true
                 }
             }
         } else {
