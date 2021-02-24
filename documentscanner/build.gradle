@@ -53,7 +53,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    api project(':opencv')
+    implementation(files("libs/opencv.aar"))
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1'
