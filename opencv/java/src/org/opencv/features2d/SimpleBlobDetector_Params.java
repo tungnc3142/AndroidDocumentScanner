@@ -7,27 +7,27 @@ package org.opencv.features2d;
 
 // C++: class Params
 
-public class Params {
+public class SimpleBlobDetector_Params {
 
     protected final long nativeObj;
-    protected Params(long addr) { nativeObj = addr; }
+    protected SimpleBlobDetector_Params(long addr) { nativeObj = addr; }
 
     public long getNativeObjAddr() { return nativeObj; }
 
     // internal usage only
-    public static Params __fromPtr__(long addr) { return new Params(addr); }
+    public static SimpleBlobDetector_Params __fromPtr__(long addr) { return new SimpleBlobDetector_Params(addr); }
 
     //
     // C++:   cv::SimpleBlobDetector::Params::Params()
     //
 
-    public Params() {
-        nativeObj = Params_0();
+    public SimpleBlobDetector_Params() {
+        nativeObj = SimpleBlobDetector_Params_0();
     }
 
 
     //
-    // C++: float Params::thresholdStep
+    // C++: float SimpleBlobDetector_Params::thresholdStep
     //
 
     public float get_thresholdStep() {
@@ -36,7 +36,7 @@ public class Params {
 
 
     //
-    // C++: void Params::thresholdStep
+    // C++: void SimpleBlobDetector_Params::thresholdStep
     //
 
     public void set_thresholdStep(float thresholdStep) {
@@ -45,7 +45,7 @@ public class Params {
 
 
     //
-    // C++: float Params::minThreshold
+    // C++: float SimpleBlobDetector_Params::minThreshold
     //
 
     public float get_minThreshold() {
@@ -54,7 +54,7 @@ public class Params {
 
 
     //
-    // C++: void Params::minThreshold
+    // C++: void SimpleBlobDetector_Params::minThreshold
     //
 
     public void set_minThreshold(float minThreshold) {
@@ -63,7 +63,7 @@ public class Params {
 
 
     //
-    // C++: float Params::maxThreshold
+    // C++: float SimpleBlobDetector_Params::maxThreshold
     //
 
     public float get_maxThreshold() {
@@ -72,7 +72,7 @@ public class Params {
 
 
     //
-    // C++: void Params::maxThreshold
+    // C++: void SimpleBlobDetector_Params::maxThreshold
     //
 
     public void set_maxThreshold(float maxThreshold) {
@@ -81,7 +81,7 @@ public class Params {
 
 
     //
-    // C++: size_t Params::minRepeatability
+    // C++: size_t SimpleBlobDetector_Params::minRepeatability
     //
 
     public long get_minRepeatability() {
@@ -90,7 +90,7 @@ public class Params {
 
 
     //
-    // C++: void Params::minRepeatability
+    // C++: void SimpleBlobDetector_Params::minRepeatability
     //
 
     public void set_minRepeatability(long minRepeatability) {
@@ -99,7 +99,7 @@ public class Params {
 
 
     //
-    // C++: float Params::minDistBetweenBlobs
+    // C++: float SimpleBlobDetector_Params::minDistBetweenBlobs
     //
 
     public float get_minDistBetweenBlobs() {
@@ -108,7 +108,7 @@ public class Params {
 
 
     //
-    // C++: void Params::minDistBetweenBlobs
+    // C++: void SimpleBlobDetector_Params::minDistBetweenBlobs
     //
 
     public void set_minDistBetweenBlobs(float minDistBetweenBlobs) {
@@ -117,7 +117,7 @@ public class Params {
 
 
     //
-    // C++: bool Params::filterByColor
+    // C++: bool SimpleBlobDetector_Params::filterByColor
     //
 
     public boolean get_filterByColor() {
@@ -126,7 +126,7 @@ public class Params {
 
 
     //
-    // C++: void Params::filterByColor
+    // C++: void SimpleBlobDetector_Params::filterByColor
     //
 
     public void set_filterByColor(boolean filterByColor) {
@@ -135,21 +135,21 @@ public class Params {
 
 
     //
-    // C++: uchar Params::blobColor
+    // C++: uchar SimpleBlobDetector_Params::blobColor
     //
 
     // Return type 'uchar' is not supported, skipping the function
 
 
     //
-    // C++: void Params::blobColor
+    // C++: void SimpleBlobDetector_Params::blobColor
     //
 
     // Unknown type 'uchar' (I), skipping the function
 
 
     //
-    // C++: bool Params::filterByArea
+    // C++: bool SimpleBlobDetector_Params::filterByArea
     //
 
     public boolean get_filterByArea() {
@@ -158,7 +158,7 @@ public class Params {
 
 
     //
-    // C++: void Params::filterByArea
+    // C++: void SimpleBlobDetector_Params::filterByArea
     //
 
     public void set_filterByArea(boolean filterByArea) {
@@ -167,7 +167,7 @@ public class Params {
 
 
     //
-    // C++: float Params::minArea
+    // C++: float SimpleBlobDetector_Params::minArea
     //
 
     public float get_minArea() {
@@ -176,7 +176,7 @@ public class Params {
 
 
     //
-    // C++: void Params::minArea
+    // C++: void SimpleBlobDetector_Params::minArea
     //
 
     public void set_minArea(float minArea) {
@@ -185,7 +185,7 @@ public class Params {
 
 
     //
-    // C++: float Params::maxArea
+    // C++: float SimpleBlobDetector_Params::maxArea
     //
 
     public float get_maxArea() {
@@ -194,7 +194,7 @@ public class Params {
 
 
     //
-    // C++: void Params::maxArea
+    // C++: void SimpleBlobDetector_Params::maxArea
     //
 
     public void set_maxArea(float maxArea) {
@@ -203,7 +203,7 @@ public class Params {
 
 
     //
-    // C++: bool Params::filterByCircularity
+    // C++: bool SimpleBlobDetector_Params::filterByCircularity
     //
 
     public boolean get_filterByCircularity() {
@@ -212,7 +212,7 @@ public class Params {
 
 
     //
-    // C++: void Params::filterByCircularity
+    // C++: void SimpleBlobDetector_Params::filterByCircularity
     //
 
     public void set_filterByCircularity(boolean filterByCircularity) {
@@ -221,7 +221,7 @@ public class Params {
 
 
     //
-    // C++: float Params::minCircularity
+    // C++: float SimpleBlobDetector_Params::minCircularity
     //
 
     public float get_minCircularity() {
@@ -230,7 +230,7 @@ public class Params {
 
 
     //
-    // C++: void Params::minCircularity
+    // C++: void SimpleBlobDetector_Params::minCircularity
     //
 
     public void set_minCircularity(float minCircularity) {
@@ -239,7 +239,7 @@ public class Params {
 
 
     //
-    // C++: float Params::maxCircularity
+    // C++: float SimpleBlobDetector_Params::maxCircularity
     //
 
     public float get_maxCircularity() {
@@ -248,7 +248,7 @@ public class Params {
 
 
     //
-    // C++: void Params::maxCircularity
+    // C++: void SimpleBlobDetector_Params::maxCircularity
     //
 
     public void set_maxCircularity(float maxCircularity) {
@@ -257,7 +257,7 @@ public class Params {
 
 
     //
-    // C++: bool Params::filterByInertia
+    // C++: bool SimpleBlobDetector_Params::filterByInertia
     //
 
     public boolean get_filterByInertia() {
@@ -266,7 +266,7 @@ public class Params {
 
 
     //
-    // C++: void Params::filterByInertia
+    // C++: void SimpleBlobDetector_Params::filterByInertia
     //
 
     public void set_filterByInertia(boolean filterByInertia) {
@@ -275,7 +275,7 @@ public class Params {
 
 
     //
-    // C++: float Params::minInertiaRatio
+    // C++: float SimpleBlobDetector_Params::minInertiaRatio
     //
 
     public float get_minInertiaRatio() {
@@ -284,7 +284,7 @@ public class Params {
 
 
     //
-    // C++: void Params::minInertiaRatio
+    // C++: void SimpleBlobDetector_Params::minInertiaRatio
     //
 
     public void set_minInertiaRatio(float minInertiaRatio) {
@@ -293,7 +293,7 @@ public class Params {
 
 
     //
-    // C++: float Params::maxInertiaRatio
+    // C++: float SimpleBlobDetector_Params::maxInertiaRatio
     //
 
     public float get_maxInertiaRatio() {
@@ -302,7 +302,7 @@ public class Params {
 
 
     //
-    // C++: void Params::maxInertiaRatio
+    // C++: void SimpleBlobDetector_Params::maxInertiaRatio
     //
 
     public void set_maxInertiaRatio(float maxInertiaRatio) {
@@ -311,7 +311,7 @@ public class Params {
 
 
     //
-    // C++: bool Params::filterByConvexity
+    // C++: bool SimpleBlobDetector_Params::filterByConvexity
     //
 
     public boolean get_filterByConvexity() {
@@ -320,7 +320,7 @@ public class Params {
 
 
     //
-    // C++: void Params::filterByConvexity
+    // C++: void SimpleBlobDetector_Params::filterByConvexity
     //
 
     public void set_filterByConvexity(boolean filterByConvexity) {
@@ -329,7 +329,7 @@ public class Params {
 
 
     //
-    // C++: float Params::minConvexity
+    // C++: float SimpleBlobDetector_Params::minConvexity
     //
 
     public float get_minConvexity() {
@@ -338,7 +338,7 @@ public class Params {
 
 
     //
-    // C++: void Params::minConvexity
+    // C++: void SimpleBlobDetector_Params::minConvexity
     //
 
     public void set_minConvexity(float minConvexity) {
@@ -347,7 +347,7 @@ public class Params {
 
 
     //
-    // C++: float Params::maxConvexity
+    // C++: float SimpleBlobDetector_Params::maxConvexity
     //
 
     public float get_maxConvexity() {
@@ -356,7 +356,7 @@ public class Params {
 
 
     //
-    // C++: void Params::maxConvexity
+    // C++: void SimpleBlobDetector_Params::maxConvexity
     //
 
     public void set_maxConvexity(float maxConvexity) {
@@ -372,114 +372,114 @@ public class Params {
 
 
     // C++:   cv::SimpleBlobDetector::Params::Params()
-    private static native long Params_0();
+    private static native long SimpleBlobDetector_Params_0();
 
-    // C++: float Params::thresholdStep
+    // C++: float SimpleBlobDetector_Params::thresholdStep
     private static native float get_thresholdStep_0(long nativeObj);
 
-    // C++: void Params::thresholdStep
+    // C++: void SimpleBlobDetector_Params::thresholdStep
     private static native void set_thresholdStep_0(long nativeObj, float thresholdStep);
 
-    // C++: float Params::minThreshold
+    // C++: float SimpleBlobDetector_Params::minThreshold
     private static native float get_minThreshold_0(long nativeObj);
 
-    // C++: void Params::minThreshold
+    // C++: void SimpleBlobDetector_Params::minThreshold
     private static native void set_minThreshold_0(long nativeObj, float minThreshold);
 
-    // C++: float Params::maxThreshold
+    // C++: float SimpleBlobDetector_Params::maxThreshold
     private static native float get_maxThreshold_0(long nativeObj);
 
-    // C++: void Params::maxThreshold
+    // C++: void SimpleBlobDetector_Params::maxThreshold
     private static native void set_maxThreshold_0(long nativeObj, float maxThreshold);
 
-    // C++: size_t Params::minRepeatability
+    // C++: size_t SimpleBlobDetector_Params::minRepeatability
     private static native long get_minRepeatability_0(long nativeObj);
 
-    // C++: void Params::minRepeatability
+    // C++: void SimpleBlobDetector_Params::minRepeatability
     private static native void set_minRepeatability_0(long nativeObj, long minRepeatability);
 
-    // C++: float Params::minDistBetweenBlobs
+    // C++: float SimpleBlobDetector_Params::minDistBetweenBlobs
     private static native float get_minDistBetweenBlobs_0(long nativeObj);
 
-    // C++: void Params::minDistBetweenBlobs
+    // C++: void SimpleBlobDetector_Params::minDistBetweenBlobs
     private static native void set_minDistBetweenBlobs_0(long nativeObj, float minDistBetweenBlobs);
 
-    // C++: bool Params::filterByColor
+    // C++: bool SimpleBlobDetector_Params::filterByColor
     private static native boolean get_filterByColor_0(long nativeObj);
 
-    // C++: void Params::filterByColor
+    // C++: void SimpleBlobDetector_Params::filterByColor
     private static native void set_filterByColor_0(long nativeObj, boolean filterByColor);
 
-    // C++: bool Params::filterByArea
+    // C++: bool SimpleBlobDetector_Params::filterByArea
     private static native boolean get_filterByArea_0(long nativeObj);
 
-    // C++: void Params::filterByArea
+    // C++: void SimpleBlobDetector_Params::filterByArea
     private static native void set_filterByArea_0(long nativeObj, boolean filterByArea);
 
-    // C++: float Params::minArea
+    // C++: float SimpleBlobDetector_Params::minArea
     private static native float get_minArea_0(long nativeObj);
 
-    // C++: void Params::minArea
+    // C++: void SimpleBlobDetector_Params::minArea
     private static native void set_minArea_0(long nativeObj, float minArea);
 
-    // C++: float Params::maxArea
+    // C++: float SimpleBlobDetector_Params::maxArea
     private static native float get_maxArea_0(long nativeObj);
 
-    // C++: void Params::maxArea
+    // C++: void SimpleBlobDetector_Params::maxArea
     private static native void set_maxArea_0(long nativeObj, float maxArea);
 
-    // C++: bool Params::filterByCircularity
+    // C++: bool SimpleBlobDetector_Params::filterByCircularity
     private static native boolean get_filterByCircularity_0(long nativeObj);
 
-    // C++: void Params::filterByCircularity
+    // C++: void SimpleBlobDetector_Params::filterByCircularity
     private static native void set_filterByCircularity_0(long nativeObj, boolean filterByCircularity);
 
-    // C++: float Params::minCircularity
+    // C++: float SimpleBlobDetector_Params::minCircularity
     private static native float get_minCircularity_0(long nativeObj);
 
-    // C++: void Params::minCircularity
+    // C++: void SimpleBlobDetector_Params::minCircularity
     private static native void set_minCircularity_0(long nativeObj, float minCircularity);
 
-    // C++: float Params::maxCircularity
+    // C++: float SimpleBlobDetector_Params::maxCircularity
     private static native float get_maxCircularity_0(long nativeObj);
 
-    // C++: void Params::maxCircularity
+    // C++: void SimpleBlobDetector_Params::maxCircularity
     private static native void set_maxCircularity_0(long nativeObj, float maxCircularity);
 
-    // C++: bool Params::filterByInertia
+    // C++: bool SimpleBlobDetector_Params::filterByInertia
     private static native boolean get_filterByInertia_0(long nativeObj);
 
-    // C++: void Params::filterByInertia
+    // C++: void SimpleBlobDetector_Params::filterByInertia
     private static native void set_filterByInertia_0(long nativeObj, boolean filterByInertia);
 
-    // C++: float Params::minInertiaRatio
+    // C++: float SimpleBlobDetector_Params::minInertiaRatio
     private static native float get_minInertiaRatio_0(long nativeObj);
 
-    // C++: void Params::minInertiaRatio
+    // C++: void SimpleBlobDetector_Params::minInertiaRatio
     private static native void set_minInertiaRatio_0(long nativeObj, float minInertiaRatio);
 
-    // C++: float Params::maxInertiaRatio
+    // C++: float SimpleBlobDetector_Params::maxInertiaRatio
     private static native float get_maxInertiaRatio_0(long nativeObj);
 
-    // C++: void Params::maxInertiaRatio
+    // C++: void SimpleBlobDetector_Params::maxInertiaRatio
     private static native void set_maxInertiaRatio_0(long nativeObj, float maxInertiaRatio);
 
-    // C++: bool Params::filterByConvexity
+    // C++: bool SimpleBlobDetector_Params::filterByConvexity
     private static native boolean get_filterByConvexity_0(long nativeObj);
 
-    // C++: void Params::filterByConvexity
+    // C++: void SimpleBlobDetector_Params::filterByConvexity
     private static native void set_filterByConvexity_0(long nativeObj, boolean filterByConvexity);
 
-    // C++: float Params::minConvexity
+    // C++: float SimpleBlobDetector_Params::minConvexity
     private static native float get_minConvexity_0(long nativeObj);
 
-    // C++: void Params::minConvexity
+    // C++: void SimpleBlobDetector_Params::minConvexity
     private static native void set_minConvexity_0(long nativeObj, float minConvexity);
 
-    // C++: float Params::maxConvexity
+    // C++: float SimpleBlobDetector_Params::maxConvexity
     private static native float get_maxConvexity_0(long nativeObj);
 
-    // C++: void Params::maxConvexity
+    // C++: void SimpleBlobDetector_Params::maxConvexity
     private static native void set_maxConvexity_0(long nativeObj, float maxConvexity);
 
     // native support for java finalize()
