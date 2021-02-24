@@ -16,7 +16,7 @@ import org.opencv.utils.Converters;
 
 public class Features2d {
 
-    // C++: enum DrawMatchesFlags
+    // C++: enum DrawMatchesFlags (cv.DrawMatchesFlags)
     public static final int
             DrawMatchesFlags_DEFAULT = 0,
             DrawMatchesFlags_DRAW_OVER_OUTIMG = 1,

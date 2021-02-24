@@ -46,6 +46,21 @@ public class VideoCapture {
     public static VideoCapture __fromPtr__(long addr) { return new VideoCapture(addr); }
 
     //
+    // C++:   cv::VideoCapture::VideoCapture()
+    //
+
+    /**
+     * Default constructor
+     *     <b>Note:</b> In REF: videoio_c "C API", when you finished working with video, release CvCapture structure with
+     *     cvReleaseCapture(), or use Ptr&lt;CvCapture&gt; that calls cvReleaseCapture() automatically in the
+     *     destructor.
+     */
+    public VideoCapture() {
+        nativeObj = VideoCapture_0();
+    }
+
+
+    //
     // C++:   cv::VideoCapture::VideoCapture(String filename, int apiPreference = CAP_ANY)
     //
 
@@ -76,7 +91,7 @@ public class VideoCapture {
      *     SEE: cv::VideoCaptureAPIs
      */
     public VideoCapture(String filename, int apiPreference) {
-        nativeObj = VideoCapture_0(filename, apiPreference);
+        nativeObj = VideoCapture_1(filename, apiPreference);
     }
 
     /**
@@ -105,7 +120,7 @@ public class VideoCapture {
      *     SEE: cv::VideoCaptureAPIs
      */
     public VideoCapture(String filename) {
-        nativeObj = VideoCapture_1(filename);
+        nativeObj = VideoCapture_2(filename);
     }
 
 
@@ -125,7 +140,7 @@ public class VideoCapture {
      *     SEE: cv::VideoCaptureAPIs
      */
     public VideoCapture(int index, int apiPreference) {
-        nativeObj = VideoCapture_2(index, apiPreference);
+        nativeObj = VideoCapture_3(index, apiPreference);
     }
 
     /**
@@ -139,91 +154,7 @@ public class VideoCapture {
      *     SEE: cv::VideoCaptureAPIs
      */
     public VideoCapture(int index) {
-        nativeObj = VideoCapture_3(index);
-    }
-
-
-    //
-    // C++:   cv::VideoCapture::VideoCapture()
-    //
-
-    /**
-     * Default constructor
-     *     <b>Note:</b> In REF: videoio_c "C API", when you finished working with video, release CvCapture structure with
-     *     cvReleaseCapture(), or use Ptr&lt;CvCapture&gt; that calls cvReleaseCapture() automatically in the
-     *     destructor.
-     */
-    public VideoCapture() {
-        nativeObj = VideoCapture_4();
-    }
-
-
-    //
-    // C++:  String cv::VideoCapture::getBackendName()
-    //
-
-    /**
-     * Returns used backend API name
-     *
-     *      <b>Note:</b> Stream should be opened.
-     * @return automatically generated
-     */
-    public String getBackendName() {
-        return getBackendName_0(nativeObj);
-    }
-
-
-    //
-    // C++:  bool cv::VideoCapture::getExceptionMode()
-    //
-
-    public boolean getExceptionMode() {
-        return getExceptionMode_0(nativeObj);
-    }
-
-
-    //
-    // C++:  bool cv::VideoCapture::grab()
-    //
-
-    /**
-     * Grabs the next frame from video file or capturing device.
-     *
-     *     @return {@code true} (non-zero) in the case of success.
-     *
-     *     The method/function grabs the next frame from video file or camera and returns true (non-zero) in
-     *     the case of success.
-     *
-     *     The primary use of the function is in multi-camera environments, especially when the cameras do not
-     *     have hardware synchronization. That is, you call VideoCapture::grab() for each camera and after that
-     *     call the slower method VideoCapture::retrieve() to decode and get frame from each camera. This way
-     *     the overhead on demosaicing or motion jpeg decompression etc. is eliminated and the retrieved frames
-     *     from different cameras will be closer in time.
-     *
-     *     Also, when a connected camera is multi-head (for example, a stereo camera or a Kinect device), the
-     *     correct way of retrieving data from it is to call VideoCapture::grab() first and then call
-     *     VideoCapture::retrieve() one or more times with different values of the channel parameter.
-     *
-     *     REF: tutorial_kinect_openni
-     */
-    public boolean grab() {
-        return grab_0(nativeObj);
-    }
-
-
-    //
-    // C++:  bool cv::VideoCapture::isOpened()
-    //
-
-    /**
-     * Returns true if video capturing has been initialized already.
-     *
-     *     If the previous call to VideoCapture constructor or VideoCapture::open() succeeded, the method returns
-     *     true.
-     * @return automatically generated
-     */
-    public boolean isOpened() {
-        return isOpened_0(nativeObj);
+        nativeObj = VideoCapture_4(index);
     }
 
 
@@ -300,26 +231,64 @@ public class VideoCapture {
 
 
     //
-    // C++:  bool cv::VideoCapture::read(Mat& image)
+    // C++:  bool cv::VideoCapture::isOpened()
     //
 
     /**
-     * Grabs, decodes and returns the next video frame.
+     * Returns true if video capturing has been initialized already.
      *
-     *     @return {@code false} if no frames has been grabbed
-     *
-     *     The method/function combines VideoCapture::grab() and VideoCapture::retrieve() in one call. This is the
-     *     most convenient method for reading video files or capturing data from decode and returns the just
-     *     grabbed frame. If no frames has been grabbed (camera has been disconnected, or there are no more
-     *     frames in video file), the method returns false and the function returns empty image (with %cv::Mat, test it with Mat::empty()).
-     *
-     *     <b>Note:</b> In REF: videoio_c "C API", functions cvRetrieveFrame() and cv.RetrieveFrame() return image stored inside the video
-     *     capturing structure. It is not allowed to modify or release the image! You can copy the frame using
-     *     cvCloneImage and then do whatever you want with the copy.
-     * @param image automatically generated
+     *     If the previous call to VideoCapture constructor or VideoCapture::open() succeeded, the method returns
+     *     true.
+     * @return automatically generated
      */
-    public boolean read(Mat image) {
-        return read_0(nativeObj, image.nativeObj);
+    public boolean isOpened() {
+        return isOpened_0(nativeObj);
+    }
+
+
+    //
+    // C++:  void cv::VideoCapture::release()
+    //
+
+    /**
+     * Closes video file or capturing device.
+     *
+     *     The method is automatically called by subsequent VideoCapture::open and by VideoCapture
+     *     destructor.
+     *
+     *     The C function also deallocates memory and clears \*capture pointer.
+     */
+    public void release() {
+        release_0(nativeObj);
+    }
+
+
+    //
+    // C++:  bool cv::VideoCapture::grab()
+    //
+
+    /**
+     * Grabs the next frame from video file or capturing device.
+     *
+     *     @return {@code true} (non-zero) in the case of success.
+     *
+     *     The method/function grabs the next frame from video file or camera and returns true (non-zero) in
+     *     the case of success.
+     *
+     *     The primary use of the function is in multi-camera environments, especially when the cameras do not
+     *     have hardware synchronization. That is, you call VideoCapture::grab() for each camera and after that
+     *     call the slower method VideoCapture::retrieve() to decode and get frame from each camera. This way
+     *     the overhead on demosaicing or motion jpeg decompression etc. is eliminated and the retrieved frames
+     *     from different cameras will be closer in time.
+     *
+     *     Also, when a connected camera is multi-head (for example, a stereo camera or a Kinect device), the
+     *     correct way of retrieving data from it is to call VideoCapture::grab() first and then call
+     *     VideoCapture::retrieve() one or more times with different values of the channel parameter.
+     *
+     *     REF: tutorial_kinect_openni
+     */
+    public boolean grab() {
+        return grab_0(nativeObj);
     }
 
 
@@ -370,6 +339,30 @@ public class VideoCapture {
 
 
     //
+    // C++:  bool cv::VideoCapture::read(Mat& image)
+    //
+
+    /**
+     * Grabs, decodes and returns the next video frame.
+     *
+     *     @return {@code false} if no frames has been grabbed
+     *
+     *     The method/function combines VideoCapture::grab() and VideoCapture::retrieve() in one call. This is the
+     *     most convenient method for reading video files or capturing data from decode and returns the just
+     *     grabbed frame. If no frames has been grabbed (camera has been disconnected, or there are no more
+     *     frames in video file), the method returns false and the function returns empty image (with %cv::Mat, test it with Mat::empty()).
+     *
+     *     <b>Note:</b> In REF: videoio_c "C API", functions cvRetrieveFrame() and cv.RetrieveFrame() return image stored inside the video
+     *     capturing structure. It is not allowed to modify or release the image! You can copy the frame using
+     *     cvCloneImage and then do whatever you want with the copy.
+     * @param image automatically generated
+     */
+    public boolean read(Mat image) {
+        return read_0(nativeObj, image.nativeObj);
+    }
+
+
+    //
     // C++:  bool cv::VideoCapture::set(int propId, double value)
     //
 
@@ -415,19 +408,17 @@ public class VideoCapture {
 
 
     //
-    // C++:  void cv::VideoCapture::release()
+    // C++:  String cv::VideoCapture::getBackendName()
     //
 
     /**
-     * Closes video file or capturing device.
+     * Returns used backend API name
      *
-     *     The method is automatically called by subsequent VideoCapture::open and by VideoCapture
-     *     destructor.
-     *
-     *     The C function also deallocates memory and clears \*capture pointer.
+     *      <b>Note:</b> Stream should be opened.
+     * @return automatically generated
      */
-    public void release() {
-        release_0(nativeObj);
+    public String getBackendName() {
+        return getBackendName_0(nativeObj);
     }
 
 
@@ -446,6 +437,15 @@ public class VideoCapture {
     }
 
 
+    //
+    // C++:  bool cv::VideoCapture::getExceptionMode()
+    //
+
+    public boolean getExceptionMode() {
+        return getExceptionMode_0(nativeObj);
+    }
+
+
     @Override
     protected void finalize() throws Throwable {
         delete(nativeObj);
@@ -453,28 +453,16 @@ public class VideoCapture {
 
 
 
+    // C++:   cv::VideoCapture::VideoCapture()
+    private static native long VideoCapture_0();
+
     // C++:   cv::VideoCapture::VideoCapture(String filename, int apiPreference = CAP_ANY)
-    private static native long VideoCapture_0(String filename, int apiPreference);
-    private static native long VideoCapture_1(String filename);
+    private static native long VideoCapture_1(String filename, int apiPreference);
+    private static native long VideoCapture_2(String filename);
 
     // C++:   cv::VideoCapture::VideoCapture(int index, int apiPreference = CAP_ANY)
-    private static native long VideoCapture_2(int index, int apiPreference);
-    private static native long VideoCapture_3(int index);
-
-    // C++:   cv::VideoCapture::VideoCapture()
-    private static native long VideoCapture_4();
-
-    // C++:  String cv::VideoCapture::getBackendName()
-    private static native String getBackendName_0(long nativeObj);
-
-    // C++:  bool cv::VideoCapture::getExceptionMode()
-    private static native boolean getExceptionMode_0(long nativeObj);
-
-    // C++:  bool cv::VideoCapture::grab()
-    private static native boolean grab_0(long nativeObj);
-
-    // C++:  bool cv::VideoCapture::isOpened()
-    private static native boolean isOpened_0(long nativeObj);
+    private static native long VideoCapture_3(int index, int apiPreference);
+    private static native long VideoCapture_4(int index);
 
     // C++:  bool cv::VideoCapture::open(String filename, int apiPreference = CAP_ANY)
     private static native boolean open_0(long nativeObj, String filename, int apiPreference);
@@ -484,12 +472,21 @@ public class VideoCapture {
     private static native boolean open_2(long nativeObj, int index, int apiPreference);
     private static native boolean open_3(long nativeObj, int index);
 
-    // C++:  bool cv::VideoCapture::read(Mat& image)
-    private static native boolean read_0(long nativeObj, long image_nativeObj);
+    // C++:  bool cv::VideoCapture::isOpened()
+    private static native boolean isOpened_0(long nativeObj);
+
+    // C++:  void cv::VideoCapture::release()
+    private static native void release_0(long nativeObj);
+
+    // C++:  bool cv::VideoCapture::grab()
+    private static native boolean grab_0(long nativeObj);
 
     // C++:  bool cv::VideoCapture::retrieve(Mat& image, int flag = 0)
     private static native boolean retrieve_0(long nativeObj, long image_nativeObj, int flag);
     private static native boolean retrieve_1(long nativeObj, long image_nativeObj);
+
+    // C++:  bool cv::VideoCapture::read(Mat& image)
+    private static native boolean read_0(long nativeObj, long image_nativeObj);
 
     // C++:  bool cv::VideoCapture::set(int propId, double value)
     private static native boolean set_0(long nativeObj, int propId, double value);
@@ -497,11 +494,14 @@ public class VideoCapture {
     // C++:  double cv::VideoCapture::get(int propId)
     private static native double get_0(long nativeObj, int propId);
 
-    // C++:  void cv::VideoCapture::release()
-    private static native void release_0(long nativeObj);
+    // C++:  String cv::VideoCapture::getBackendName()
+    private static native String getBackendName_0(long nativeObj);
 
     // C++:  void cv::VideoCapture::setExceptionMode(bool enable)
     private static native void setExceptionMode_0(long nativeObj, boolean enable);
+
+    // C++:  bool cv::VideoCapture::getExceptionMode()
+    private static native boolean getExceptionMode_0(long nativeObj);
 
     // native support for java finalize()
     private static native void delete(long nativeObj);
