@@ -54,8 +54,8 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation 'com.github.meganz:opencv:4.5.1'
-//    implementation project(":opencv") // Local testing only
+//    implementation 'com.github.meganz:opencv:4.5.1'
+    implementation project(":opencv") // Local testing only
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1'
