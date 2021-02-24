@@ -1,0 +1,16 @@
+apply plugin: "maven-publish"
+
+configurations.maybeCreate("default")
+def publishArtifact = artifacts.add("default", file('opencv-4.5.1.aar'))
+
+publishing {
+    publications {
+        aar(MavenPublication) {
+            groupId = rootProject.ext.group
+            artifactId = "opencv"
+            version = "4.5.1"
+
+            artifact publishArtifact
+        }
+    }
+}
