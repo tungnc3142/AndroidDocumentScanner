@@ -17,7 +17,6 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
-import androidx.camera.core.TorchState
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -97,6 +96,7 @@ class CameraFragment : Fragment() {
             imageCapture = ImageCapture.Builder()
                 .setTargetAspectRatio(screenAspectRatio)
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                .setFlashMode(ImageCapture.FLASH_MODE_AUTO)
                 .build()
 
             imageAnalyzer = ImageAnalysis.Builder()
@@ -126,7 +126,7 @@ class CameraFragment : Fragment() {
             preview?.setSurfaceProvider(binding.cameraView.surfaceProvider)
 
             binding.btnCapture.setOnClickListener { takePicture() }
-            binding.btnTorch.setOnClickListener { toggleTorch() }
+            binding.btnFlash.setOnClickListener { toggleFlash() }
         }, ContextCompat.getMainExecutor(requireContext()))
     }
 
@@ -160,17 +160,28 @@ class CameraFragment : Fragment() {
         requestPermissions(arrayOf(Manifest.permission.CAMERA), REQUEST_CODE_PERMISSIONS)
     }
 
-    private fun toggleTorch() {
-        camera?.let { camera ->
-            val newTorchState = camera.cameraInfo.torchState.value != TorchState.ON
-            val btnIcon = if (newTorchState) {
-                R.drawable.ic_baseline_flash_on_24
-            } else {
-                R.drawable.ic_baseline_flash_off_24
+    private fun toggleFlash() {
+        imageCapture?.let { imageCapture ->
+            val btnIcon: Int
+            val flashMode: Int
+
+            when (imageCapture.flashMode) {
+                ImageCapture.FLASH_MODE_OFF -> {
+                    flashMode = ImageCapture.FLASH_MODE_AUTO
+                    btnIcon = R.drawable.ic_baseline_flash_auto_24
+                }
+                ImageCapture.FLASH_MODE_ON -> {
+                    flashMode = ImageCapture.FLASH_MODE_OFF
+                    btnIcon = R.drawable.ic_baseline_flash_off_24
+                }
+                else -> {
+                    flashMode = ImageCapture.FLASH_MODE_ON
+                    btnIcon = R.drawable.ic_baseline_flash_on_24
+                }
             }
 
-            camera.cameraControl.enableTorch(newTorchState)
-            binding.btnTorch.setImageResource(btnIcon)
+            imageCapture.flashMode = flashMode
+            binding.btnFlash.setImageResource(btnIcon)
         }
     }
 
