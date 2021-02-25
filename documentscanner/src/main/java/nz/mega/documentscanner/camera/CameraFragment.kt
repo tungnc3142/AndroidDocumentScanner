@@ -166,17 +166,17 @@ class CameraFragment : Fragment() {
             val flashMode: Int
 
             when (imageCapture.flashMode) {
-                ImageCapture.FLASH_MODE_OFF -> {
-                    flashMode = ImageCapture.FLASH_MODE_AUTO
-                    btnIcon = R.drawable.ic_baseline_flash_auto_24
-                }
                 ImageCapture.FLASH_MODE_ON -> {
                     flashMode = ImageCapture.FLASH_MODE_OFF
                     btnIcon = R.drawable.ic_baseline_flash_off_24
                 }
-                else -> {
+                ImageCapture.FLASH_MODE_AUTO -> {
                     flashMode = ImageCapture.FLASH_MODE_ON
                     btnIcon = R.drawable.ic_baseline_flash_on_24
+                }
+                else -> {
+                    flashMode = ImageCapture.FLASH_MODE_AUTO
+                    btnIcon = R.drawable.ic_baseline_flash_auto_24
                 }
             }
 
