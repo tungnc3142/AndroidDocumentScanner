@@ -99,11 +99,12 @@ class CameraFragment : Fragment() {
                 .setFlashMode(ImageCapture.FLASH_MODE_AUTO)
                 .build()
 
-            imageAnalyzer = ImageAnalysis.Builder()
-                .setTargetAspectRatio(screenAspectRatio)
-                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                .build()
-                .apply { setAnalyzer(cameraExecutor, ::analyzePreviewImage) }
+//            TODO Disabled until further improvement
+//            imageAnalyzer = ImageAnalysis.Builder()
+//                .setTargetAspectRatio(screenAspectRatio)
+//                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+//                .build()
+//                .apply { setAnalyzer(cameraExecutor, ::analyzePreviewImage) }
 
             val cameraSelector = CameraSelector.Builder()
                 .requireLensFacing(CameraSelector.LENS_FACING_BACK)
@@ -119,8 +120,8 @@ class CameraFragment : Fragment() {
                 viewLifecycleOwner,
                 cameraSelector,
                 preview,
-                imageCapture,
-                imageAnalyzer
+                imageCapture
+//                ,imageAnalyzer
             )
 
             preview?.setSurfaceProvider(binding.cameraView.surfaceProvider)
