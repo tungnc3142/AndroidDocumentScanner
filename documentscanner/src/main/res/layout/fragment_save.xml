@@ -67,6 +67,7 @@
             android:layout_height="wrap_content"
             android:inputType="text"
             android:maxLength="27"
+            android:digits="_-0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
             android:maxLines="1"
             android:paddingStart="0dp"
             tools:text="Scanned_20200804" />

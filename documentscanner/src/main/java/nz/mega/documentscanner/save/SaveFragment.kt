@@ -44,9 +44,7 @@ class SaveFragment : Fragment() {
 
     private fun setupView() {
         binding.editFileName.doAfterTextChanged { editable ->
-            editable?.toString()?.let { title ->
-                viewModel.setDocumentTitle(title)
-            }
+            viewModel.setDocumentTitle(editable?.toString())
         }
 
         binding.editFileName.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
