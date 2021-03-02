@@ -30,6 +30,7 @@
         android:id="@+id/camera_overlay"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/camera_view"
         app:layout_constraintLeft_toLeftOf="@id/camera_view"
         app:layout_constraintRight_toRightOf="@id/camera_view"
@@ -53,6 +54,7 @@
         android:elevation="4dp"
         android:indeterminate="true"
         android:visibility="gone"
+        app:indicatorColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -70,12 +72,12 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
-        android:id="@+id/btn_torch"
+        android:id="@+id/btn_flash"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_margin="16dp"
         android:background="?selectableItemBackground"
-        android:src="@drawable/ic_baseline_flash_off_24"
+        android:src="@drawable/ic_baseline_flash_auto_24"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
