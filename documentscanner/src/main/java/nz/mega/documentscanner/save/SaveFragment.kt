@@ -51,6 +51,10 @@ class SaveFragment : Fragment() {
             binding.imgEdit.isVisible = !hasFocus
         }
 
+        binding.imgEdit.setOnClickListener {
+            binding.editFileName.requestFocus()
+        }
+
         binding.chipGroupFileType.setOnCheckedChangeListener { _, checkedId ->
             val fileType = when (checkedId) {
                 R.id.chip_file_type_pdf -> Document.FileType.PDF
