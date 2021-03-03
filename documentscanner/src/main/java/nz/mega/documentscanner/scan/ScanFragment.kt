@@ -61,7 +61,9 @@ class ScanFragment : Fragment() {
         binding.viewPager.adapter = adapter
         binding.viewPager.setPageTransformer(pageTransformer)
         binding.btnBack.setOnClickListener { showDiscardDialog() }
-        binding.btnAdd.setOnClickListener { navigateBack() }
+        binding.btnAdd.setOnClickListener {
+            findNavController().navigate(ScanFragmentDirections.actionScanFragmentToCameraFragment())
+        }
         binding.btnRotate.setOnClickListener { viewModel.rotatePage(requireContext()) }
         binding.btnDelete.setOnClickListener {
             DialogFactory.createDeleteCurrentScanDialog(requireContext()) {
@@ -72,7 +74,7 @@ class ScanFragment : Fragment() {
         binding.btnDone.setOnClickListener { findNavController().navigate(ScanFragmentDirections.actionScanFragmentToSaveFragment()) }
         binding.btnRetake.setOnClickListener {
             viewModel.retakePage()
-            navigateBack()
+            findNavController().navigate(ScanFragmentDirections.actionScanFragmentToCameraFragment())
         }
     }
 
@@ -142,7 +144,7 @@ class ScanFragment : Fragment() {
     }
 
     private fun navigateBack() {
-        findNavController().popBackStack(R.id.cameraFragment, false)
+        findNavController().popBackStack(R.id.cameraFragment, true)
     }
 
     /**
