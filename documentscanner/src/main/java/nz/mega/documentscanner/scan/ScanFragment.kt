@@ -144,7 +144,7 @@ class ScanFragment : Fragment() {
     }
 
     private fun navigateBack() {
-        findNavController().popBackStack(R.id.cameraFragment, true)
+        findNavController().popBackStack(R.id.cameraFragment, false)
     }
 
     /**
