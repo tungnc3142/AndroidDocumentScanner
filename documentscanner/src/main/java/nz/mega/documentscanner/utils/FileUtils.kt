@@ -11,7 +11,7 @@ import java.io.FileOutputStream
 @Suppress("BlockingMethodInNonBlockingContext")
 object FileUtils {
 
-    const val FILE_NAME_FORMAT = "Scanned_%1tY%<tm%<td%<tH%<tM"
+    const val FILE_NAME_FORMAT = "Scanned_%1tY%<tm%<td%<tH%<tM%<tS"
 
     private const val ROOT_FILE_DIR = "scans"
     private const val PAGE_FILE_DIR = "$ROOT_FILE_DIR/pages/"
@@ -19,7 +19,7 @@ object FileUtils {
 
     private suspend fun getParentFile(context: Context, parentDir: String): File =
         withContext(Dispatchers.IO) {
-            File(context.filesDir, parentDir).apply {
+            File(context.cacheDir, parentDir).apply {
                 if (!exists()) {
                     mkdirs()
                 }

@@ -83,10 +83,10 @@ class DocumentScannerViewModel : ViewModel() {
         currentPagePosition.value = position
     }
 
-    fun setDocumentTitle(title: String) {
-        if (document.value?.title == title) return
+    fun setDocumentTitle(title: String?) {
+        if (title.isNullOrBlank() || document.value?.title == title) return
 
-        document.value?.title = title.trim()
+        document.value?.title = title
         document.notifyObserver()
     }
 
