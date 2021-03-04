@@ -19,7 +19,7 @@ object FileUtils {
 
     private suspend fun getParentFile(context: Context, parentDir: String): File =
         withContext(Dispatchers.IO) {
-            File(context.filesDir, parentDir).apply {
+            File(context.cacheDir, parentDir).apply {
                 if (!exists()) {
                     mkdirs()
                 }
