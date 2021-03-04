@@ -125,9 +125,10 @@ class DocumentScannerActivity : AppCompatActivity() {
                     }
 
                 startActivity(shareIntent)
-                finish()
             }
         }
+
+        finish()
     }
 
     private fun findNavController(): NavController =
