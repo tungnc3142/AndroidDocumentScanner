@@ -52,7 +52,6 @@ class DocumentScannerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         initOpenCV()
         initFresco()
-        clearExistingFiles()
 
         binding = ActivityDocumentScannerBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -76,13 +75,6 @@ class DocumentScannerActivity : AppCompatActivity() {
     private fun initFresco() {
         if (!Fresco.hasBeenInitialized()) {
             Fresco.initialize(this)
-        }
-    }
-
-    private fun clearExistingFiles() {
-        lifecycleScope.launch {
-            val result = FileUtils.clearExistingFiles(this@DocumentScannerActivity)
-            Log.d(TAG, "Cleared existing files: $result")
         }
     }
 
@@ -119,8 +111,8 @@ class DocumentScannerActivity : AppCompatActivity() {
                     .setChooserTitle(fileTitle)
                     .setStream(fileUri)
                     .createChooserIntent()
+                    .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     .apply {
-                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                         putExtra(EXTRA_PICKED_SAVE_DESTINATION, viewModel.getSaveDestination())
                     }
 

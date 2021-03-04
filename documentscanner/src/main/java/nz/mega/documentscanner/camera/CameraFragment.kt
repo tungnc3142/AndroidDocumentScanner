@@ -9,7 +9,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.addCallback
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -17,7 +16,6 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
-import androidx.camera.core.TorchState
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -31,7 +29,6 @@ import nz.mega.documentscanner.R
 import nz.mega.documentscanner.databinding.FragmentCameraBinding
 import nz.mega.documentscanner.openCV.ImageScanner
 import nz.mega.documentscanner.utils.BitmapUtils.toBitmap
-import nz.mega.documentscanner.utils.DialogFactory
 import nz.mega.documentscanner.utils.ViewUtils.aspectRatio
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -68,11 +65,6 @@ class CameraFragment : Fragment() {
         setupView()
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        requireActivity().onBackPressedDispatcher.addCallback(this) { showDiscardDialog() }
-    }
-
     override fun onDestroy() {
         cameraExecutor.shutdown()
         super.onDestroy()
@@ -80,7 +72,11 @@ class CameraFragment : Fragment() {
 
     private fun setupView() {
         binding.progress.setVisibilityAfterHide(View.GONE)
-        binding.btnBack.setOnClickListener { showDiscardDialog() }
+        binding.btnBack.setOnClickListener {
+            if (!findNavController().popBackStack()) {
+                activity?.finish()
+            }
+        }
 
         if (allPermissionsGranted()) {
             binding.cameraView.post { setUpCamera() }
@@ -97,13 +93,15 @@ class CameraFragment : Fragment() {
             imageCapture = ImageCapture.Builder()
                 .setTargetAspectRatio(screenAspectRatio)
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                .setFlashMode(ImageCapture.FLASH_MODE_AUTO)
                 .build()
 
-            imageAnalyzer = ImageAnalysis.Builder()
-                .setTargetAspectRatio(screenAspectRatio)
-                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                .build()
-                .apply { setAnalyzer(cameraExecutor, ::analyzePreviewImage) }
+//            TODO Disabled until further improvement
+//            imageAnalyzer = ImageAnalysis.Builder()
+//                .setTargetAspectRatio(screenAspectRatio)
+//                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+//                .build()
+//                .apply { setAnalyzer(cameraExecutor, ::analyzePreviewImage) }
 
             val cameraSelector = CameraSelector.Builder()
                 .requireLensFacing(CameraSelector.LENS_FACING_BACK)
@@ -119,14 +117,14 @@ class CameraFragment : Fragment() {
                 viewLifecycleOwner,
                 cameraSelector,
                 preview,
-                imageCapture,
-                imageAnalyzer
+                imageCapture
+//                ,imageAnalyzer
             )
 
             preview?.setSurfaceProvider(binding.cameraView.surfaceProvider)
 
             binding.btnCapture.setOnClickListener { takePicture() }
-            binding.btnTorch.setOnClickListener { toggleTorch() }
+            binding.btnFlash.setOnClickListener { toggleFlash() }
         }, ContextCompat.getMainExecutor(requireContext()))
     }
 
@@ -160,17 +158,28 @@ class CameraFragment : Fragment() {
         requestPermissions(arrayOf(Manifest.permission.CAMERA), REQUEST_CODE_PERMISSIONS)
     }
 
-    private fun toggleTorch() {
-        camera?.let { camera ->
-            val newTorchState = camera.cameraInfo.torchState.value != TorchState.ON
-            val btnIcon = if (newTorchState) {
-                R.drawable.ic_baseline_flash_on_24
-            } else {
-                R.drawable.ic_baseline_flash_off_24
+    private fun toggleFlash() {
+        imageCapture?.let { imageCapture ->
+            val btnIcon: Int
+            val flashMode: Int
+
+            when (imageCapture.flashMode) {
+                ImageCapture.FLASH_MODE_ON -> {
+                    flashMode = ImageCapture.FLASH_MODE_OFF
+                    btnIcon = R.drawable.ic_baseline_flash_off_24
+                }
+                ImageCapture.FLASH_MODE_AUTO -> {
+                    flashMode = ImageCapture.FLASH_MODE_ON
+                    btnIcon = R.drawable.ic_baseline_flash_on_24
+                }
+                else -> {
+                    flashMode = ImageCapture.FLASH_MODE_AUTO
+                    btnIcon = R.drawable.ic_baseline_flash_auto_24
+                }
             }
 
-            camera.cameraControl.enableTorch(newTorchState)
-            binding.btnTorch.setImageResource(btnIcon)
+            imageCapture.flashMode = flashMode
+            binding.btnFlash.setImageResource(btnIcon)
         }
     }
 
@@ -219,24 +228,6 @@ class CameraFragment : Fragment() {
                 showProgress(false)
             }
         }
-
-    private fun showDiscardDialog() {
-        val pagesCount = viewModel.getPagesCount()
-
-        when {
-            pagesCount == 1 -> {
-                DialogFactory.createDiscardScanDialog(requireContext()) {
-                    viewModel.discardScan()
-                }.show()
-            }
-            pagesCount > 1 -> {
-                DialogFactory.createDiscardScansDialog(requireContext()) {
-                    viewModel.discardScan()
-                }.show()
-            }
-            else -> viewModel.discardScan()
-        }
-    }
 
     private fun showToast(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()

@@ -15,13 +15,22 @@
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_out_right"
-            app:popExitAnim="@anim/slide_in_left" />
+            app:popExitAnim="@anim/slide_in_left"
+            app:popUpTo="@id/scanFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/scanFragment"
         android:name="nz.mega.documentscanner.scan.ScanFragment"
         android:label="">
+
+        <action
+            android:id="@+id/action_scanFragment_to_cameraFragment"
+            app:destination="@id/cameraFragment"
+            app:enterAnim="@anim/slide_out_right"
+            app:exitAnim="@anim/slide_in_left"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left"/>
 
         <action
             android:id="@+id/action_scanFragment_to_saveFragment"
