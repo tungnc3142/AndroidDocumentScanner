@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
+import androidx.camera.core.ImageCapture.FLASH_MODE_AUTO
 import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -42,6 +43,7 @@ class DocumentScannerViewModel : ViewModel() {
     private val saveDestinations: MutableLiveData<Array<String>> = MutableLiveData()
     private val currentPagePosition: MutableLiveData<Int> = MutableLiveData(0)
     private val resultDocument: MutableLiveData<Uri?> = MutableLiveData()
+    private val flashMode: MutableLiveData<Int> = MutableLiveData(FLASH_MODE_AUTO)
     private var retakePosition: Int = NO_POSITION
 
     fun getResultDocument(): LiveData<Uri?> =
@@ -115,6 +117,13 @@ class DocumentScannerViewModel : ViewModel() {
         document.value?.saveDestination = destinations.firstOrNull()
         saveDestinations.value = destinations
     }
+
+    fun setFlashMode(flashMode: Int) {
+        this.flashMode.value = flashMode
+    }
+
+    fun getFlashMode(): LiveData<Int> =
+        flashMode
 
     /**
      * Add page to the scan.

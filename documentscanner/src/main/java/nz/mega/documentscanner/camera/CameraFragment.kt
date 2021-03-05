@@ -13,6 +13,9 @@ import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCapture.FLASH_MODE_AUTO
+import androidx.camera.core.ImageCapture.FLASH_MODE_OFF
+import androidx.camera.core.ImageCapture.FLASH_MODE_ON
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
@@ -63,6 +66,7 @@ class CameraFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupView()
+        setupObservers()
     }
 
     override fun onDestroy() {
@@ -85,6 +89,23 @@ class CameraFragment : Fragment() {
         }
     }
 
+    private fun setupObservers() {
+        viewModel.getFlashMode().observe(viewLifecycleOwner, ::setFlashMode)
+    }
+
+    private fun setFlashMode(flashMode: Int) {
+        val btnIcon = when (flashMode) {
+            FLASH_MODE_ON -> R.drawable.ic_baseline_flash_on_24
+            FLASH_MODE_AUTO -> R.drawable.ic_baseline_flash_auto_24
+            else -> R.drawable.ic_baseline_flash_off_24
+        }
+
+        binding.btnFlash.setImageResource(btnIcon)
+        if (flashMode != imageCapture?.flashMode) {
+            imageCapture?.flashMode = flashMode
+        }
+    }
+
     private fun setUpCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
         cameraProviderFuture.addListener({
@@ -93,7 +114,7 @@ class CameraFragment : Fragment() {
             imageCapture = ImageCapture.Builder()
                 .setTargetAspectRatio(screenAspectRatio)
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-                .setFlashMode(ImageCapture.FLASH_MODE_AUTO)
+                .setFlashMode(viewModel.getFlashMode().value ?: FLASH_MODE_AUTO)
                 .build()
 
 //            TODO Disabled until further improvement
@@ -159,28 +180,13 @@ class CameraFragment : Fragment() {
     }
 
     private fun toggleFlash() {
-        imageCapture?.let { imageCapture ->
-            val btnIcon: Int
-            val flashMode: Int
-
-            when (imageCapture.flashMode) {
-                ImageCapture.FLASH_MODE_ON -> {
-                    flashMode = ImageCapture.FLASH_MODE_OFF
-                    btnIcon = R.drawable.ic_baseline_flash_off_24
-                }
-                ImageCapture.FLASH_MODE_AUTO -> {
-                    flashMode = ImageCapture.FLASH_MODE_ON
-                    btnIcon = R.drawable.ic_baseline_flash_on_24
-                }
-                else -> {
-                    flashMode = ImageCapture.FLASH_MODE_AUTO
-                    btnIcon = R.drawable.ic_baseline_flash_auto_24
-                }
-            }
-
-            imageCapture.flashMode = flashMode
-            binding.btnFlash.setImageResource(btnIcon)
+        val newFlashMode = when (imageCapture?.flashMode) {
+            FLASH_MODE_ON -> FLASH_MODE_OFF
+            FLASH_MODE_AUTO -> FLASH_MODE_ON
+            else -> FLASH_MODE_AUTO
         }
+
+        viewModel.setFlashMode(newFlashMode)
     }
 
     private fun showProgress(show: Boolean) {
