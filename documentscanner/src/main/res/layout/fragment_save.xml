@@ -50,7 +50,7 @@
         android:id="@+id/input_file_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="76dp"
+        android:layout_marginStart="72dp"
         android:layout_marginEnd="44dp"
         app:errorEnabled="true"
         app:layout_constrainedWidth="true"
@@ -68,7 +68,6 @@
             android:layout_height="wrap_content"
             android:inputType="text"
             android:lines="1"
-            android:maxLength="27"
             android:maxLines="1"
             android:paddingStart="0dp"
             tools:text="Scanned_20200804" />

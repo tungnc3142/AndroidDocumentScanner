@@ -259,7 +259,12 @@ class DocumentScannerViewModel : ViewModel() {
     fun deletePage(position: Int = currentPagePosition.value ?: 0) {
         viewModelScope.launch {
             document.value?.deletePage(position)
-            document.notifyObserver()
+
+            if (document.value?.pages?.size == 0) {
+                document.value = Document()
+            } else {
+                document.notifyObserver()
+            }
         }
     }
 
@@ -269,7 +274,7 @@ class DocumentScannerViewModel : ViewModel() {
     fun resetDocument() {
         viewModelScope.launch {
             document.value?.deletePages()
-            document.notifyObserver()
+            document.value = Document()
         }
     }
 
