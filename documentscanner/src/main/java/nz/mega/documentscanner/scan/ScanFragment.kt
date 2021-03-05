@@ -106,6 +106,7 @@ class ScanFragment : Fragment() {
                 }
             }
         } else {
+            viewModel.resetDocument()
             navigateBack()
         }
     }

@@ -48,9 +48,9 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/input_file_name"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="76dp"
+        android:layout_marginStart="72dp"
         android:layout_marginEnd="44dp"
         app:errorEnabled="true"
         app:layout_constrainedWidth="true"
@@ -58,6 +58,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/txt_file_name"
+        app:layout_constraintWidth_default="wrap"
         app:suffixTextColor="?colorOnSurface"
         tools:suffixText=".pdf">
 
@@ -66,8 +67,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="text"
-            android:maxLength="27"
-            android:digits="_-0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            android:lines="1"
             android:maxLines="1"
             android:paddingStart="0dp"
             tools:text="Scanned_20200804" />
@@ -78,21 +78,22 @@
         android:id="@+id/img_file_type"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_marginStart="16dp"
+        android:baselineAlignBottom="true"
+        android:paddingBottom="7dp"
         android:src="@drawable/ic_pdf"
-        app:layout_constraintBottom_toBottomOf="@id/input_file_name"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/input_file_name" />
+        app:layout_constraintBaseline_toBaselineOf="@id/input_file_name"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
         android:id="@+id/img_edit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_marginEnd="16dp"
+        android:baselineAlignBottom="true"
         android:src="@drawable/ic_rename"
-        app:layout_constraintBottom_toBottomOf="@id/input_file_name"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/input_file_name" />
+        app:layout_constraintBaseline_toBaselineOf="@id/input_file_name"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <View
         android:id="@+id/separator_file_name"

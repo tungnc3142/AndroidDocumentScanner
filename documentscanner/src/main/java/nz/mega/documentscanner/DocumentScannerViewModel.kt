@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
+import androidx.camera.core.ImageCapture.FLASH_MODE_AUTO
 import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -42,6 +43,7 @@ class DocumentScannerViewModel : ViewModel() {
     private val saveDestinations: MutableLiveData<Array<String>> = MutableLiveData()
     private val currentPagePosition: MutableLiveData<Int> = MutableLiveData(0)
     private val resultDocument: MutableLiveData<Uri?> = MutableLiveData()
+    private val flashMode: MutableLiveData<Int> = MutableLiveData(FLASH_MODE_AUTO)
     private var retakePosition: Int = NO_POSITION
 
     fun getResultDocument(): LiveData<Uri?> =
@@ -84,7 +86,7 @@ class DocumentScannerViewModel : ViewModel() {
     }
 
     fun setDocumentTitle(title: String?) {
-        if (title.isNullOrBlank() || document.value?.title == title) return
+        if (title == null || document.value?.title == title) return
 
         document.value?.title = title
         document.notifyObserver()
@@ -115,6 +117,13 @@ class DocumentScannerViewModel : ViewModel() {
         document.value?.saveDestination = destinations.firstOrNull()
         saveDestinations.value = destinations
     }
+
+    fun setFlashMode(flashMode: Int) {
+        this.flashMode.value = flashMode
+    }
+
+    fun getFlashMode(): LiveData<Int> =
+        flashMode
 
     /**
      * Add page to the scan.
@@ -250,7 +259,12 @@ class DocumentScannerViewModel : ViewModel() {
     fun deletePage(position: Int = currentPagePosition.value ?: 0) {
         viewModelScope.launch {
             document.value?.deletePage(position)
-            document.notifyObserver()
+
+            if (document.value?.pages?.size == 0) {
+                document.value = Document()
+            } else {
+                document.notifyObserver()
+            }
         }
     }
 
@@ -260,7 +274,7 @@ class DocumentScannerViewModel : ViewModel() {
     fun resetDocument() {
         viewModelScope.launch {
             document.value?.deletePages()
-            document.notifyObserver()
+            document.value = Document()
         }
     }
 
