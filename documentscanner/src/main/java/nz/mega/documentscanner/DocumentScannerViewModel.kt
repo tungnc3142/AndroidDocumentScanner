@@ -84,7 +84,7 @@ class DocumentScannerViewModel : ViewModel() {
     }
 
     fun setDocumentTitle(title: String?) {
-        if (title.isNullOrBlank() || document.value?.title == title) return
+        if (title == null || document.value?.title == title) return
 
         document.value?.title = title
         document.notifyObserver()

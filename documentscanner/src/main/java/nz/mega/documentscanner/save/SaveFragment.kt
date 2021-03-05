@@ -16,6 +16,7 @@ import nz.mega.documentscanner.R
 import nz.mega.documentscanner.data.Document
 import nz.mega.documentscanner.databinding.FragmentSaveBinding
 import nz.mega.documentscanner.databinding.ItemDestinationBinding
+import nz.mega.documentscanner.utils.ViewUtils.selectLastCharacter
 
 class SaveFragment : Fragment() {
 
@@ -52,7 +53,7 @@ class SaveFragment : Fragment() {
         }
 
         binding.imgEdit.setOnClickListener {
-            binding.editFileName.requestFocus()
+            binding.editFileName.selectLastCharacter()
         }
 
         binding.chipGroupFileType.setOnCheckedChangeListener { _, checkedId ->
