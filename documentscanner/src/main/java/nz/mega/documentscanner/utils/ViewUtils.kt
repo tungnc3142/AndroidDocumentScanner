@@ -9,7 +9,9 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.camera.core.AspectRatio
 import androidx.core.view.ViewCompat
+import androidx.core.view.children
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.chip.ChipGroup
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -57,5 +59,9 @@ object ViewUtils {
             val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
         }
+    }
+
+    fun ChipGroup.setChildrenEnabled(enable: Boolean) {
+        children.forEach { it.isEnabled = enable }
     }
 }
