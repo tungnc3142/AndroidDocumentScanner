@@ -17,6 +17,7 @@ import nz.mega.documentscanner.R
 import nz.mega.documentscanner.data.Document
 import nz.mega.documentscanner.databinding.FragmentSaveBinding
 import nz.mega.documentscanner.databinding.ItemDestinationBinding
+import nz.mega.documentscanner.utils.ViewUtils.setChildrenEnabled
 
 class SaveFragment : Fragment() {
 
@@ -176,6 +177,10 @@ class SaveFragment : Fragment() {
 
     private fun showProgress(show: Boolean) {
         binding.btnSave.isEnabled = !show
+        binding.editFileName.isEnabled = !show
+        binding.chipGroupFileType.setChildrenEnabled(!show)
+        binding.chipGroupDestinations.setChildrenEnabled(!show)
+        binding.chipGroupQuality.setChildrenEnabled(!show)
 
         if (show) {
             binding.progress.show()
