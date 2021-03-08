@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
@@ -16,7 +17,7 @@ import nz.mega.documentscanner.R
 import nz.mega.documentscanner.data.Document
 import nz.mega.documentscanner.databinding.FragmentSaveBinding
 import nz.mega.documentscanner.databinding.ItemDestinationBinding
-import nz.mega.documentscanner.utils.ViewUtils.selectLastCharacter
+import nz.mega.documentscanner.utils.ViewUtils.setChildrenEnabled
 
 class SaveFragment : Fragment() {
 
@@ -32,7 +33,7 @@ class SaveFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentSaveBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -48,12 +49,19 @@ class SaveFragment : Fragment() {
             viewModel.setDocumentTitle(editable?.toString())
         }
 
-        binding.editFileName.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
-            binding.imgEdit.isVisible = !hasFocus
+        binding.editFileName.setOnEditorActionListener { view, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                view.clearFocus()
+            }
+            false
         }
 
-        binding.imgEdit.setOnClickListener {
-            binding.editFileName.selectLastCharacter()
+        binding.editFileName.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                binding.editFileName.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
+            } else {
+                binding.editFileName.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_rename, 0)
+            }
         }
 
         binding.chipGroupFileType.setOnCheckedChangeListener { _, checkedId ->
@@ -140,7 +148,7 @@ class SaveFragment : Fragment() {
             }
         }
 
-        binding.inputFileName.suffixText = fileType.suffix
+        binding.editFileName.suffix = " ${fileType.suffix}"
         binding.imgFileType.setImageResource(imageResId)
 
         if (binding.chipGroupFileType.checkedChipId != chipResId) {
@@ -169,6 +177,10 @@ class SaveFragment : Fragment() {
 
     private fun showProgress(show: Boolean) {
         binding.btnSave.isEnabled = !show
+        binding.editFileName.isEnabled = !show
+        binding.chipGroupFileType.setChildrenEnabled(!show)
+        binding.chipGroupDestinations.setChildrenEnabled(!show)
+        binding.chipGroupQuality.setChildrenEnabled(!show)
 
         if (show) {
             binding.progress.show()
