@@ -51,26 +51,25 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="72dp"
-        android:layout_marginEnd="44dp"
+        android:layout_marginEnd="16dp"
         app:errorEnabled="true"
-        app:layout_constrainedWidth="true"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/txt_file_name"
-        app:layout_constraintWidth_default="wrap"
-        app:suffixTextColor="?colorOnSurface"
-        tools:suffixText=".pdf">
+        app:layout_constraintTop_toBottomOf="@id/txt_file_name">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <nz.mega.documentscanner.utils.SuffixTextInputEditText
             android:id="@+id/edit_file_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:drawableEnd="@drawable/ic_rename"
+            android:imeOptions="actionDone"
             android:inputType="text"
             android:lines="1"
             android:maxLines="1"
             android:paddingStart="0dp"
-            tools:text="Scanned_20200804" />
+            android:paddingEnd="0dp"
+            android:textColorHint="?colorOnSurface"
+            tools:text="Scanned_20200804.pdf" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -84,16 +83,6 @@
         android:src="@drawable/ic_pdf"
         app:layout_constraintBaseline_toBaselineOf="@id/input_file_name"
         app:layout_constraintStart_toStartOf="parent" />
-
-    <ImageView
-        android:id="@+id/img_edit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:baselineAlignBottom="true"
-        android:src="@drawable/ic_rename"
-        app:layout_constraintBaseline_toBaselineOf="@id/input_file_name"
-        app:layout_constraintEnd_toEndOf="parent" />
 
     <View
         android:id="@+id/separator_file_name"
