@@ -17,6 +17,7 @@ import nz.mega.documentscanner.R
 import nz.mega.documentscanner.data.Document
 import nz.mega.documentscanner.databinding.FragmentSaveBinding
 import nz.mega.documentscanner.databinding.ItemDestinationBinding
+import nz.mega.documentscanner.utils.ViewUtils.selectLastCharacter
 import nz.mega.documentscanner.utils.ViewUtils.setChildrenEnabled
 
 class SaveFragment : Fragment() {
@@ -57,12 +58,10 @@ class SaveFragment : Fragment() {
         }
 
         binding.editFileName.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                binding.editFileName.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
-            } else {
-                binding.editFileName.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_docscanner_rename, 0)
-            }
+            binding.imgRename.isVisible = !hasFocus
         }
+
+        binding.imgRename.setOnClickListener { binding.editFileName.selectLastCharacter() }
 
         binding.chipGroupFileType.setOnCheckedChangeListener { _, checkedId ->
             val fileType = when (checkedId) {

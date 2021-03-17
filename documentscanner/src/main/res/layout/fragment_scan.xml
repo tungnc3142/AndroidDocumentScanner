@@ -91,7 +91,7 @@
         android:id="@+id/btn_done"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/btn_add"
         app:layout_constraintStart_toEndOf="@+id/btn_retake"
@@ -99,26 +99,24 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_retake"
-        style="@style/Widget.AppCompat.Button.Borderless"
+        style="@style/Widget.DocumentScanner.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:drawableTop="@drawable/ic_docscanner_replay_24"
         android:text="@string/scan_action_retake"
-        android:textAppearance="?textAppearanceCaption"
+        app:icon="@drawable/ic_docscanner_replay_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/btn_done"
         app:layout_constraintStart_toStartOf="parent" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_add"
-        style="@style/Widget.AppCompat.Button.Borderless"
+        style="@style/Widget.DocumentScanner.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:drawableTop="@drawable/ic_docscanner_add_circle_outline_24"
         android:text="@string/scan_action_add"
-        android:textAppearance="?textAppearanceCaption"
+        app:icon="@drawable/ic_docscanner_add_circle_outline_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/btn_done" />

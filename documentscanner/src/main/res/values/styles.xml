@@ -25,4 +25,17 @@
         <item name="showAnimationBehavior">inward</item>
         <item name="hideAnimationBehavior">outward</item>
     </style>
+
+    <style name="Widget.DocumentScanner.Button" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">?colorSecondary</item>
+        <item name="android:textColor">?colorOnSecondary</item>
+    </style>
+
+    <style name="Widget.DocumentScanner.TextButton" parent="Widget.MaterialComponents.Button.TextButton.Icon">
+        <item name="android:textAppearance">?textAppearanceCaption</item>
+        <item name="android:textColor">?colorOnPrimary</item>
+        <item name="iconTint">?colorOnPrimary</item>
+        <item name="iconGravity">top</item>
+        <item name="rippleColor">?colorOnPrimary</item>
+    </style>
 </resources>

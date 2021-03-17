@@ -18,6 +18,7 @@
         <item name="editTextStyle">@style/Widget.DocumentScanner.TextInputEditText</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.DocumentScanner.MaterialAlertDialog</item>
         <item name="circularProgressIndicatorStyle">@style/Widget.DocumentScanner.CircularProgressIndicator</item>
+        <item name="materialButtonStyle">@style/Widget.DocumentScanner.Button</item>
 
         <item name="textAppearanceHeadline6">@style/TextAppearance.DocumentScanner.Headline6</item>
         <item name="textAppearanceSubtitle1">@style/TextAppearance.DocumentScanner.Subtitle1</item>
