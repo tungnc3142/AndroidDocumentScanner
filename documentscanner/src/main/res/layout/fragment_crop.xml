@@ -29,7 +29,7 @@
         android:layout_height="32dp"
         android:layout_margin="16dp"
         android:background="?selectableItemBackground"
-        android:src="@drawable/ic_baseline_arrow_back_24"
+        android:src="@drawable/ic_docscanner_arrow_back_24"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -53,6 +53,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/ic_baseline_check_24" />
+        app:srcCompat="@drawable/ic_docscanner_check_24" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

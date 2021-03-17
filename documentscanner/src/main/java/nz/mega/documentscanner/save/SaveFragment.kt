@@ -60,7 +60,7 @@ class SaveFragment : Fragment() {
             if (hasFocus) {
                 binding.editFileName.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
             } else {
-                binding.editFileName.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_rename, 0)
+                binding.editFileName.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_docscanner_rename, 0)
             }
         }
 
@@ -140,11 +140,11 @@ class SaveFragment : Fragment() {
         when (fileType) {
             Document.FileType.PDF -> {
                 chipResId = R.id.chip_file_type_pdf
-                imageResId = R.drawable.ic_pdf
+                imageResId = R.drawable.ic_docscanner_pdf
             }
             Document.FileType.JPG -> {
                 chipResId = R.id.chip_file_type_jpg
-                imageResId = R.drawable.ic_jpeg
+                imageResId = R.drawable.ic_docscanner_jpeg
             }
         }
 

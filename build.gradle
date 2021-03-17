@@ -6,8 +6,9 @@ buildscript {
         minSdkVersion = 21
         group = "com.github.meganz"
 
-        kotlinVersion = "1.4.21"
-        navigationVersion = "2.3.3"
+        kotlinVersion = "1.4.31"
+        navigationVersion = "2.3.4"
+        lifecycleVersion = "2.3.0"
     }
 
     repositories {
