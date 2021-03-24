@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
 import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
@@ -13,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.chip.Chip
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import nz.mega.documentscanner.DocumentScannerViewModel
 import nz.mega.documentscanner.R
@@ -21,7 +23,6 @@ import nz.mega.documentscanner.databinding.FragmentSaveBinding
 import nz.mega.documentscanner.databinding.ItemDestinationBinding
 import nz.mega.documentscanner.utils.FileUtils.FILE_NAME_PATTERN
 import nz.mega.documentscanner.utils.ViewUtils.selectAllCharacters
-import nz.mega.documentscanner.utils.ViewUtils.setChildrenEnabled
 
 class SaveFragment : Fragment() {
 
@@ -29,9 +30,21 @@ class SaveFragment : Fragment() {
         private const val TAG = "SaveFragment"
     }
 
-    private val viewModel: DocumentScannerViewModel by activityViewModels()
-
     private lateinit var binding: FragmentSaveBinding
+
+    private val viewModel: DocumentScannerViewModel by activityViewModels()
+    private val progressDialog: AlertDialog by lazy {
+        MaterialAlertDialogBuilder(requireContext())
+            .setView(R.layout.dialog_progress)
+            .setMessage(
+                getString(
+                    R.string.scan_dialog_progress,
+                    binding.editFileName.suffix!!.split(".")[1]
+                )
+            )
+            .setCancelable(false)
+            .show()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -98,7 +111,6 @@ class SaveFragment : Fragment() {
         binding.groupFileType.isVisible = viewModel.getPagesCount() == 1
         binding.btnBack.setOnClickListener { findNavController().popBackStack() }
         binding.btnSave.setOnClickListener { createDocument() }
-        binding.progress.setVisibilityAfterHide(View.GONE)
     }
 
     private fun setupObservers() {
@@ -185,25 +197,11 @@ class SaveFragment : Fragment() {
                 showSnackbar(R.string.scan_snackbar_invalid_characters)
             }
             else -> {
-                showProgress(true)
+                progressDialog.show()
                 viewModel.generateDocument(requireContext()).observe(viewLifecycleOwner) {
-                    showProgress(false)
+                    progressDialog.dismiss()
                 }
             }
-        }
-    }
-
-    private fun showProgress(show: Boolean) {
-        binding.btnSave.isEnabled = !show
-        binding.editFileName.isEnabled = !show
-        binding.chipGroupFileType.setChildrenEnabled(!show)
-        binding.chipGroupDestinations.setChildrenEnabled(!show)
-        binding.chipGroupQuality.setChildrenEnabled(!show)
-
-        if (show) {
-            binding.progress.show()
-        } else {
-            binding.progress.hide()
         }
     }
 
