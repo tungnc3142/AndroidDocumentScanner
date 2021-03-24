@@ -48,9 +48,9 @@ object ViewUtils {
         imm.hideSoftInputFromWindow(windowToken, 0)
     }
 
-    fun EditText.selectLastCharacter() {
+    fun EditText.selectAllCharacters() {
         requestFocus()
-        setSelection(text?.length ?: 0)
+        selectAll()
         showSoftKeyboard()
     }
 

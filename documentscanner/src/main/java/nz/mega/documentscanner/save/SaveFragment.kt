@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import androidx.annotation.StringRes
 import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
@@ -12,12 +13,14 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.chip.Chip
+import com.google.android.material.snackbar.Snackbar
 import nz.mega.documentscanner.DocumentScannerViewModel
 import nz.mega.documentscanner.R
 import nz.mega.documentscanner.data.Document
 import nz.mega.documentscanner.databinding.FragmentSaveBinding
 import nz.mega.documentscanner.databinding.ItemDestinationBinding
-import nz.mega.documentscanner.utils.ViewUtils.selectLastCharacter
+import nz.mega.documentscanner.utils.FileUtils.FILE_NAME_PATTERN
+import nz.mega.documentscanner.utils.ViewUtils.selectAllCharacters
 import nz.mega.documentscanner.utils.ViewUtils.setChildrenEnabled
 
 class SaveFragment : Fragment() {
@@ -61,7 +64,7 @@ class SaveFragment : Fragment() {
             binding.imgRename.isVisible = !hasFocus
         }
 
-        binding.imgRename.setOnClickListener { binding.editFileName.selectLastCharacter() }
+        binding.imgRename.setOnClickListener { binding.editFileName.selectAllCharacters() }
 
         binding.chipGroupFileType.setOnCheckedChangeListener { _, checkedId ->
             val fileType = when (checkedId) {
@@ -120,15 +123,21 @@ class SaveFragment : Fragment() {
         }
     }
 
-    private fun showDocumentTitle(title: String) {
-        if (title != binding.editFileName.text.toString()) {
-            binding.editFileName.setText(title)
-        }
-        binding.btnSave.isEnabled = !title.isBlank()
-        binding.inputFileName.error = if (title.isBlank()) {
-            getString(R.string.scan_invalid_input)
-        } else {
-            null
+    private fun showDocumentTitle(title: String?) {
+        when {
+            title.isNullOrBlank() -> {
+                binding.inputFileName.error = getString(R.string.scan_incorrect_name)
+            }
+            FILE_NAME_PATTERN.toRegex().containsMatchIn(title) -> {
+                binding.inputFileName.error = getString(R.string.scan_invalid_characters)
+            }
+            title != binding.editFileName.text.toString() -> {
+                binding.editFileName.setText(title)
+                binding.inputFileName.error = null
+            }
+            else -> {
+                binding.inputFileName.error = null
+            }
         }
     }
 
@@ -168,9 +177,19 @@ class SaveFragment : Fragment() {
     }
 
     private fun createDocument() {
-        showProgress(true)
-        viewModel.generateDocument(requireContext()).observe(viewLifecycleOwner) {
-            showProgress(false)
+        when (binding.inputFileName.error) {
+            getString(R.string.scan_incorrect_name) -> {
+                showSnackbar(R.string.scan_snackbar_incorrect_name)
+            }
+            getString(R.string.scan_invalid_characters) -> {
+                showSnackbar(R.string.scan_snackbar_invalid_characters)
+            }
+            else -> {
+                showProgress(true)
+                viewModel.generateDocument(requireContext()).observe(viewLifecycleOwner) {
+                    showProgress(false)
+                }
+            }
         }
     }
 
@@ -186,5 +205,9 @@ class SaveFragment : Fragment() {
         } else {
             binding.progress.hide()
         }
+    }
+
+    private fun showSnackbar(@StringRes errorMessage: Int) {
+        Snackbar.make(binding.root, errorMessage, Snackbar.LENGTH_LONG).show()
     }
 }

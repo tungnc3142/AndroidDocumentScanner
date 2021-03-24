@@ -49,7 +49,7 @@ class DocumentScannerViewModel : ViewModel() {
     fun getResultDocument(): LiveData<Uri?> =
         resultDocument
 
-    fun getDocumentTitle(): LiveData<String> =
+    fun getDocumentTitle(): LiveData<String?> =
         document.map { it.title }
 
     fun getDocumentQuality(): LiveData<Quality> =
@@ -86,7 +86,7 @@ class DocumentScannerViewModel : ViewModel() {
     }
 
     fun setDocumentTitle(title: String?) {
-        if (title == null || document.value?.title == title) return
+        if (document.value?.title == title) return
 
         document.value?.title = title
         document.notifyObserver()
