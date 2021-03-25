@@ -38,4 +38,8 @@
         <item name="iconGravity">top</item>
         <item name="rippleColor">?colorOnPrimary</item>
     </style>
+
+    <style name="Widget.DocumentScanner.SnackBar" parent="Widget.MaterialComponents.Snackbar">
+        <item name="backgroundTint">?colorOnSurface</item>
+    </style>
 </resources>
