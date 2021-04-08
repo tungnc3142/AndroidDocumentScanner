@@ -84,7 +84,7 @@ class ScanFragment : Fragment() {
         viewModel.getCurrentPagePosition().observe(viewLifecycleOwner, ::showPageCount)
     }
 
-    private fun showDocumentTitle(title: String) {
+    private fun showDocumentTitle(title: String?) {
         binding.txtScanTitle.text = title
     }
 

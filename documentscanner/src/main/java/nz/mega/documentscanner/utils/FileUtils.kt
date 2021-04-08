@@ -11,6 +11,7 @@ import java.io.FileOutputStream
 @Suppress("BlockingMethodInNonBlockingContext")
 object FileUtils {
 
+    const val FILE_NAME_PATTERN = "[\"*/:<>?|]"
     const val FILE_NAME_FORMAT = "Scanned_%1tY%<tm%<td%<tH%<tM%<tS"
 
     private const val ROOT_FILE_DIR = "scans"

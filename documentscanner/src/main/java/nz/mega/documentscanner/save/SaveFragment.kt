@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
 import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
@@ -12,12 +14,15 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.chip.Chip
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import nz.mega.documentscanner.DocumentScannerViewModel
 import nz.mega.documentscanner.R
 import nz.mega.documentscanner.data.Document
 import nz.mega.documentscanner.databinding.FragmentSaveBinding
 import nz.mega.documentscanner.databinding.ItemDestinationBinding
-import nz.mega.documentscanner.utils.ViewUtils.setChildrenEnabled
+import nz.mega.documentscanner.utils.FileUtils.FILE_NAME_PATTERN
+import nz.mega.documentscanner.utils.ViewUtils.selectAllCharacters
 
 class SaveFragment : Fragment() {
 
@@ -25,9 +30,21 @@ class SaveFragment : Fragment() {
         private const val TAG = "SaveFragment"
     }
 
-    private val viewModel: DocumentScannerViewModel by activityViewModels()
-
     private lateinit var binding: FragmentSaveBinding
+
+    private val viewModel: DocumentScannerViewModel by activityViewModels()
+    private val progressDialog: AlertDialog by lazy {
+        MaterialAlertDialogBuilder(requireContext())
+            .setView(R.layout.dialog_progress)
+            .setMessage(
+                getString(
+                    R.string.scan_dialog_progress,
+                    binding.editFileName.suffix!!.split(".")[1]
+                )
+            )
+            .setCancelable(false)
+            .show()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -57,12 +74,10 @@ class SaveFragment : Fragment() {
         }
 
         binding.editFileName.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                binding.editFileName.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
-            } else {
-                binding.editFileName.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_rename, 0)
-            }
+            binding.imgRename.isVisible = !hasFocus
         }
+
+        binding.imgRename.setOnClickListener { binding.editFileName.selectAllCharacters() }
 
         binding.chipGroupFileType.setOnCheckedChangeListener { _, checkedId ->
             val fileType = when (checkedId) {
@@ -96,7 +111,6 @@ class SaveFragment : Fragment() {
         binding.groupFileType.isVisible = viewModel.getPagesCount() == 1
         binding.btnBack.setOnClickListener { findNavController().popBackStack() }
         binding.btnSave.setOnClickListener { createDocument() }
-        binding.progress.setVisibilityAfterHide(View.GONE)
     }
 
     private fun setupObservers() {
@@ -121,15 +135,21 @@ class SaveFragment : Fragment() {
         }
     }
 
-    private fun showDocumentTitle(title: String) {
-        if (title != binding.editFileName.text.toString()) {
-            binding.editFileName.setText(title)
-        }
-        binding.btnSave.isEnabled = !title.isBlank()
-        binding.inputFileName.error = if (title.isBlank()) {
-            getString(R.string.scan_invalid_input)
-        } else {
-            null
+    private fun showDocumentTitle(title: String?) {
+        when {
+            title.isNullOrBlank() -> {
+                binding.inputFileName.error = getString(R.string.scan_incorrect_name)
+            }
+            FILE_NAME_PATTERN.toRegex().containsMatchIn(title) -> {
+                binding.inputFileName.error = getString(R.string.scan_invalid_characters)
+            }
+            title != binding.editFileName.text.toString() -> {
+                binding.editFileName.setText(title)
+                binding.inputFileName.error = null
+            }
+            else -> {
+                binding.inputFileName.error = null
+            }
         }
     }
 
@@ -140,11 +160,11 @@ class SaveFragment : Fragment() {
         when (fileType) {
             Document.FileType.PDF -> {
                 chipResId = R.id.chip_file_type_pdf
-                imageResId = R.drawable.ic_pdf
+                imageResId = R.drawable.ic_docscanner_pdf
             }
             Document.FileType.JPG -> {
                 chipResId = R.id.chip_file_type_jpg
-                imageResId = R.drawable.ic_jpeg
+                imageResId = R.drawable.ic_docscanner_jpeg
             }
         }
 
@@ -169,23 +189,23 @@ class SaveFragment : Fragment() {
     }
 
     private fun createDocument() {
-        showProgress(true)
-        viewModel.generateDocument(requireContext()).observe(viewLifecycleOwner) {
-            showProgress(false)
+        when (binding.inputFileName.error) {
+            getString(R.string.scan_incorrect_name) -> {
+                showSnackbar(R.string.scan_snackbar_incorrect_name)
+            }
+            getString(R.string.scan_invalid_characters) -> {
+                showSnackbar(R.string.scan_snackbar_invalid_characters)
+            }
+            else -> {
+                progressDialog.show()
+                viewModel.generateDocument(requireContext()).observe(viewLifecycleOwner) {
+                    progressDialog.dismiss()
+                }
+            }
         }
     }
 
-    private fun showProgress(show: Boolean) {
-        binding.btnSave.isEnabled = !show
-        binding.editFileName.isEnabled = !show
-        binding.chipGroupFileType.setChildrenEnabled(!show)
-        binding.chipGroupDestinations.setChildrenEnabled(!show)
-        binding.chipGroupQuality.setChildrenEnabled(!show)
-
-        if (show) {
-            binding.progress.show()
-        } else {
-            binding.progress.hide()
-        }
+    private fun showSnackbar(@StringRes errorMessage: Int) {
+        Snackbar.make(binding.root, errorMessage, Snackbar.LENGTH_LONG).show()
     }
 }
