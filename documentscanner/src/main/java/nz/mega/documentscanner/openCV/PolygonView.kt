@@ -40,10 +40,14 @@ class PolygonView
     private var magnifier: Magnifier? = null
 
     init {
-        midPointer13.setOnTouchListener(MidPointTouchListenerImpl(pointer1, pointer3))
-        midPointer12.setOnTouchListener(MidPointTouchListenerImpl(pointer1, pointer2))
-        midPointer34.setOnTouchListener(MidPointTouchListenerImpl(pointer3, pointer4))
-        midPointer24.setOnTouchListener(MidPointTouchListenerImpl(pointer2, pointer4))
+        pointer1.setOnTouchListener(EdgePointTouchListener())
+        pointer2.setOnTouchListener(EdgePointTouchListener())
+        pointer3.setOnTouchListener(EdgePointTouchListener())
+        pointer4.setOnTouchListener(EdgePointTouchListener())
+        midPointer13.setOnTouchListener(MidPointTouchListener(pointer1, pointer3))
+        midPointer12.setOnTouchListener(MidPointTouchListener(pointer1, pointer2))
+        midPointer34.setOnTouchListener(MidPointTouchListener(pointer3, pointer4))
+        midPointer24.setOnTouchListener(MidPointTouchListener(pointer2, pointer4))
         addView(pointer1)
         addView(pointer2)
         addView(midPointer13)
@@ -70,6 +74,11 @@ class PolygonView
                 .setOverlay(overlay)
                 .build()
         }
+    }
+
+    override fun onDetachedFromWindow() {
+        dismissMag()
+        super.onDetachedFromWindow()
     }
 
     fun getPoints(): Map<Int, PointF> {
@@ -204,51 +213,30 @@ class PolygonView
             setImageResource(R.drawable.ic_docscanner_oval)
             setX(x.toFloat())
             setY(y.toFloat())
-            setOnTouchListener(TouchListenerImpl())
         }
 
     fun isValidShape(pointFMap: Map<Int, PointF>?): Boolean =
         pointFMap != null && pointFMap.size == 4
 
-    private inner class MidPointTouchListenerImpl(
-        private val mainPointer1: ImageView,
-        private val mainPointer2: ImageView
-    ) : OnTouchListener {
+    private inner class EdgePointTouchListener : OnTouchListener {
         var downPT = PointF() // Record Mouse Position When Pressed Down
         var startPT = PointF() // Record Start Position of 'img'
-        override fun onTouch(v: View, event: MotionEvent): Boolean {
+
+        override fun onTouch(view: View, event: MotionEvent): Boolean {
             when (event.action) {
                 MotionEvent.ACTION_MOVE -> {
                     val mv = PointF(event.x - downPT.x, event.y - downPT.y)
-                    if (abs(mainPointer1.x - mainPointer2.x) > abs(mainPointer1.y - mainPointer2.y)) {
-                        if (mainPointer2.y + mv.y + v.height < height && mainPointer2.y + mv.y > 0) {
-                            v.x = (startPT.y + mv.y)
-                            startPT = PointF(v.x, v.y)
-                            mainPointer2.y = (mainPointer2.y + mv.y)
-                        }
-                        if (mainPointer1.y + mv.y + v.height < height && mainPointer1.y + mv.y > 0) {
-                            v.x = (startPT.y + mv.y)
-                            startPT = PointF(v.x, v.y)
-                            mainPointer1.y = (mainPointer1.y + mv.y)
-                        }
-                    } else {
-                        if (mainPointer2.x + mv.x + v.width < width && mainPointer2.x + mv.x > 0) {
-                            v.x = (startPT.x + mv.x)
-                            startPT = PointF(v.x, v.y)
-                            mainPointer2.x = (mainPointer2.x + mv.x)
-                        }
-                        if (mainPointer1.x + mv.x + v.width < width && mainPointer1.x + mv.x > 0) {
-                            v.x = (startPT.x + mv.x)
-                            startPT = PointF(v.x, v.y)
-                            mainPointer1.x = (mainPointer1.x + mv.x)
-                        }
+                    if (startPT.x + mv.x + view.width < width && startPT.y + mv.y + view.height < height && startPT.x + mv.x > 0 && startPT.y + mv.y > 0) {
+                        view.x = (startPT.x + mv.x)
+                        view.y = (startPT.y + mv.y)
+                        startPT = PointF(view.x, view.y)
+                        drawMag(startPT.x + 50, startPT.y + 50)
                     }
-                    drawMag(startPT.x + 50, startPT.y + 50)
                 }
                 MotionEvent.ACTION_DOWN -> {
                     downPT.x = event.x
                     downPT.y = event.y
-                    startPT = PointF(v.x, v.y)
+                    startPT = PointF(view.x, view.y)
                 }
                 MotionEvent.ACTION_UP -> {
                     paint.color = if (isValidShape(getPoints())) {
@@ -258,33 +246,54 @@ class PolygonView
                     }
                     dismissMag()
                 }
-                else -> {
-                }
             }
             invalidate()
             return true
         }
     }
 
-    private inner class TouchListenerImpl : OnTouchListener {
+    private inner class MidPointTouchListener(
+        private val mainPointer1: ImageView,
+        private val mainPointer2: ImageView
+    ) : OnTouchListener {
         var downPT = PointF() // Record Mouse Position When Pressed Down
         var startPT = PointF() // Record Start Position of 'img'
-
-        override fun onTouch(v: View, event: MotionEvent): Boolean {
+        override fun onTouch(view: View, event: MotionEvent): Boolean {
             when (event.action) {
                 MotionEvent.ACTION_MOVE -> {
                     val mv = PointF(event.x - downPT.x, event.y - downPT.y)
-                    if (startPT.x + mv.x + v.width < width && startPT.y + mv.y + v.height < height && startPT.x + mv.x > 0 && startPT.y + mv.y > 0) {
-                        v.x = (startPT.x + mv.x)
-                        v.y = (startPT.y + mv.y)
-                        startPT = PointF(v.x, v.y)
-                        drawMag(startPT.x + 50, startPT.y + 50)
+                    if (abs(mainPointer1.x - mainPointer2.x) > abs(mainPointer1.y - mainPointer2.y)) {
+                        if (mainPointer2.y + mv.y + view.height < height && mainPointer2.y + mv.y > 0) {
+                            view.x = (startPT.y + mv.y)
+                            startPT = PointF(view.x, view.y)
+                            mainPointer2.y = (mainPointer2.y + mv.y)
+                        }
+                        if (mainPointer1.y + mv.y + view.height < height && mainPointer1.y + mv.y > 0) {
+                            view.x = (startPT.y + mv.y)
+                            startPT = PointF(view.x, view.y)
+                            mainPointer1.y = (mainPointer1.y + mv.y)
+                        }
+                    } else {
+                        if (mainPointer2.x + mv.x + view.width < width && mainPointer2.x + mv.x > 0) {
+                            view.x = (startPT.x + mv.x)
+                            startPT = PointF(view.x, view.y)
+                            mainPointer2.x = (mainPointer2.x + mv.x)
+                        }
+                        if (mainPointer1.x + mv.x + view.width < width && mainPointer1.x + mv.x > 0) {
+                            view.x = (startPT.x + mv.x)
+                            startPT = PointF(view.x, view.y)
+                            mainPointer1.x = (mainPointer1.x + mv.x)
+                        }
                     }
+
+                    val magX = mainPointer2.x - (mainPointer2.x - mainPointer1.x) / 2
+                    val magY = mainPointer2.y - (mainPointer2.y - mainPointer1.y) / 2
+                    drawMag(magX, magY)
                 }
                 MotionEvent.ACTION_DOWN -> {
                     downPT.x = event.x
                     downPT.y = event.y
-                    startPT = PointF(v.x, v.y)
+                    startPT = PointF(view.x, view.y)
                 }
                 MotionEvent.ACTION_UP -> {
                     paint.color = if (isValidShape(getPoints())) {
