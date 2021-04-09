@@ -15,6 +15,7 @@ import android.widget.ImageView
 import android.widget.Magnifier
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.setPadding
 import nz.mega.documentscanner.R
 import java.util.ArrayList
 import java.util.HashMap
@@ -28,15 +29,19 @@ class PolygonView
     defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
+    companion object {
+        private const val POINT_PADDING = 24
+    }
+
     private val paint: Paint
-    private val pointer1 = getImageView(0, 0)
-    private val pointer2 = getImageView(width, 0)
-    private val pointer3 = getImageView(0, height)
-    private val pointer4 = getImageView(width, height)
-    private val midPointer13 = getImageView(0, height / 2)
-    private val midPointer12 = getImageView(0, width / 2)
-    private val midPointer34 = getImageView(0, height / 2)
-    private val midPointer24 = getImageView(0, height / 2)
+    private val pointer1 = getPointView(0, 0)
+    private val pointer2 = getPointView(width, 0)
+    private val pointer3 = getPointView(0, height)
+    private val pointer4 = getPointView(width, height)
+    private val midPointer13 = getPointView(0, height / 2)
+    private val midPointer12 = getPointView(0, width / 2)
+    private val midPointer34 = getPointView(0, height / 2)
+    private val midPointer24 = getPointView(0, height / 2)
     private var magnifier: Magnifier? = null
 
     init {
@@ -203,13 +208,13 @@ class PolygonView
         magnifier?.dismiss()
     }
 
-    private fun getImageView(x: Int, y: Int): ImageView =
+    private fun getPointView(x: Int, y: Int): View =
         ImageView(context).apply {
             layoutParams = LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
-            setPadding(10, 10, 10, 10)
+            setPadding(POINT_PADDING)
             setImageResource(R.drawable.ic_docscanner_oval)
             setX(x.toFloat())
             setY(y.toFloat())
@@ -253,8 +258,8 @@ class PolygonView
     }
 
     private inner class MidPointTouchListener(
-        private val mainPointer1: ImageView,
-        private val mainPointer2: ImageView
+        private val mainPointer1: View,
+        private val mainPointer2: View
     ) : OnTouchListener {
         var downPT = PointF() // Record Mouse Position When Pressed Down
         var startPT = PointF() // Record Start Position of 'img'
