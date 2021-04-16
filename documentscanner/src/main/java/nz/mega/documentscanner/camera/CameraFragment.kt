@@ -95,9 +95,9 @@ class CameraFragment : Fragment() {
 
     private fun setFlashMode(flashMode: Int) {
         val btnIcon = when (flashMode) {
-            FLASH_MODE_ON -> R.drawable.ic_baseline_flash_on_24
-            FLASH_MODE_AUTO -> R.drawable.ic_baseline_flash_auto_24
-            else -> R.drawable.ic_baseline_flash_off_24
+            FLASH_MODE_ON -> R.drawable.ic_docscanner_flash_on_24
+            FLASH_MODE_AUTO -> R.drawable.ic_docscanner_flash_auto_24
+            else -> R.drawable.ic_docscanner_flash_off_24
         }
 
         binding.btnFlash.setImageResource(btnIcon)

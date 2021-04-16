@@ -49,7 +49,7 @@ class DocumentScannerViewModel : ViewModel() {
     fun getResultDocument(): LiveData<Uri?> =
         resultDocument
 
-    fun getDocumentTitle(): LiveData<String> =
+    fun getDocumentTitle(): LiveData<String?> =
         document.map { it.title }
 
     fun getDocumentQuality(): LiveData<Quality> =
@@ -86,7 +86,7 @@ class DocumentScannerViewModel : ViewModel() {
     }
 
     fun setDocumentTitle(title: String?) {
-        if (title == null || document.value?.title == title) return
+        if (document.value?.title == title) return
 
         document.value?.title = title
         document.notifyObserver()
@@ -114,8 +114,8 @@ class DocumentScannerViewModel : ViewModel() {
     }
 
     fun setSaveDestinations(destinations: Array<String>) {
-        document.value?.saveDestination = destinations.firstOrNull()
         saveDestinations.value = destinations
+        document.value?.saveDestination = destinations.firstOrNull()
     }
 
     fun setFlashMode(flashMode: Int) {
@@ -261,7 +261,7 @@ class DocumentScannerViewModel : ViewModel() {
             document.value?.deletePage(position)
 
             if (document.value?.pages?.size == 0) {
-                document.value = Document()
+                resetDocument()
             } else {
                 document.notifyObserver()
             }
@@ -274,7 +274,7 @@ class DocumentScannerViewModel : ViewModel() {
     fun resetDocument() {
         viewModelScope.launch {
             document.value?.deletePages()
-            document.value = Document()
+            document.value = Document(saveDestination = saveDestinations.value?.firstOrNull())
         }
     }
 

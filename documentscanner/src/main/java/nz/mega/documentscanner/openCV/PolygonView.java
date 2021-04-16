@@ -219,7 +219,7 @@ public class PolygonView extends FrameLayout {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             float radius = getResources().getDimension(R.dimen.polygon_magnifier_radius);
             int size = getResources().getDimensionPixelSize(R.dimen.polygon_magnifier_size);
-            Drawable overlay = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_highlight, null);
+            Drawable overlay = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_docscanner_highlight, null);
 
             magnifier = new Magnifier.Builder(this)
                     .setSize(size, size)
@@ -234,7 +234,7 @@ public class PolygonView extends FrameLayout {
         LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         imageView.setLayoutParams(layoutParams);
         imageView.setPadding(10, 10, 10, 10);
-        imageView.setImageResource(R.drawable.ic_oval);
+        imageView.setImageResource(R.drawable.ic_docscanner_oval);
         imageView.setX(x);
         imageView.setY(y);
         imageView.setOnTouchListener(new TouchListenerImpl());
