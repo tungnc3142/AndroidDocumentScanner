@@ -7,6 +7,7 @@ import android.graphics.Paint
 import android.graphics.PointF
 import android.os.Build
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -30,6 +31,7 @@ class PolygonView
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
     companion object {
+        private const val TAG = "PolygonView"
         private const val POINT_PADDING = 24
     }
 
@@ -43,6 +45,7 @@ class PolygonView
     private val midPointer34 = getPointView(0, height / 2)
     private val midPointer24 = getPointView(0, height / 2)
     private var magnifier: Magnifier? = null
+    private var validShapeListener: ((Boolean) -> Unit)? = null
 
     init {
         pointer1.setOnTouchListener(EdgePointTouchListener())
@@ -67,6 +70,8 @@ class PolygonView
             strokeWidth = resources.getDimension(R.dimen.polygon_line_width)
             isAntiAlias = true
         }
+
+        initMagnifier()
     }
 
     override fun onDetachedFromWindow() {
@@ -189,7 +194,6 @@ class PolygonView
     }
 
     private fun drawMag(x: Float, y: Float) {
-        initMagnifierIfNeeded()
         magnifier?.show(x, y)
     }
 
@@ -209,22 +213,30 @@ class PolygonView
             setY(y.toFloat())
         }
 
-    private fun initMagnifierIfNeeded() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && magnifier == null) {
-            val radius = resources.getDimension(R.dimen.polygon_magnifier_radius)
-            val size = resources.getDimensionPixelSize(R.dimen.polygon_magnifier_size)
-            val overlay = ResourcesCompat.getDrawable(resources, R.drawable.ic_docscanner_highlight, null)
+    private fun initMagnifier() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                val radius = resources.getDimension(R.dimen.polygon_magnifier_radius)
+                val size = resources.getDimensionPixelSize(R.dimen.polygon_magnifier_size)
+                val overlay = ResourcesCompat.getDrawable(resources, R.drawable.ic_docscanner_highlight, null)
 
-            magnifier = Magnifier.Builder(this)
-                .setSize(size, size)
-                .setCornerRadius(radius)
-                .setOverlay(overlay)
-                .build()
+                magnifier = Magnifier.Builder(this)
+                    .setSize(size, size)
+                    .setCornerRadius(radius)
+                    .setOverlay(overlay)
+                    .build()
+            }
+        } catch (e: NoClassDefFoundError) {
+            Log.w(TAG, "Device doesn't support Magnifier: ${e.stackTraceToString()}")
         }
     }
 
-    fun isValidShape(pointFMap: Map<Int, PointF>?): Boolean =
+    private fun isValidShape(pointFMap: Map<Int, PointF>?): Boolean =
         pointFMap != null && pointFMap.size == 4
+
+    fun setValidShapeListener(listener: ((Boolean) -> Unit)?) {
+        validShapeListener = listener
+    }
 
     private inner class EdgePointTouchListener : OnTouchListener {
         var downPT = PointF() // Record Mouse Position When Pressed Down
@@ -247,11 +259,15 @@ class PolygonView
                     startPT = PointF(view.x, view.y)
                 }
                 MotionEvent.ACTION_UP -> {
-                    paint.color = if (isValidShape(getPoints())) {
+                    val isValidShape = isValidShape(getPoints())
+
+                    validShapeListener?.invoke(isValidShape)
+                    paint.color = if (isValidShape) {
                         ContextCompat.getColor(context, R.color.secondaryColor)
                     } else {
                         ContextCompat.getColor(context, R.color.errorColor)
                     }
+
                     dismissMag()
                 }
             }
@@ -304,11 +320,15 @@ class PolygonView
                     startPT = PointF(view.x, view.y)
                 }
                 MotionEvent.ACTION_UP -> {
-                    paint.color = if (isValidShape(getPoints())) {
+                    val isValidShape = isValidShape(getPoints())
+
+                    validShapeListener?.invoke(isValidShape)
+                    paint.color = if (isValidShape) {
                         ContextCompat.getColor(context, R.color.secondaryColor)
                     } else {
                         ContextCompat.getColor(context, R.color.errorColor)
                     }
+
                     dismissMag()
                 }
             }
