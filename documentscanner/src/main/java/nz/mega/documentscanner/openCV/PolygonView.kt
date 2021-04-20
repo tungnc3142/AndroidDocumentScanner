@@ -67,18 +67,6 @@ class PolygonView
             strokeWidth = resources.getDimension(R.dimen.polygon_line_width)
             isAntiAlias = true
         }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            val radius = resources.getDimension(R.dimen.polygon_magnifier_radius)
-            val size = resources.getDimensionPixelSize(R.dimen.polygon_magnifier_size)
-            val overlay = ResourcesCompat.getDrawable(resources, R.drawable.ic_docscanner_highlight, null)
-
-            magnifier = Magnifier.Builder(this)
-                .setSize(size, size)
-                .setCornerRadius(radius)
-                .setOverlay(overlay)
-                .build()
-        }
     }
 
     override fun onDetachedFromWindow() {
@@ -201,6 +189,7 @@ class PolygonView
     }
 
     private fun drawMag(x: Float, y: Float) {
+        initMagnifierIfNeeded()
         magnifier?.show(x, y)
     }
 
@@ -219,6 +208,20 @@ class PolygonView
             setX(x.toFloat())
             setY(y.toFloat())
         }
+
+    private fun initMagnifierIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && magnifier == null) {
+            val radius = resources.getDimension(R.dimen.polygon_magnifier_radius)
+            val size = resources.getDimensionPixelSize(R.dimen.polygon_magnifier_size)
+            val overlay = ResourcesCompat.getDrawable(resources, R.drawable.ic_docscanner_highlight, null)
+
+            magnifier = Magnifier.Builder(this)
+                .setSize(size, size)
+                .setCornerRadius(radius)
+                .setOverlay(overlay)
+                .build()
+        }
+    }
 
     fun isValidShape(pointFMap: Map<Int, PointF>?): Boolean =
         pointFMap != null && pointFMap.size == 4

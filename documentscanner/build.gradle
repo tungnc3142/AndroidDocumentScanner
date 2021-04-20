@@ -64,9 +64,9 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation "androidx.navigation:navigation-fragment-ktx:$navigationVersion"
     implementation "androidx.navigation:navigation-ui-ktx:$navigationVersion"
-    implementation 'androidx.camera:camera-camera2:1.0.0-rc03'
-    implementation 'androidx.camera:camera-lifecycle:1.0.0-rc03'
-    implementation 'androidx.camera:camera-view:1.0.0-alpha22'
+    implementation 'androidx.camera:camera-camera2:1.0.0-rc04'
+    implementation 'androidx.camera:camera-lifecycle:1.0.0-rc04'
+    implementation 'androidx.camera:camera-view:1.0.0-alpha23'
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
     kapt "androidx.lifecycle:lifecycle-common-java8:$lifecycleVersion"
