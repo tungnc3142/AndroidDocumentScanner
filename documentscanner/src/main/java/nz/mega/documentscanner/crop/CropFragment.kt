@@ -47,9 +47,10 @@ class CropFragment : Fragment() {
     }
 
     private fun setupView() {
-        binding.cropView.setPointColor(ContextCompat.getColor(requireContext(), R.color.secondaryColor))
         binding.btnBack.setOnClickListener { findNavController().popBackStack() }
         binding.btnDone.setOnClickListener { saveCrop() }
+        binding.cropView.setPointColor(ContextCompat.getColor(requireContext(), R.color.secondaryColor))
+        binding.cropView.setValidShapeListener { binding.btnDone.isEnabled = it }
     }
 
     private fun setupObservers() {
@@ -73,7 +74,7 @@ class CropFragment : Fragment() {
                 ratioX = binding.cropView.width / pageWidth
                 ratioY = binding.cropView.height / pageHeight
 
-                binding.cropView.points = page.cropMat?.let { mat ->
+                val points = page.cropMat?.let { mat ->
                     val relativePoints = mat.toArray().map { point ->
                         PointF(
                             (point.x * ratioX).toFloat(),
@@ -83,6 +84,7 @@ class CropFragment : Fragment() {
 
                     binding.cropView.getOrderedPoints(relativePoints)
                 }
+                binding.cropView.setPoints(points)
             }
         }
     }
@@ -90,7 +92,7 @@ class CropFragment : Fragment() {
     private fun saveCrop() {
         binding.btnDone.isEnabled = false
 
-        val relativePoints = binding.cropView.points.map { point ->
+        val relativePoints = binding.cropView.getPoints().map { point ->
             Point((point.value.x / ratioX).toDouble(), (point.value.y / ratioY).toDouble())
         }
 
