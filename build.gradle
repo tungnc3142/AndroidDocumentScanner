@@ -1,7 +1,7 @@
 buildscript {
     ext {
-        versionCode = 13
-        versionName = "2.0.6"
+        versionCode = 14
+        versionName = "2.0.7"
         compileSdkVersion = 29
         minSdkVersion = 21
         group = "com.github.meganz"
