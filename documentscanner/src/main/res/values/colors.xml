@@ -8,6 +8,6 @@
     <color name="colorOnSurface">#000000</color>
     <color name="colorPrimarySurface">#8A000000</color>
     <color name="backgroundColor">#000000</color>
-    <color name="dividerColor">#DE000000</color>
+    <color name="dividerColor">#1F000000</color>
     <color name="errorColor">#FF6464</color>
 </resources>

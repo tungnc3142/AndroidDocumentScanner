@@ -3,5 +3,6 @@
     <color name="colorSurface">#000000</color>
     <color name="colorOnSurface">#FFFFFF</color>
     <color name="colorPrimarySurface">#8AFFFFFF</color>
+    <color name="onSecondaryColor">#121212</color>
     <color name="dividerColor">#1FFFFFFF</color>
 </resources>
