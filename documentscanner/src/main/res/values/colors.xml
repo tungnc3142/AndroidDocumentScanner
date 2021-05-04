@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primaryColor">#000000</color>
-    <color name="onPrimaryColor">#FFFFFF</color>
-    <color name="secondaryColor">#00BFA5</color>
-    <color name="onSecondaryColor">#FFFFFF</color>
-    <color name="colorSurface">#FFFFFF</color>
-    <color name="colorOnSurface">#000000</color>
-    <color name="colorPrimarySurface">#8A000000</color>
-    <color name="backgroundColor">#000000</color>
-    <color name="dividerColor">#1F000000</color>
-    <color name="errorColor">#FF6464</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="white_alpha_054">#8AFFFFFF</color>
+    <color name="white_alpha_012">#1FFFFFFF</color>
+    <color name="white_alpha_015">#26FFFFFF</color>
+    <color name="dark_grey">#121212</color>
+    <color name="grey_050">#EEEEEE</color>
+    <color name="grey_600">#6C6C6C</color>
+    <color name="grey_alpha_012">#1F000000</color>
+    <color name="grey_alpha_038">#61000000</color>
+    <color name="grey_alpha_054">#8A000000</color>
+    <color name="teal_200">#6DD2BF</color>
+    <color name="red_900">#C70000</color>
+
+    <color name="colorSurface">@color/white</color>
+    <color name="colorOnSurface">@color/black</color>
+    <color name="colorPrimarySurface">@color/grey_alpha_054</color>
+    <color name="onSecondaryColor">@color/white</color>
+    <color name="dividerColor">@color/grey_alpha_012</color>
 </resources>

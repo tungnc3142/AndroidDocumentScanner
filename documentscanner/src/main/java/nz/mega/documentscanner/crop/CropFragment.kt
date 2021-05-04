@@ -49,7 +49,7 @@ class CropFragment : Fragment() {
     private fun setupView() {
         binding.btnBack.setOnClickListener { findNavController().popBackStack() }
         binding.btnDone.setOnClickListener { saveCrop() }
-        binding.cropView.setPointColor(ContextCompat.getColor(requireContext(), R.color.secondaryColor))
+        binding.cropView.setPointColor(ContextCompat.getColor(requireContext(), R.color.teal_200))
         binding.cropView.setValidShapeListener { binding.btnDone.isEnabled = it }
     }
 

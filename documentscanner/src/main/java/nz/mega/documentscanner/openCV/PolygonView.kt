@@ -46,6 +46,8 @@ class PolygonView
     private val midPointer24 = getPointView(0, height / 2)
     private var magnifier: Magnifier? = null
     private var validShapeListener: ((Boolean) -> Unit)? = null
+    private val accentColor: Int by lazy { ContextCompat.getColor(context, R.color.teal_200) }
+    private val errorColor: Int by lazy { ContextCompat.getColor(context, R.color.red_900) }
 
     init {
         pointer1.setOnTouchListener(EdgePointTouchListener())
@@ -66,7 +68,7 @@ class PolygonView
         addView(pointer4)
 
         paint = Paint().apply {
-            color = ContextCompat.getColor(context, R.color.secondaryColor)
+            color = accentColor
             strokeWidth = resources.getDimension(R.dimen.polygon_line_width)
             isAntiAlias = true
         }
@@ -263,9 +265,9 @@ class PolygonView
 
                     validShapeListener?.invoke(isValidShape)
                     paint.color = if (isValidShape) {
-                        ContextCompat.getColor(context, R.color.secondaryColor)
+                        accentColor
                     } else {
-                        ContextCompat.getColor(context, R.color.errorColor)
+                        errorColor
                     }
 
                     dismissMag()
@@ -324,9 +326,9 @@ class PolygonView
 
                     validShapeListener?.invoke(isValidShape)
                     paint.color = if (isValidShape) {
-                        ContextCompat.getColor(context, R.color.secondaryColor)
+                        accentColor
                     } else {
-                        ContextCompat.getColor(context, R.color.errorColor)
+                        errorColor
                     }
 
                     dismissMag()
