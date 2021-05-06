@@ -67,7 +67,9 @@
             android:lines="1"
             android:maxLines="1"
             android:paddingStart="0dp"
+            android:paddingLeft="0dp"
             android:paddingEnd="0dp"
+            android:paddingRight="0dp"
             android:textColorHint="?colorOnSurface"
             tools:text="Scanned_20200804.pdf" />
 

@@ -17,7 +17,7 @@ class OverlayView
 
     private val paint: Paint = Paint().apply {
         style = Paint.Style.STROKE
-        color = ContextCompat.getColor(context, R.color.secondaryColor)
+        color = ContextCompat.getColor(context, R.color.teal_200)
         strokeWidth = resources.getDimension(R.dimen.scan_overlay_stroke_width)
     }
 
