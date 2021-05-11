@@ -8,5 +8,5 @@
 
     <stroke
         android:width="@dimen/polygon_line_width"
-        android:color="@color/secondaryColor" />
+        android:color="?colorSecondary" />
 </shape>
