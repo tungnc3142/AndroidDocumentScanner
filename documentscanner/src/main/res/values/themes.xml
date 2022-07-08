@@ -17,7 +17,7 @@
         <item name="chipStyle">@style/Widget.DocumentScanner.Chip</item>
         <item name="textInputStyle">@style/Widget.DocumentScanner.TextInputLayout</item>
         <item name="editTextStyle">@style/Widget.DocumentScanner.TextInputEditText</item>
-        <item name="materialAlertDialogTheme">@style/ThemeOverlay.DocumentScanner.MaterialAlertDialog</item>
+        <item name="materialAlertDialogTheme">@style/Widget.DocumentScanner.MaterialAlertDialog</item>
         <item name="circularProgressIndicatorStyle">@style/Widget.DocumentScanner.CircularProgressIndicator</item>
         <item name="materialButtonStyle">@style/Widget.DocumentScanner.Button</item>
         <item name="snackbarStyle">@style/Widget.DocumentScanner.SnackBar</item>
