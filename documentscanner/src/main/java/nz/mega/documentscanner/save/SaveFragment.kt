@@ -28,6 +28,7 @@ class SaveFragment : Fragment() {
 
     companion object {
         private const val TAG = "SaveFragment"
+        private const val invalidCharacters = "\" * / : < > ? \\ |"
     }
 
     private lateinit var binding: FragmentSaveBinding
@@ -206,6 +207,12 @@ class SaveFragment : Fragment() {
     }
 
     private fun showSnackbar(@StringRes errorMessage: Int) {
-        Snackbar.make(binding.root, errorMessage, Snackbar.LENGTH_LONG).show()
+        if (errorMessage == R.string.scan_snackbar_invalid_characters) {
+            Snackbar.make(binding.root, errorMessage, Snackbar.LENGTH_LONG)
+                .setText(getString(R.string.scan_snackbar_invalid_characters, invalidCharacters))
+                .show()
+        } else {
+            Snackbar.make(binding.root, errorMessage, Snackbar.LENGTH_LONG).show()
+        }
     }
 }
