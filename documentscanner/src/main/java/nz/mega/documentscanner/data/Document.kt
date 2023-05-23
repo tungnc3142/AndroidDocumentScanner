@@ -5,7 +5,7 @@ import java.util.Calendar
 
 data class Document constructor(
     var title: String? = String.format(FileUtils.FILE_NAME_FORMAT, Calendar.getInstance()),
-    var fileType: FileType = FileType.PDF,
+    var fileType: FileType = FileType.JPG,
     var quality: Quality = Quality.MEDIUM,
     var saveDestination: String? = null,
     var pages: MutableList<Page> = mutableListOf()

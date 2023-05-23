@@ -82,7 +82,6 @@ class SaveFragment : Fragment() {
 
         binding.chipGroupFileType.setOnCheckedChangeListener { _, checkedId ->
             val fileType = when (checkedId) {
-                R.id.chip_file_type_pdf -> Document.FileType.PDF
                 R.id.chip_file_type_jpg -> Document.FileType.JPG
                 else -> error("Unrecognized document file type")
             }
@@ -155,19 +154,8 @@ class SaveFragment : Fragment() {
     }
 
     private fun showDocumentFileType(fileType: Document.FileType) {
-        val chipResId: Int
-        val imageResId: Int
-
-        when (fileType) {
-            Document.FileType.PDF -> {
-                chipResId = R.id.chip_file_type_pdf
-                imageResId = R.drawable.ic_docscanner_pdf
-            }
-            Document.FileType.JPG -> {
-                chipResId = R.id.chip_file_type_jpg
-                imageResId = R.drawable.ic_docscanner_jpeg
-            }
-        }
+        val chipResId = R.id.chip_file_type_jpg
+        val imageResId = R.drawable.ic_docscanner_jpeg
 
         binding.editFileName.suffix = " ${fileType.suffix}"
         binding.imgFileType.setImageResource(imageResId)

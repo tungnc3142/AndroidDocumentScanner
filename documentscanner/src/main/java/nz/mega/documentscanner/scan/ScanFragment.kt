@@ -61,9 +61,9 @@ class ScanFragment : Fragment() {
         binding.viewPager.adapter = adapter
         binding.viewPager.setPageTransformer(pageTransformer)
         binding.btnBack.setOnClickListener { showDiscardDialog() }
-        binding.btnAdd.setOnClickListener {
-            findNavController().navigate(ScanFragmentDirections.actionScanFragmentToCameraFragment())
-        }
+//        binding.btnAdd.setOnClickListener {
+//            findNavController().navigate(ScanFragmentDirections.actionScanFragmentToCameraFragment())
+//        }
         binding.btnRotate.setOnClickListener { viewModel.rotatePage(requireContext()) }
         binding.btnDelete.setOnClickListener {
             DialogFactory.createDeleteCurrentScanDialog(requireContext()) {

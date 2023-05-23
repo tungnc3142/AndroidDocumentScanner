@@ -313,8 +313,8 @@ class DocumentScannerViewModel : ViewModel() {
     }
 
     private fun updateDocumentFileType() {
-        if (document.value?.pages?.size ?: 0 > 1) {
-            document.value?.fileType = FileType.PDF
-        }
+//        if (document.value?.pages?.size ?: 0 > 1) {
+//            document.value?.fileType = FileType.PDF
+//        }
     }
 }
